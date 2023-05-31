@@ -1,0 +1,29 @@
+-- +goose Up
+CREATE TABLE IF NOT EXISTS histories (
+    id BIGSERIAL PRIMARY KEY,
+    teacher_id BIGINT NOT NULL,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS surveys (
+    id BIGSERIAL PRIMARY KEY,
+    histories_id BIGINT NOT NULL,
+    FOREIGN KEY (histories_id) REFERENCES histories(id),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS teams (
+    id SERIAL PRIMARY KEY,
+    survey_id BIGINT NOT NULL,
+    FOREIGN KEY (survey_id) REFERENCES surveys(id),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- +goose Down
+DROP TABLE IF EXISTS histories;
+DROP TABLE IF EXISTS surveys;
+DROP TABLE IF EXISTS teams;

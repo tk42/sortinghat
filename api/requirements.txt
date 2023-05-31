@@ -1,0 +1,7 @@
+numpy 
+pandas
+ortools
+uvicorn[standard]
+asyncpg
+fastapi
+gql[all]

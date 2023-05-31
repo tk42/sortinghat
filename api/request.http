@@ -1,0 +1,1030 @@
+##### 2023/03
+POST http://localhost:8000/solve HTTP/1.1
+content-type: application/json
+
+{
+    "class_id": 1,
+    "max_team_num": 3,
+    "timelimit": 120,
+    "flavors": [
+        {
+            "mi_a": 1,
+            "mi_b": 1,
+            "mi_c": 3,
+            "mi_d": 1,
+            "mi_e": 3,
+            "mi_f": 5,
+            "mi_g": 1,
+            "mi_h": 2,
+            "leader": 1,
+            "eyesight": 3,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                7, 12
+            ]
+        },
+        {
+            "mi_a": 9,
+            "mi_b": 9,
+            "mi_c": 8,
+            "mi_d": 6,
+            "mi_e": 8,
+            "mi_f": 8,
+            "mi_g": 8,
+            "mi_h": 8,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                22
+            ],
+            "previous": [
+                4, 9
+            ]
+        },
+        {
+            "mi_a": 2,
+            "mi_b": 3,
+            "mi_c": 9,
+            "mi_d": 8,
+            "mi_e": 6,
+            "mi_f": 8,
+            "mi_g": 7,
+            "mi_h": 8,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                1
+            ],
+            "previous": [
+                11, 21
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 6,
+            "mi_c": 7,
+            "mi_d": 6,
+            "mi_e": 6,
+            "mi_f": 7,
+            "mi_g": 6,
+            "mi_h": 5,
+            "leader": 1,
+            "eyesight": 8,
+            "sex": 0,
+            "dislikes": [
+                1,7
+            ],
+            "previous": [
+                19, 20
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 5,
+            "mi_c": 4,
+            "mi_d": 3,
+            "mi_e": 4,
+            "mi_f": 5,
+            "mi_g": 5,
+            "mi_h": 3,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                1, 9
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 4,
+            "mi_c": 5,
+            "mi_d": 2,
+            "mi_e": 3,
+            "mi_f": 2,
+            "mi_g": 3,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                14, 25
+            ]
+        },
+        {
+            "mi_a": 2,
+            "mi_b": 5,
+            "mi_c": 6,
+            "mi_d": 5,
+            "mi_e": 3,
+            "mi_f": 6,
+            "mi_g": 8,
+            "mi_h": 3,
+            "leader": 3,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                16
+            ],
+            "previous": [
+                10, 16
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 8,
+            "mi_c": 6,
+            "mi_d": 5,
+            "mi_e": 8,
+            "mi_f": 4,
+            "mi_g": 7,
+            "mi_h": 8,
+            "leader": 1,
+            "eyesight": 8,
+            "sex": 0,
+            "dislikes": [
+                16,22
+            ],
+            "previous": [
+                0, 12
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 4,
+            "mi_c": 3,
+            "mi_d": 2,
+            "mi_e": 4,
+            "mi_f": 4,
+            "mi_g": 3,
+            "mi_h": 3,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                17, 24
+            ]
+        },
+        {
+            "mi_a": 2,
+            "mi_b": 5,
+            "mi_c": 2,
+            "mi_d": 1,
+            "mi_e": 2,
+            "mi_f": 4,
+            "mi_g": 5,
+            "mi_h": 5,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                17, 24
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 8,
+            "mi_c": 5,
+            "mi_d": 5,
+            "mi_e": 8,
+            "mi_f": 6,
+            "mi_g": 4,
+            "mi_h": 7,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                1, 4
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 2,
+            "mi_c": 1,
+            "mi_d": 1,
+            "mi_e": 4,
+            "mi_f": 3,
+            "mi_g": 7,
+            "mi_h": 6,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                4,20,6,14,17
+            ],
+            "previous": [
+                6, 16
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 8,
+            "mi_c": 8,
+            "mi_d": 6,
+            "mi_e": 6,
+            "mi_f": 5,
+            "mi_g": 9,
+            "mi_h": 9,
+            "leader": 3,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                2, 11
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 5,
+            "mi_c": 4,
+            "mi_d": 2,
+            "mi_e": 6,
+            "mi_f": 5,
+            "mi_g": 2,
+            "mi_h": 4,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                0, 7
+            ]
+        },
+        {
+            "mi_a": 3,
+            "mi_b": 4,
+            "mi_c": 5,
+            "mi_d": 4,
+            "mi_e": 6,
+            "mi_f": 4,
+            "mi_g": 7,
+            "mi_h": 4,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                18, 26
+            ]
+        },
+        {
+            "mi_a": 7,
+            "mi_b": 6,
+            "mi_c": 5,
+            "mi_d": 1,
+            "mi_e": 4,
+            "mi_f": 8,
+            "mi_g": 9,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                5, 25
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 5,
+            "mi_c": 6,
+            "mi_d": 1,
+            "mi_e": 4,
+            "mi_f": 3,
+            "mi_g": 4,
+            "mi_h": 9,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                22, 23
+            ]
+        },
+        {
+            "mi_a": 1,
+            "mi_b": 3,
+            "mi_c": 5,
+            "mi_d": 1,
+            "mi_e": 3,
+            "mi_f": 6,
+            "mi_g": 7,
+            "mi_h": 5,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                6, 10
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 7,
+            "mi_c": 5,
+            "mi_d": 5,
+            "mi_e": 7,
+            "mi_f": 6,
+            "mi_g": 8,
+            "mi_h": 7,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                5,21
+            ],
+            "previous": [
+                8, 24
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 5,
+            "mi_c": 4,
+            "mi_d": 3,
+            "mi_e": 5,
+            "mi_f": 4,
+            "mi_g": 3,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                13, 16
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 6,
+            "mi_c": 5,
+            "mi_d": 3,
+            "mi_e": 2,
+            "mi_f": 2,
+            "mi_g": 8,
+            "mi_h": 5,
+            "leader": 1,
+            "eyesight": 3,
+            "sex": 1,
+            "dislikes": [
+                21
+            ],
+            "previous": [
+                3, 20
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 7,
+            "mi_c": 6,
+            "mi_d": 4,
+            "mi_e": 6,
+            "mi_f": 4,
+            "mi_g": 6,
+            "mi_h": 6,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                3, 19
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 7,
+            "mi_c": 5,
+            "mi_d": 4,
+            "mi_e": 3,
+            "mi_f": 5,
+            "mi_g": 8,
+            "mi_h": 9,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                2, 11
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 7,
+            "mi_c": 7,
+            "mi_d": 6,
+            "mi_e": 8,
+            "mi_f": 7,
+            "mi_g": 8,
+            "mi_h": 9,
+            "leader": 3,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                15, 22
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 7,
+            "mi_c": 9,
+            "mi_d": 9,
+            "mi_e": 9,
+            "mi_f": 8,
+            "mi_g": 3,
+            "mi_h": 9,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                1
+            ],
+            "previous": [
+                15, 22
+            ]
+        },
+        {
+            "mi_a": 7,
+            "mi_b": 8,
+            "mi_c": 6,
+            "mi_d": 4,
+            "mi_e": 5,
+            "mi_f": 5,
+            "mi_g": 9,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                8, 17
+            ]
+        },
+        {
+            "mi_a": 2,
+            "mi_b": 3,
+            "mi_c": 2,
+            "mi_d": 2,
+            "mi_e": 3,
+            "mi_f": 2,
+            "mi_g": 4,
+            "mi_h": 3,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                13, 18
+            ]
+        }
+    ]
+}
+
+##### 2023/03 with dummy
+POST http://localhost:8000/solve HTTP/1.1
+content-type: application/json
+
+{
+    "class_id": 1,
+    "max_team_num": 3,
+    "timelimit": 120,
+    "flavors": [
+        {
+            "mi_a": 1,
+            "mi_b": 1,
+            "mi_c": 3,
+            "mi_d": 1,
+            "mi_e": 3,
+            "mi_f": 5,
+            "mi_g": 1,
+            "mi_h": 2,
+            "leader": 1,
+            "eyesight": 3,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                7, 12
+            ]
+        },
+        {
+            "mi_a": 9,
+            "mi_b": 9,
+            "mi_c": 8,
+            "mi_d": 6,
+            "mi_e": 8,
+            "mi_f": 8,
+            "mi_g": 8,
+            "mi_h": 8,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                22
+            ],
+            "previous": [
+                4, 9
+            ]
+        },
+        {
+            "mi_a": 2,
+            "mi_b": 3,
+            "mi_c": 9,
+            "mi_d": 8,
+            "mi_e": 6,
+            "mi_f": 8,
+            "mi_g": 7,
+            "mi_h": 8,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                1
+            ],
+            "previous": [
+                11, 21
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 6,
+            "mi_c": 7,
+            "mi_d": 6,
+            "mi_e": 6,
+            "mi_f": 7,
+            "mi_g": 6,
+            "mi_h": 5,
+            "leader": 1,
+            "eyesight": 8,
+            "sex": 0,
+            "dislikes": [
+                1,7
+            ],
+            "previous": [
+                19, 20
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 5,
+            "mi_c": 4,
+            "mi_d": 3,
+            "mi_e": 4,
+            "mi_f": 5,
+            "mi_g": 5,
+            "mi_h": 3,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                1, 9
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 4,
+            "mi_c": 5,
+            "mi_d": 2,
+            "mi_e": 3,
+            "mi_f": 2,
+            "mi_g": 3,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                14, 25
+            ]
+        },
+        {
+            "mi_a": 2,
+            "mi_b": 5,
+            "mi_c": 6,
+            "mi_d": 5,
+            "mi_e": 3,
+            "mi_f": 6,
+            "mi_g": 8,
+            "mi_h": 3,
+            "leader": 3,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                16
+            ],
+            "previous": [
+                10, 16
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 8,
+            "mi_c": 6,
+            "mi_d": 5,
+            "mi_e": 8,
+            "mi_f": 4,
+            "mi_g": 7,
+            "mi_h": 8,
+            "leader": 1,
+            "eyesight": 8,
+            "sex": 0,
+            "dislikes": [
+                16,22
+            ],
+            "previous": [
+                0, 12
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 4,
+            "mi_c": 3,
+            "mi_d": 2,
+            "mi_e": 4,
+            "mi_f": 4,
+            "mi_g": 3,
+            "mi_h": 3,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                17, 24
+            ]
+        },
+        {
+            "mi_a": 2,
+            "mi_b": 5,
+            "mi_c": 2,
+            "mi_d": 1,
+            "mi_e": 2,
+            "mi_f": 4,
+            "mi_g": 5,
+            "mi_h": 5,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                17, 24
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 8,
+            "mi_c": 5,
+            "mi_d": 5,
+            "mi_e": 8,
+            "mi_f": 6,
+            "mi_g": 4,
+            "mi_h": 7,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                1, 4
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 2,
+            "mi_c": 1,
+            "mi_d": 1,
+            "mi_e": 4,
+            "mi_f": 3,
+            "mi_g": 7,
+            "mi_h": 6,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                4,20,6,14,17
+            ],
+            "previous": [
+                6, 16
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 8,
+            "mi_c": 8,
+            "mi_d": 6,
+            "mi_e": 6,
+            "mi_f": 5,
+            "mi_g": 9,
+            "mi_h": 9,
+            "leader": 3,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                2, 11
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 5,
+            "mi_c": 4,
+            "mi_d": 2,
+            "mi_e": 6,
+            "mi_f": 5,
+            "mi_g": 2,
+            "mi_h": 4,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                0, 7
+            ]
+        },
+        {
+            "mi_a": 3,
+            "mi_b": 4,
+            "mi_c": 5,
+            "mi_d": 4,
+            "mi_e": 6,
+            "mi_f": 4,
+            "mi_g": 7,
+            "mi_h": 4,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                18
+            ]
+        },
+        {
+            "mi_a": 7,
+            "mi_b": 6,
+            "mi_c": 5,
+            "mi_d": 1,
+            "mi_e": 4,
+            "mi_f": 8,
+            "mi_g": 9,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                5, 25
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 5,
+            "mi_c": 6,
+            "mi_d": 1,
+            "mi_e": 4,
+            "mi_f": 3,
+            "mi_g": 4,
+            "mi_h": 9,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                22, 23
+            ]
+        },
+        {
+            "mi_a": 1,
+            "mi_b": 3,
+            "mi_c": 5,
+            "mi_d": 1,
+            "mi_e": 3,
+            "mi_f": 6,
+            "mi_g": 7,
+            "mi_h": 5,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                6, 10
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 7,
+            "mi_c": 5,
+            "mi_d": 5,
+            "mi_e": 7,
+            "mi_f": 6,
+            "mi_g": 8,
+            "mi_h": 7,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                5,21
+            ],
+            "previous": [
+                8, 24
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 5,
+            "mi_c": 4,
+            "mi_d": 3,
+            "mi_e": 5,
+            "mi_f": 4,
+            "mi_g": 3,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                13, 16
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 6,
+            "mi_c": 5,
+            "mi_d": 3,
+            "mi_e": 2,
+            "mi_f": 2,
+            "mi_g": 8,
+            "mi_h": 5,
+            "leader": 1,
+            "eyesight": 3,
+            "sex": 1,
+            "dislikes": [
+                21
+            ],
+            "previous": [
+                3, 20
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 7,
+            "mi_c": 6,
+            "mi_d": 4,
+            "mi_e": 6,
+            "mi_f": 4,
+            "mi_g": 6,
+            "mi_h": 6,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                3, 19
+            ]
+        },
+        {
+            "mi_a": 5,
+            "mi_b": 7,
+            "mi_c": 5,
+            "mi_d": 4,
+            "mi_e": 3,
+            "mi_f": 5,
+            "mi_g": 8,
+            "mi_h": 9,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                2, 11
+            ]
+        },
+        {
+            "mi_a": 4,
+            "mi_b": 7,
+            "mi_c": 7,
+            "mi_d": 6,
+            "mi_e": 8,
+            "mi_f": 7,
+            "mi_g": 8,
+            "mi_h": 9,
+            "leader": 3,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                15, 22
+            ]
+        },
+        {
+            "mi_a": 6,
+            "mi_b": 7,
+            "mi_c": 9,
+            "mi_d": 9,
+            "mi_e": 9,
+            "mi_f": 8,
+            "mi_g": 3,
+            "mi_h": 9,
+            "leader": 8,
+            "eyesight": 1,
+            "sex": 0,
+            "dislikes": [
+                1
+            ],
+            "previous": [
+                15, 22
+            ]
+        },
+        {
+            "mi_a": 7,
+            "mi_b": 8,
+            "mi_c": 6,
+            "mi_d": 4,
+            "mi_e": 5,
+            "mi_f": 5,
+            "mi_g": 9,
+            "mi_h": 7,
+            "leader": 1,
+            "eyesight": 1,
+            "sex": 1,
+            "dislikes": [
+                
+            ],
+            "previous": [
+                8, 17
+            ]
+        }
+    ]
+}

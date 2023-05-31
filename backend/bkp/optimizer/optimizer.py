@@ -1,4 +1,3 @@
-"""OR-Tools solution to the N-queens problem."""
 import sys
 import time
 import math
@@ -88,7 +87,7 @@ def main():
 
     # Each team has exactly MEMBER_PER_TEAM members.
     for j in teams:
-        solver.Add(solver.Sum([x[i, j] for i in members]) == MEMBER_PER_TEAM)
+        solver.Add(solver.Sum([x[i, j] for i in members]) <= MEMBER_PER_TEAM)
     
     # Each team has exactly one leader.
     for j in teams:
