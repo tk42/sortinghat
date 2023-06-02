@@ -31,7 +31,7 @@ app = FastAPI(
     title="Synergy Matchmaker",
     description="Synergy Matchmaker API",
     version="0.1.0",
-    docs_url="/",
+    docs_url=None,
     redoc_url=None,
 )
 
@@ -243,7 +243,7 @@ async def solve(req: SolveRequest):
         # Each team satisfies that member doesn't dislike another.
         for j in teams:
             for i in members:
-                for (k, v) in enumerate(dislikes[i]):
+                for k, v in enumerate(dislikes[i]):
                     if v > 0:
                         solver.Add(solver.Sum([x[i, j] + x[k, j]]) <= 1)
 
@@ -327,7 +327,8 @@ async def solve(req: SolveRequest):
             return {"error": str(e)}
 
         # remove dummy students
-        result = {k: v for k, v in result.items() if k in members[:-remain]}
+        if remain > 0:
+            result = {k: v for k, v in result.items() if k in members[:-remain]}
         score_by_member = {j: [] for j in teams}
         result_by_team = score_by_member.copy()
         for member, score in scores.iterrows():
