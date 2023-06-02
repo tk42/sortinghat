@@ -44,8 +44,8 @@ def eyesight_coeff(s):
 
 class StudentFlavor(BaseModel):
     student_id: int | None
-    dislikes: list[int] = []
-    previous: list[int] = []
+    dislikes: list[int] = []  # 0-indexed member number
+    previous: int | None  # 0-indexed team number
     mi_a: int
     mi_b: int
     mi_c: int
@@ -83,7 +83,7 @@ class SolveRequest(BaseModel):
     # 1: 1人被ってもOK
     # 2: 2人被ってもOK
     previous_overlap: int = 1
-    timelimit: int = 60 * 2
+    timeout: int = 60 * 2
 
 
 @app.post("/solve")
@@ -127,7 +127,7 @@ async def solve(req: SolveRequest):
                 leader=1,
                 eyesight=1,
                 dislikes=[],  # dislike dummy each other
-                previous=[],
+                previous=None,
                 sex=(i + (1 if nfemales < (filled_member_num - nfemales) else 0)) % 2
                 + 1,  # TODO: adjust the current num of boys and girls
             )
@@ -154,17 +154,23 @@ async def solve(req: SolveRequest):
             for flavor in req.flavors
         ] + dummy_flavors
 
-        dislikes = lil_matrix((filled_member_num, filled_member_num), dtype=int)
+        _dislikes = lil_matrix((filled_member_num, filled_member_num), dtype=int)
         for i, flavor in enumerate(flavors):
             for j in flavor.dislikes:
-                dislikes[i, j] = 1
-        dislikes = dislikes.toarray()
+                _dislikes[i, j] = 1
+        dislikes = _dislikes.toarray()
 
-        previous = lil_matrix((filled_member_num, filled_member_num), dtype=int)
+        previous_team_list = {k: [] for k in range(filled_team_num)}
         for i, flavor in enumerate(flavors):
-            for j in flavor.previous:
-                previous[i, j] = 1
-        previous_team = previous.toarray()
+            if not flavor.previous:
+                continue
+            previous_team_list[flavor.previous] += [i]
+
+        _previous_team = lil_matrix((filled_member_num, filled_member_num), dtype=int)
+        for j, l in previous_team_list.items():
+            for i in l:
+                _previous_team[i, j] = 1
+        previous_team = _previous_team.toarray()
 
         members = list(range(filled_member_num))
         teams = list(range(filled_team_num))
@@ -299,7 +305,7 @@ async def solve(req: SolveRequest):
         objective.SetMinimization()
 
         # time limit
-        solver.SetTimeLimit(req.timelimit * 1000)
+        solver.SetTimeLimit(req.timeout * 1000)
         try:
             status = solver.Solve()
 
