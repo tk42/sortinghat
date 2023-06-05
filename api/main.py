@@ -46,17 +46,17 @@ class StudentFlavor(BaseModel):
     student_id: int | None
     dislikes: list[int] = []  # 0-indexed member number
     previous: int | None  # 0-indexed team number
-    mi_a: int
-    mi_b: int
-    mi_c: int
-    mi_d: int
-    mi_e: int
-    mi_f: int
-    mi_g: int
-    mi_h: int
-    leader: int
-    eyesight: int
-    sex: int
+    mi_a: int  # 1-indexed
+    mi_b: int  # 1-indexed
+    mi_c: int  # 1-indexed
+    mi_d: int  # 1-indexed
+    mi_e: int  # 1-indexed
+    mi_f: int  # 1-indexed
+    mi_g: int  # 1-indexed
+    mi_h: int  # 1-indexed
+    leader: int  # 1, 3, 8
+    eyesight: int  # 1, 3, 8
+    sex: int  # 0: male, 1: female
 
     def to_array(self):
         return [
@@ -83,6 +83,10 @@ class SolveRequest(BaseModel):
     # 1: 1人被ってもOK
     # 2: 2人被ってもOK
     previous_overlap: int = 1
+    max_leader: int | None = 1
+    max_sub_leader: int | None = 1
+    min_member: int | None = 1
+    group_diff_coeff: float | None = 1.5
     timeout: int = 60 * 2
 
 
@@ -111,8 +115,6 @@ async def solve(req: SolveRequest):
         # print(f"nmembers: {nmembers}")
         # print(f"filled_member_num: {filled_member_num}")
 
-        nfemales = sum([flavor.sex for flavor in req.flavors])
-
         dummy_flavors = [
             StudentFlavor(
                 student_id=None,
@@ -128,11 +130,9 @@ async def solve(req: SolveRequest):
                 eyesight=1,
                 dislikes=[],  # dislike dummy each other
                 previous=None,
-                sex=(i + (1 if nfemales < (filled_member_num - nfemales) else 0)) % 2
-                + 1,  # TODO: adjust the current num of boys and girls
+                sex=3,  # neither 1: male nor 2: female
             )
-            for i in range(remain)
-        ]
+        ] * remain
 
         flavors = [
             StudentFlavor(
@@ -162,14 +162,17 @@ async def solve(req: SolveRequest):
 
         previous_team_list = {k: [] for k in range(filled_team_num)}
         for i, flavor in enumerate(flavors):
-            if not flavor.previous:
+            if flavor.previous is None:
                 continue
             previous_team_list[flavor.previous] += [i]
 
         _previous_team = lil_matrix((filled_member_num, filled_member_num), dtype=int)
-        for j, l in previous_team_list.items():
-            for i in l:
-                _previous_team[i, j] = 1
+        for ll in previous_team_list.values():
+            for i in ll:
+                for j in ll:
+                    if i == j:
+                        continue
+                    _previous_team[i, j] = 1
         previous_team = _previous_team.toarray()
 
         members = list(range(filled_member_num))
@@ -189,14 +192,9 @@ async def solve(req: SolveRequest):
         assert s[1] == s0[0], "The number of members and dislikes should be same."
         assert s0[0] == s0[1], "The dislikes should be square matrix."
 
-        members = list(range(filled_member_num))
-        teams = list(range(filled_team_num))
-
         scores = pd.DataFrame(array, index=skills, columns=list(range(filled_member_num))).T
         MAX_SCORE = int(max(scores.values.flatten()))
         MIN_SCORE = int(min(scores.values.flatten()))
-
-        COEFF = 1.5
 
         solver = pywraplp.Solver.CreateSolver("SCIP")
 
@@ -230,16 +228,19 @@ async def solve(req: SolveRequest):
             solver.Add(solver.Sum([x[i, j] for i in members]) == req.max_team_num)
 
         # Each team doesn't have more than one leader.
-        for j in teams:
-            solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "L"] == 8]) <= 1)
+        if req.max_leader is not None:
+            for j in teams:
+                solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "L"] == 8]) <= req.max_leader)
 
         # Each team doesn't have more than one sub-leader.
-        for j in teams:
-            solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "L"] == 3]) <= 1)
+        if req.max_sub_leader is not None:
+            for j in teams:
+                solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "L"] == 3]) <= req.max_sub_leader)
 
         # Each team has at least one non-leader.
-        for j in teams:
-            solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "L"] == 1]) >= 1)
+        if req.min_member is not None:
+            for j in teams:
+                solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "L"] == 1]) >= req.min_member)
 
         # Each team has at least male and female.
         for j in teams:
@@ -300,8 +301,8 @@ async def solve(req: SolveRequest):
         for j in teams:
             objective.SetCoefficient(y[1, j], 1)
             objective.SetCoefficient(y[0, j], -1)
-        objective.SetCoefficient(z[1], COEFF)
-        objective.SetCoefficient(z[0], -1 * COEFF)
+        objective.SetCoefficient(z[1], req.group_diff_coeff)
+        objective.SetCoefficient(z[0], -1 * req.group_diff_coeff)
         objective.SetMinimization()
 
         # time limit
@@ -335,18 +336,25 @@ async def solve(req: SolveRequest):
         # remove dummy students
         if remain > 0:
             result = {k: v for k, v in result.items() if k in members[:-remain]}
+
+        # score_by_team
         score_by_member = {j: [] for j in teams}
-        result_by_team = score_by_member.copy()
         for member, score in scores.iterrows():
             if member not in result:
                 continue
-            score_by_member[result[member]] += [score]
-        for k, v in score_by_member.items():
-            result_by_team[k] = pd.DataFrame(v).sum()
+            score_by_member[result[member]] += [score.to_dict()]
+
+        # member_by_team
+        member_by_team = {j: [] for j in teams}
+        for member, team in result.items():
+            member_by_team[team] += [member]
 
         # TODO: put the result to database. surveys, teams, student_flavor, dislikes
 
-        score_by_team = pd.DataFrame(result_by_team).T
-        return {"score_by_team": score_by_team.to_dict(), "teams_by_member": result}
+        return {
+            "score_by_member": score_by_member,
+            "teams_by_member": result,
+            "member_by_team": member_by_team,
+        }
     except Exception as e:
         return {"error": str(e), "stacktrace": traceback.format_exc()}
