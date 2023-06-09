@@ -48,3 +48,7 @@ serviceAccount.json
 
 # python
 *.pyc
+
+# slides binary
+*.key
+*.pdf
