@@ -38,3 +38,4 @@ CREATE TABLE IF NOT EXISTS teachers (
 -- +goose Down
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS schools;
+-- DROP TABLE IF EXISTS payments;

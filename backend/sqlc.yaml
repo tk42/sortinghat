@@ -6,8 +6,8 @@ sql:
       [
         "sql/schema/001_teachers.sql",
         "sql/schema/002_class.sql",
-        "sql/schema/004_surveys.sql",
-        "sql/schema/005_student.sql",
+        "sql/schema/003_surveys.sql",
+        "sql/schema/004_student.sql",
       ]
     gen:
       go:
