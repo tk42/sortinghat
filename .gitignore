@@ -38,6 +38,7 @@ yarn-error.log*
 
 # secrets
 .env
+.README.md
 
 # postgres
 backend/postgres-data
