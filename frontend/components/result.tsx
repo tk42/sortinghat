@@ -1,6 +1,6 @@
 // (1) import Layer
 import React from 'react'
-import { RadarChart } from 'services/components/radarchart'
+import { RadarChart } from 'components/radarchart'
 
 // (2) Types Layer
 export type ContainerProps = {

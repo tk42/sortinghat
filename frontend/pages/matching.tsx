@@ -3,7 +3,7 @@ import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 import dynamic from 'next/dynamic';
 const Table = dynamic(
-    () => import('services/components/handsontable').then(mod => mod.Table),
+    () => import('components/handsontable').then(mod => mod.Table),
     { ssr: false }  // This line is important. It disables server-side rendering for this component.
 );
 

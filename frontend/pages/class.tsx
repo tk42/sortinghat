@@ -1,5 +1,5 @@
-import AppLayout from 'services/layouts/applayout';
-import { Grid } from 'services/components/grid'
+import AppLayout from 'components/layouts/applayout';
+import { Grid } from 'components/grid'
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 

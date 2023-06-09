@@ -3,7 +3,7 @@ import AppLayout from 'services/layouts/applayout';
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
-import { Invoices } from 'services/components/invoices'
+import { Invoices } from 'components/invoices'
 
 type ContainerProps = {}
 

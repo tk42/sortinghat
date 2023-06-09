@@ -1,7 +1,7 @@
 // (1) import Layer
 import React, { Fragment } from 'react';
 import { useRouter } from 'next/router';
-import { Logo } from 'services/components/logo';
+import { Logo } from 'components/logo';
 import { Dialog, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { navigation } from 'services/types/navigation';
