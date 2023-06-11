@@ -2,9 +2,9 @@
 CREATE TABLE IF NOT EXISTS schools (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(256) NOT NULL,
+    postal_code VARCHAR(256),
     prefecture VARCHAR(256),
     city VARCHAR(256),
-    ward VARCHAR(256),
     address VARCHAR(256),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
