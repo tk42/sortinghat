@@ -1,4 +1,4 @@
-import AppLayout from 'services/layouts/applayout';
+import AppLayout from 'services/components/layouts/applayout';
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 import dynamic from 'next/dynamic';

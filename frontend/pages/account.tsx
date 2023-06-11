@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import AppLayout from 'services/layouts/applayout';
+import AppLayout from 'services/components/layouts/applayout';
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
