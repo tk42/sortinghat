@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS teachers (
     given_name VARCHAR(256),
     school_id BIGINT NOT NULL,
     FOREIGN KEY (school_id) REFERENCES schools(id),
-    class_name VARCHAR(256),
+    class_id BIGINT NOT NULL,
+    -- FOREIGN KEY (class_id) REFERENCES classes(id), -- no need to refer to classes
     email VARCHAR(256),
     status INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),

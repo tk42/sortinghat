@@ -1,16 +1,8 @@
 -- +goose Up
-CREATE TABLE IF NOT EXISTS histories (
-    id BIGSERIAL PRIMARY KEY,
-    teacher_id BIGINT NOT NULL,
-    FOREIGN KEY (teacher_id) REFERENCES teachers(id),
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
 CREATE TABLE IF NOT EXISTS surveys (
     id BIGSERIAL PRIMARY KEY,
-    histories_id BIGINT NOT NULL,
-    FOREIGN KEY (histories_id) REFERENCES histories(id),
+    class_id BIGINT NOT NULL,
+    FOREIGN KEY (class_id) REFERENCES classes(id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -24,6 +16,5 @@ CREATE TABLE IF NOT EXISTS teams (
 );
 
 -- +goose Down
-DROP TABLE IF EXISTS histories;
 DROP TABLE IF EXISTS surveys;
 DROP TABLE IF EXISTS teams;

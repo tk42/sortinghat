@@ -10,12 +10,11 @@ import (
 )
 
 type Class struct {
-	ID           int32
-	Name         string
-	Organization sql.NullString
-	TeacherID    int64
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID        int32
+	Name      string
+	TeacherID int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Dislike struct {
@@ -40,22 +39,25 @@ type Flavor struct {
 	UpdatedAt time.Time
 }
 
-type History struct {
-	ID        int64
-	TeacherID int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
+type School struct {
+	ID         int64
+	Name       string
+	Prefecture sql.NullString
+	City       sql.NullString
+	Ward       sql.NullString
+	Address    sql.NullString
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type Student struct {
-	ID         int32
-	Name       string
-	Sex        int32
-	ClassID    int64
-	FamilyName sql.NullString
-	GivenName  sql.NullString
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID        int32
+	Name      string
+	Sex       int32
+	ClassID   int64
+	Memo      sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type StudentFlavor struct {
@@ -68,10 +70,10 @@ type StudentFlavor struct {
 }
 
 type Survey struct {
-	ID          int64
-	HistoriesID int64
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID        int64
+	ClassID   int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Teacher struct {
@@ -79,7 +81,9 @@ type Teacher struct {
 	Name       string
 	FamilyName sql.NullString
 	GivenName  sql.NullString
-	Email      string
+	SchoolID   int64
+	ClassID    int64
+	Email      sql.NullString
 	Status     int32
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
