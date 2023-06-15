@@ -15,7 +15,7 @@ enum Navigation {
 }
 
 const allNavigation = [
-    { name: Navigation.Home, href: '/home', icon: HomeIcon, current: false },
+    { name: Navigation.Home, href: '/', icon: HomeIcon, current: false },
     { name: Navigation.Class, href: '/class', icon: UsersIcon, current: false },
     { name: Navigation.Matching, href: '/matching', icon: VariableIcon, current: false },
     { name: Navigation.Reports, href: '/reports', icon: ChartPieIcon, current: false },

@@ -1,5 +1,5 @@
 import AppLayout from 'components/layouts/applayout';
-import { Grid } from 'components/grid'
+import { StudentGrid } from 'components/studentgrid'
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 
@@ -12,7 +12,7 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                 <div className="xl:pl-96">
                     <div className="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
                         <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">生徒一覧</span>
-                        <Grid />
+                        <StudentGrid />
                     </div>
                 </div>
             </main>

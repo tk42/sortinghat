@@ -1,5 +1,6 @@
 import Image from 'next/image'
-import AppLayout from 'services/components/layouts/applayout';
+import { signOut } from "next-auth/react";
+import AppLayout from 'components/layouts/applayout';
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
@@ -24,6 +25,9 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                     <h3 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
                         奥埜 のぞみ 様
                     </h3>
+                    <button onClick={() => signOut()} className="flex justify-end text-blue-900">
+                        ログアウト
+                    </button>
                 </div>
                 <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
                     <div className="w-full py-2 lg:w-[80%]">

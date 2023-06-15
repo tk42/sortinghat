@@ -1,4 +1,4 @@
-import AppLayout from 'services/components/layouts/applayout';
+import AppLayout from 'components/layouts/applayout';
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 import { Container as Result } from 'components/result'

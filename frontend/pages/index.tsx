@@ -1,42 +1,34 @@
-import Image from "next/image";
-import { useRouter } from "next/router";
+import AppLayout from 'components/layouts/applayout';
+import type { ReactElement } from 'react'
+import type { NextPageWithLayout } from './_app'
 
-export default function Page() {
-  const router = useRouter();
+type ContainerProps = {}
 
-  const handleLogin = () => {
-    router.push('/home');
-  };
-
-  return (
-    <>
-      <div className="hero min-h-screen bg-base-200">
-        <div className="hero-content flex-col text-center">
-          <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-            <div className="card-body">
-              <Image src="/logo.png" width={256} height={256} alt="Synergy MatchMaker" />
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Email</span>
-                </label>
-                <input type="text" placeholder="email" className="input input-bordered" />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Password</span>
-                </label>
-                <input type="text" placeholder="password" className="input input-bordered" />
-                <label className="label">
-                  <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
-                </label>
-              </div>
-              <div className="form-control mt-6">
-                <button className="btn btn-primary" onClick={handleLogin}>Login</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
+    return (
+        <>
+            <main className="py-10 lg:pl-72">
+                <div className="px-4 sm:px-6 lg:px-8">
+                    <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">
+                        ようこそ！
+                    </span>
+                    <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
+                        京都府京都市 修学院小学校
+                    </h2>
+                    <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
+                        4年1組 奥埜 のぞみ 様
+                    </h2>
+                    <h3 className='text-xl font-thin my-4 leading-9 tracking-tight text-blue-900'>
+                        MI理論に基づくアンケートの実施方法
+                    </h3>
+                </div>
+            </main>
+        </>
+    )
 }
+
+Page.getLayout = function getLayout(page: ReactElement) {
+    return <AppLayout>{page}</AppLayout>
+}
+
+export default Page
