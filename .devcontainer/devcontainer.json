@@ -20,11 +20,12 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "humao.rest-client",
-        "GitHub.copilot",
-        "bradlc.vscode-tailwindcss",
-        "shd101wyy.markdown-preview-enhanced"
-      ]
+		"humao.rest-client",
+		"GitHub.copilot",
+		"bradlc.vscode-tailwindcss",
+		"shd101wyy.markdown-preview-enhanced",
+		"DanielSanMedium.dscodegpt"
+	]
     }
   }
 
