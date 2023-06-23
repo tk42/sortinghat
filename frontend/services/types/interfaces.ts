@@ -1,3 +1,19 @@
+export interface Class {
+    name: string;
+}
+
+export interface School {
+    name: string;
+    prefecture: string;
+    city: string;
+}
+
+export interface Teacher {
+    name: string;
+    class: Class;
+    school: School;
+}
+
 export interface StudentFlavor {
     id: number;
     name: string;
