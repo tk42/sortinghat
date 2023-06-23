@@ -24,7 +24,7 @@ export function SchoolGrid(props: SchoolGridProps) {
     const query = gql(`
         ${SCHOOL_FIELDS}
         ${TEACHER_FIELDS}
-        query schoolQuery {
+        query userQuery {
             schools {
                 ...SchoolFields
                 teachers {

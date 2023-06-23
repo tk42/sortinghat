@@ -1,10 +1,57 @@
-import AppLayout from 'components/layouts/applayout';
 import type { ReactElement } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import AppLayout from 'components/layouts/applayout';
+import { useSession } from "next-auth/react";
+import { Teacher } from 'services/types/interfaces';
+import { Container as Loading } from 'components/loading'
 import type { NextPageWithLayout } from './_app'
+
+
+async function getTeacher(email: string): Promise<Teacher> {
+    const data: Teacher = await fetch("/api/teacher/get", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            email: email,
+        }),
+    }).then(async (res) => {
+        return await res.json() as Teacher;
+    }).catch((error) => {
+        console.error(error);
+        return {} as Teacher;
+    });
+    return data;
+};
 
 type ContainerProps = {}
 
 const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
+    const router = useRouter()
+    const { data: session, status } = useSession()
+    const [teacher, setTeacher] = useState<Teacher | undefined>()
+
+    if (status === 'loading') return (
+        <Loading />
+    )
+
+    if (session?.user?.email === undefined) {
+        router.replace('/signin')
+    }
+
+    useEffect(() => {
+        const fetchTeacher = async () => {
+            setTeacher(await getTeacher(session!.user!.email!))
+        }
+        fetchTeacher()
+    }, []);
+
+    if (teacher === undefined) {
+        return <Loading />
+    }
+
     return (
         <>
             <main className="py-10 lg:pl-72">
@@ -13,22 +60,24 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                         ようこそ！
                     </span>
                     <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        京都府京都市 修学院小学校
+                        {teacher.school.prefecture} {teacher.school.city} {teacher.school.name}
                     </h2>
                     <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        4年1組 奥埜 のぞみ 様
+                        {teacher.class.name} {teacher.name} 様
                     </h2>
                     <h3 className='text-xl font-thin my-4 leading-9 tracking-tight text-blue-900'>
                         MI理論に基づくアンケートの実施方法
                     </h3>
                 </div>
-            </main>
+            </main >
         </>
     )
 }
 
 Page.getLayout = function getLayout(page: ReactElement) {
-    return <AppLayout>{page}</AppLayout>
+    return (
+        <AppLayout>{page}</AppLayout>
+    )
 }
 
 export default Page
