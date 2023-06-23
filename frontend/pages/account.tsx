@@ -1,14 +1,42 @@
 import Image from 'next/image'
 import { signOut } from "next-auth/react";
+import React, { useEffect, useState } from 'react'
 import AppLayout from 'components/layouts/applayout';
 import type { ReactElement } from 'react'
+import { useRouter } from 'next/router'
+import { useSession } from "next-auth/react";
 import type { NextPageWithLayout } from './_app'
 import { ArrowRightIcon } from '@heroicons/react/20/solid'
 import { Invoices } from 'components/invoices'
+import { Teacher } from 'services/types/interfaces';
+import { Container as Loading } from 'components/loading'
+import { getTeacher } from 'services/libs/getter';
 
 type ContainerProps = {}
 
 const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
+    const router = useRouter()
+    const { data: session, status } = useSession()
+    const [teacher, setTeacher] = useState<Teacher | undefined>()
+
+    if (status === 'loading') return (
+        <Loading />
+    )
+
+    if (session?.user?.email === undefined) {
+        router.replace('/signin')
+    }
+
+    useEffect(() => {
+        const fetchTeacher = async () => {
+            setTeacher(await getTeacher(session!.user!.email!))
+        }
+        fetchTeacher()
+    }, []);
+
+    if (teacher === undefined) {
+        return <Loading />
+    }
 
     return (
         <>
@@ -20,10 +48,10 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                 </div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
                     <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        京都府京都市 修学院小学校
+                        {teacher.school.prefecture} {teacher.school.city} {teacher.school.name} {teacher.class.name}
                     </h2>
                     <h3 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        奥埜 のぞみ 様
+                        {teacher.name} 様
                     </h3>
                     <button onClick={() => signOut()} className="flex justify-end text-blue-900">
                         ログアウト
