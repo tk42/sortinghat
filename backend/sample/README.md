@@ -1,0 +1,1 @@
+[Import the data from the csv file](https://hasura.io/docs/latest/schema/postgres/postgres-guides/import-data-from-csv/#step-3-import-the-data-from-the-csv-file)

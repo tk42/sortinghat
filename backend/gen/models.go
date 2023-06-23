@@ -12,15 +12,14 @@ import (
 type Class struct {
 	ID        int32
 	Name      string
-	TeacherID int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 type Dislike struct {
-	ID              int32
-	StudentFlavorID int64
-	StudentID       int64
+	ID        int32
+	FlavorID  int64
+	StudentID int64
 }
 
 type Flavor struct {
@@ -42,9 +41,9 @@ type Flavor struct {
 type School struct {
 	ID         int64
 	Name       string
+	PostalCode sql.NullString
 	Prefecture sql.NullString
 	City       sql.NullString
-	Ward       sql.NullString
 	Address    sql.NullString
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
@@ -62,7 +61,6 @@ type Student struct {
 
 type StudentFlavor struct {
 	ID        int32
-	TeamID    int64
 	StudentID int64
 	FlavorID  int64
 	CreatedAt time.Time
@@ -77,17 +75,25 @@ type Survey struct {
 }
 
 type Teacher struct {
-	ID         int64
-	Name       string
-	FamilyName sql.NullString
-	GivenName  sql.NullString
-	SchoolID   int64
-	ClassID    int64
-	Email      sql.NullString
-	Status     int32
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	ExpiredAt  sql.NullTime
+	ID             int64
+	Name           string
+	FamilyName     sql.NullString
+	GivenName      sql.NullString
+	SchoolID       int64
+	CurrentClassID sql.NullInt64
+	Email          sql.NullString
+	Status         int32
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ExpiredAt      sql.NullTime
+}
+
+type TeacherClass struct {
+	ID        int32
+	TeacherID int64
+	ClassID   int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Team struct {
@@ -95,4 +101,10 @@ type Team struct {
 	SurveyID  int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type TeamsStudent struct {
+	ID        int32
+	TeamID    int64
+	StudentID int64
 }

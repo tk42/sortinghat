@@ -26,10 +26,16 @@ CREATE TABLE IF NOT EXISTS students (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS dislikes (
+    id SERIAL PRIMARY KEY,
+    flavor_id BIGINT NOT NULL,
+    FOREIGN KEY (flavor_id) REFERENCES flavors(id),
+    student_id BIGINT NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(id)
+);
+
 CREATE TABLE IF NOT EXISTS student_flavor (
     id SERIAL PRIMARY KEY,
-    team_id BIGINT NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES teams(id),
     student_id BIGINT NOT NULL,
     FOREIGN KEY (student_id) REFERENCES students(id),
     flavor_id BIGINT NOT NULL,
@@ -38,17 +44,17 @@ CREATE TABLE IF NOT EXISTS student_flavor (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS dislikes (
+CREATE TABLE IF NOT EXISTS teams_student (
     id SERIAL PRIMARY KEY,
-    student_flavor_id BIGINT NOT NULL,
-    FOREIGN KEY (student_flavor_id) REFERENCES student_flavor(id),
+    team_id BIGINT NOT NULL,
+    FOREIGN KEY (team_id) REFERENCES teams(id),
     student_id BIGINT NOT NULL,
     FOREIGN KEY (student_id) REFERENCES students(id)
 );
-
 
 -- +goose Down
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS dislikes;
 DROP TABLE IF EXISTS flavors;
 DROP TABLE IF EXISTS student_flavor;
+DROP TABLE IF EXISTS teams_student;

@@ -13,7 +13,7 @@ import (
 const createTeacher = `-- name: CreateTeacher :one
 INSERT INTO teachers (name, family_name, given_name, email, status, expired_at)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, name, family_name, given_name, school_id, class_id, email, status, created_at, updated_at, expired_at
+RETURNING id, name, family_name, given_name, school_id, current_class_id, email, status, created_at, updated_at, expired_at
 `
 
 type CreateTeacherParams struct {
@@ -41,7 +41,7 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 		&i.FamilyName,
 		&i.GivenName,
 		&i.SchoolID,
-		&i.ClassID,
+		&i.CurrentClassID,
 		&i.Email,
 		&i.Status,
 		&i.CreatedAt,
@@ -54,7 +54,7 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 const deleteTeacher = `-- name: DeleteTeacher :one
 DELETE FROM teachers
 WHERE id = $1
-RETURNING id, name, family_name, given_name, school_id, class_id, email, status, created_at, updated_at, expired_at
+RETURNING id, name, family_name, given_name, school_id, current_class_id, email, status, created_at, updated_at, expired_at
 `
 
 func (q *Queries) DeleteTeacher(ctx context.Context, id int64) (Teacher, error) {
@@ -66,7 +66,7 @@ func (q *Queries) DeleteTeacher(ctx context.Context, id int64) (Teacher, error) 
 		&i.FamilyName,
 		&i.GivenName,
 		&i.SchoolID,
-		&i.ClassID,
+		&i.CurrentClassID,
 		&i.Email,
 		&i.Status,
 		&i.CreatedAt,
@@ -77,7 +77,7 @@ func (q *Queries) DeleteTeacher(ctx context.Context, id int64) (Teacher, error) 
 }
 
 const getTeacher = `-- name: GetTeacher :one
-SELECT id, name, family_name, given_name, school_id, class_id, email, status, created_at, updated_at, expired_at FROM teachers
+SELECT id, name, family_name, given_name, school_id, current_class_id, email, status, created_at, updated_at, expired_at FROM teachers
 WHERE id = $1
 `
 
@@ -90,7 +90,7 @@ func (q *Queries) GetTeacher(ctx context.Context, id int64) (Teacher, error) {
 		&i.FamilyName,
 		&i.GivenName,
 		&i.SchoolID,
-		&i.ClassID,
+		&i.CurrentClassID,
 		&i.Email,
 		&i.Status,
 		&i.CreatedAt,
@@ -101,7 +101,7 @@ func (q *Queries) GetTeacher(ctx context.Context, id int64) (Teacher, error) {
 }
 
 const listTeachers = `-- name: ListTeachers :many
-SELECT id, name, family_name, given_name, school_id, class_id, email, status, created_at, updated_at, expired_at FROM teachers
+SELECT id, name, family_name, given_name, school_id, current_class_id, email, status, created_at, updated_at, expired_at FROM teachers
 ORDER BY name
 `
 
@@ -120,7 +120,7 @@ func (q *Queries) ListTeachers(ctx context.Context) ([]Teacher, error) {
 			&i.FamilyName,
 			&i.GivenName,
 			&i.SchoolID,
-			&i.ClassID,
+			&i.CurrentClassID,
 			&i.Email,
 			&i.Status,
 			&i.CreatedAt,
