@@ -1,21 +1,18 @@
 import type { ReactElement } from 'react'
-import React, { useEffect, useState } from 'react'
+import React, { useContext } from 'react'
 import { useRouter } from 'next/router'
 import AppLayout from 'components/layouts/applayout';
 import { useSession } from "next-auth/react";
-import { Teacher } from 'services/types/interfaces';
 import { Container as Loading } from 'components/loading'
 import type { NextPageWithLayout } from './_app'
-import { getTeacher } from 'services/libs/getter';
-
-
+import { TeacherContext } from 'services/libs/context';
 
 type ContainerProps = {}
 
 const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
     const router = useRouter()
     const { data: session, status } = useSession()
-    const [teacher, setTeacher] = useState<Teacher | undefined>()
+    const teacher = useContext(TeacherContext)
 
     if (status === 'loading') return (
         <Loading />
@@ -24,13 +21,6 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
     if (session?.user?.email === undefined) {
         router.replace('/signin')
     }
-
-    useEffect(() => {
-        const fetchTeacher = async () => {
-            setTeacher(await getTeacher(session!.user!.email!))
-        }
-        fetchTeacher()
-    }, []);
 
     if (teacher === undefined) {
         return <Loading />

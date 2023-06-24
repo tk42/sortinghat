@@ -1,9 +1,10 @@
-const people = [
-    { id: 0, name: 'こじま ただし', sex: '男', memo: 'よく遅刻する' },
-    // More people...
-]
+import { Class, Student } from 'services/types/interfaces'
 
-export function StudentGrid() {
+type ContainerProps = {
+    _class?: Class
+}
+
+export function StudentGrid(props: ContainerProps) {
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:items-center">
@@ -12,13 +13,25 @@ export function StudentGrid() {
                         生徒の基本情報（名前，性別）を記入してください
                     </p>
                 </div>
-                <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <button
-                        type="button"
-                        className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                <div className="mt-2 sm:ml-16 sm:mt-0 sm:flex-none">
+                    <label
+                        htmlFor="my-modal-4"
+                        className="btn modal-buttonblock rounded-md bg-indigo-600 px-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                         生徒を追加
-                    </button>
+                    </label>
+
+                    <input type="checkbox" id="my-modal-4" className="modal-toggle" />
+                    <label htmlFor="my-modal-4" className="cursor-pointer modal">
+                        <label className="relative modal-box" htmlFor="">
+                            <h3 className="text-lg font-bold">
+                                生徒を追加
+                            </h3>
+                            <p className="py-4">
+                                工事中
+                            </p>
+                        </label>
+                    </label>
                 </div>
             </div>
             <div className="mt-8 flow-root">
@@ -39,15 +52,19 @@ export function StudentGrid() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                                {people.map((person) => (
-                                    <tr key={person.id} className="divide-x divide-gray-200">
-                                        <td className="whitespace-nowrap py-4 pl-4 pr-4 text-sm font-medium text-gray-900 sm:pl-0">
-                                            {person.name}
-                                        </td>
-                                        <td className="whitespace-nowrap p-4 text-sm text-gray-500">{person.sex}</td>
-                                        <td className="whitespace-nowrap p-4 text-sm text-gray-500">{person.memo}</td>
-                                    </tr>
-                                ))}
+                                {
+                                    props._class ? (
+                                        props._class.students.map((student: Student, index: number) => (
+                                            <tr key={`student-${index}`} className="divide-x divide-gray-200">
+                                                <td className="whitespace-nowrap py-4 pl-4 pr-4 text-sm font-medium text-gray-900 sm:pl-0">
+                                                    {student.name}
+                                                </td>
+                                                <td className="whitespace-nowrap p-4 text-sm text-gray-500">{student.sex == 0 ? '男' : '女'}</td>
+                                                <td className="whitespace-nowrap p-4 text-sm text-gray-500">{student.memo}</td>
+                                            </tr>
+                                        ))
+                                    ) : <></>
+                                }
                             </tbody>
                         </table>
                     </div>

@@ -1,4 +1,3 @@
-import { RecoilRoot } from 'recoil'
 import '../styles/globals.css'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
@@ -16,9 +15,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
   const getLayout = Component.getLayout ?? ((page) => page)
   return (
     <SessionProvider session={session}>
-      <RecoilRoot>
-        {getLayout(<Component {...pageProps} />)}
-      </RecoilRoot>
+      {getLayout(<Component {...pageProps} />)}
     </SessionProvider>
   )
 }

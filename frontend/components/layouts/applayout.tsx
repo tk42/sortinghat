@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { Container as Sidebar } from 'components/sidebar';
+import { TeacherProvider } from 'services/libs/context';
+import { Teacher } from "services/types/interfaces";
+import { getTeacher } from "services/libs/getter";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -13,6 +16,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }
     })
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [teacher, setTeacher] = useState<Teacher | undefined>()
+
+    const fetchTeacher = useCallback(async (email: string) => {
+        setTeacher(await getTeacher(email))
+    }, []);
+
+    useEffect(() => {
+        if (session?.user?.email) {
+            fetchTeacher(session!.user!.email)
+        }
+    }, [session]);
 
     if (status == "loading") {
         return (
@@ -33,7 +47,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <>
             <div className='h-full bg-white'>
                 <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-                {children}
+                <TeacherProvider value={teacher}>
+                    {children}
+                </TeacherProvider>
             </div>
         </>
     )
