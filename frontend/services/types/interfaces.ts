@@ -1,5 +1,15 @@
-export interface Class {
+export interface Student {
+    id: number;
+    class_id?: number;
     name: string;
+    sex: number;
+    memo: string;
+}
+
+export interface Class {
+    id: number;
+    name: string;
+    students: Student[];
 }
 
 export interface School {
@@ -9,6 +19,7 @@ export interface School {
 }
 
 export interface Teacher {
+    id: number;
     name: string;
     class: Class;
     school: School;
