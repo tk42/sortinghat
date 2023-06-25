@@ -1,15 +1,36 @@
+export interface Flavor {
+    mi_a: number;
+    mi_b: number;
+    mi_c: number;
+    mi_d: number;
+    mi_e: number;
+    mi_f: number;
+    mi_g: number;
+    mi_h: number;
+    leader: number;
+    eyesight: number;
+    dislikes: { student_id: number }[];
+}
+
 export interface Student {
-    id: number;
+    id?: number;
     class_id?: number;
     name: string;
     sex: number;
-    memo: string;
+    memo?: string;
+    student_flavors?: StudentFlavor[];
+}
+
+export interface StudentFlavor {
+    student: Student;
+    flavor: Flavor;
 }
 
 export interface Class {
-    id: number;
+    id?: number;
     name: string;
-    students: Student[];
+    students?: Student[];
+    surveys?: Survey[];
 }
 
 export interface School {
@@ -18,29 +39,17 @@ export interface School {
     city: string;
 }
 
+export interface Survey {
+    id: number;
+    name: string;
+    student_flavors: StudentFlavor[];
+}
+
 export interface Teacher {
     id: number;
     name: string;
     class: Class;
     school: School;
-}
-
-export interface StudentFlavor {
-    id: number;
-    name: string;
-    sex: number;
-    previous: number;
-    scoreA: number;
-    scoreB: number;
-    scoreC: number;
-    scoreD: number;
-    scoreE: number;
-    scoreF: number;
-    scoreG: number;
-    scoreH: number;
-    leader: number;
-    eyesight: number;
-    dislikes: number[];
 }
 
 export interface Score {
