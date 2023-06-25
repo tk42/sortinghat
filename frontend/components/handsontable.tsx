@@ -1,16 +1,39 @@
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import 'handsontable/dist/handsontable.full.min.css';
+import { Survey, Student, StudentFlavor } from 'services/types/interfaces';
+import { Sex, Leader, EyeSight, SexUnion, LeaderUnion, EyeSightUnion } from 'services/types/enum';
 
 // register Handsontable's modules
 registerAllModules();
 
-export const Table = () => {
+export type TableProps = {
+  survey?: Survey
+}
+
+export const HandsonTable = (props: TableProps) => {
   return (
     <HotTable
-      data={[
-        ['こじま ただし', '男', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'メンバー', '前方希望', ''],
-      ]}
+      data={
+        props.survey?.student_flavors?.map((studentFlavor: StudentFlavor) => {
+          console.log("HandsonTableStudent", studentFlavor, studentFlavor.student, studentFlavor.flavor)
+          return [
+            studentFlavor.student.name,
+            Sex(studentFlavor.student.sex as SexUnion),
+            1,
+            studentFlavor.flavor.mi_a - 1,
+            studentFlavor.flavor.mi_b - 1,
+            studentFlavor.flavor.mi_c - 1,
+            studentFlavor.flavor.mi_d - 1,
+            studentFlavor.flavor.mi_e - 1,
+            studentFlavor.flavor.mi_f - 1,
+            studentFlavor.flavor.mi_g - 1,
+            studentFlavor.flavor.mi_h - 1,
+            Leader(studentFlavor.flavor.leader as LeaderUnion),
+            EyeSight(studentFlavor.flavor.eyesight as EyeSightUnion),
+            studentFlavor.flavor.dislikes.map((dislike) => { return dislike.student_id }).join(',')
+          ]
+        })}
       colHeaders={['Name', 'Sex', 'Previous Team', 'Score A', 'Score B', 'Score C', 'Score D', 'Score E', 'Score F', 'Score G', 'Score H', 'Role', 'EyeSight', 'Dislikes']}
       columns={[
         {
