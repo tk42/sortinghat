@@ -16,7 +16,7 @@ export function StudentGrid(props: ContainerProps) {
                 <div className="mt-2 sm:ml-16 sm:mt-0 sm:flex-none">
                     <label
                         htmlFor="my-modal-4"
-                        className="btn modal-buttonblock rounded-md bg-indigo-600 px-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        className="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                         生徒を追加
                     </label>
@@ -54,7 +54,7 @@ export function StudentGrid(props: ContainerProps) {
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {
                                     props._class ? (
-                                        props._class.students.map((student: Student, index: number) => (
+                                        props._class.students!.map((student: Student, index: number) => (
                                             <tr key={`student-${index}`} className="divide-x divide-gray-200">
                                                 <td className="whitespace-nowrap py-4 pl-4 pr-4 text-sm font-medium text-gray-900 sm:pl-0">
                                                     {student.name}
