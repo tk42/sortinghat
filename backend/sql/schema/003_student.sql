@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS dislikes (
 
 CREATE TABLE IF NOT EXISTS student_flavor (
     id SERIAL PRIMARY KEY,
+    survey_id BIGINT,
+    FOREIGN KEY (survey_id) REFERENCES surveys(id),
     student_id BIGINT NOT NULL,
     FOREIGN KEY (student_id) REFERENCES students(id),
     flavor_id BIGINT NOT NULL,
