@@ -110,6 +110,30 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
             </main>
             <aside className="fixed inset-y-0 left-72 hidden w-96 overflow-y-auto border-r border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
                 <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">アンケート一覧</span>
+                <div className="flex justify-end sm:ml-16 sm:mt-0 sm:flex-none">
+                    <label
+                        htmlFor="my-modal-2"
+                        className="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                        新規作成
+                    </label>
+
+                    <input type="checkbox" id="my-modal-2" className="modal-toggle" />
+                    <label htmlFor="my-modal-2" className="cursor-pointer modal">
+                        <label className="relative modal-box" htmlFor="">
+                            <h3 className="text-lg font-bold">
+                                アンケート新規作成
+                            </h3>
+                            <p className="py-4">
+                                工事中
+                            </p>
+                            <p className="py-4">
+                                クラス選択・アンケート名入力・前回の班分け選択（あれば）
+                            </p>
+                        </label>
+                    </label>
+                </div>
+
                 <div className="flex flex-col">
                     {
                         classes.map((c: Class, class_index: number) => (
