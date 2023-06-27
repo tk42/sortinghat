@@ -1,36 +1,56 @@
 // (1) import Layer
 import React from 'react'
 import { RadarChart } from 'components/radarchart'
+import { Survey, Team, MIScore, Flavor } from 'services/types/interfaces'
+import { createGradient, START_RGB, END_RGB, RGB, rgbToString } from 'services/libs/gradation';
 
 // (2) Types Layer
 export type ContainerProps = {
-
+    survey?: Survey
 }
 type Props = {
-
+    colors: RGB[]
 } & ContainerProps
 
 // (3) Define Global Constants
-
+function MIScoreByTeam(team: Team): MIScore {
+    let score: MIScore = [0, 0, 0, 0, 0, 0, 0, 0]
+    for (var ts of team.teams_students) {
+        const sf: Flavor = ts.student!.student_flavors![0].flavor
+        score[0] += sf.mi_a
+        score[1] += sf.mi_b
+        score[2] += sf.mi_c
+        score[3] += sf.mi_d
+        score[4] += sf.mi_e
+        score[5] += sf.mi_f
+        score[6] += sf.mi_g
+        score[7] += sf.mi_h
+    }
+    return score
+}
 
 // (4) DOM Layer
 const Component: React.FC<Props> = (props) => (
     <>
         <div className="grid grid-cols-3 gap-4">
-            <RadarChart label="Team 0" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='220, 163, 185' />
-            <RadarChart label="Team 1" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='223, 162, 154' />
-            <RadarChart label="Team 2" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='235, 200, 171' />
-            <RadarChart label="Team 3" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='205, 227, 186' />
-            <RadarChart label="Team 4" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='142, 219, 199' />
-            <RadarChart label="Team 5" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='149, 221, 241' />
-            <RadarChart label="Team 6" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='165, 172, 241' />
-            <RadarChart label="Team 7" data={[4, 2, 1, 3, 2, 8, 2, 5]} color='196, 168, 243' />
+            {
+                props.survey!.teams!.map((team: Team, index) => {
+                    return <RadarChart
+                        label={`Team ${index} (${team.teams_students.map((v) => v.student.name).join("-")})`}
+                        data={MIScoreByTeam(team)}
+                        color={rgbToString(props.colors[index])}
+                    />
+                })
+            }
         </div>
     </>
 )
 
 // (5) Container Layer
 export const Container: React.FC<ContainerProps> = props => {
-
-    return <Component {...props} />
+    if (props.survey === undefined) {
+        return <></>
+    }
+    const colors: RGB[] = createGradient(START_RGB, END_RGB, props.survey!.teams!.length)
+    return <Component {...{ ...props, colors }} />
 }

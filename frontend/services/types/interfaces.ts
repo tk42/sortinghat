@@ -1,3 +1,5 @@
+export type MIScore = [number, number, number, number, number, number, number, number]
+
 export interface Flavor {
     mi_a: number;
     mi_b: number;
@@ -39,10 +41,16 @@ export interface School {
     city: string;
 }
 
+export interface Team {
+    teams_students: { student_id: number, student: Student }[];
+}
+
 export interface Survey {
     id: number;
     name: string;
-    student_flavors: StudentFlavor[];
+    student_flavors?: StudentFlavor[];
+    teams?: Team[];
+    created_at: Date;
 }
 
 export interface Teacher {

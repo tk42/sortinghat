@@ -2,23 +2,106 @@ import AppLayout from 'components/layouts/applayout';
 import type { ReactElement } from 'react'
 import type { NextPageWithLayout } from './_app'
 import { Container as Result } from 'components/result'
+import { TeacherContext } from 'services/libs/context';
+import React, { useEffect, useState, useContext, useCallback } from 'react'
+import { Class, Survey } from 'services/types/interfaces';
+import { Container as Loading } from 'components/loading'
+import { getReports } from 'services/libs/getter';
+
+
+export const TEAMS_FIELDS = `
+    fragment TeamsFields on classes {
+        name
+        surveys {
+            id
+            name
+            created_at
+            teams {
+                teams_students {
+                    student {
+                        name
+                        sex
+                        student_flavors {
+                            flavor {
+                                mi_a
+                                mi_b
+                                mi_c
+                                mi_d
+                                mi_e
+                                mi_f
+                                mi_g
+                                mi_h
+                                leader
+                                eyesight
+                                dislikes {
+                                    student_id
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+`
+
 
 type ContainerProps = {}
 
 const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
+    const teacher = useContext(TeacherContext)
+    const [classes, setClasses] = useState<Class[] | undefined>()
+    const [survey, setSurvey] = useState<Survey | undefined>()
+
+    const fetchTeacher = useCallback(async (teacher_id: number) => {
+        setClasses(await getReports(teacher_id))
+    }, []);
+
+    useEffect(() => {
+        if (teacher) {
+            fetchTeacher(teacher.id)
+        }
+    }, [teacher]);
+
+    if (teacher === undefined || classes === undefined) {
+        return <Loading />
+    }
+
     return (
         <>
             <main className="lg:pl-72">
                 <div className="xl:pl-96">
                     <div className="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
                         <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">計算結果</span>
-                        <Result />
+                        <Result survey={survey} />
                     </div>
                 </div>
             </main>
 
             <aside className="fixed inset-y-0 left-72 hidden w-96 overflow-y-auto border-r border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
                 <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">履歴一覧</span>
+                <div className="flex flex-col">
+                    {
+                        classes.map((c: Class, class_index: number) => (
+                            c.surveys!.map((s: Survey, survey_index: number) => (
+                                <>
+                                    <hr key={`hr-${class_index}-${survey_index}`} className="my-2 border-gray-200" />
+                                    <button
+                                        key={`survey-${class_index}-${survey_index}`}
+                                        className="flex justify-between items-center text-left text-lg font-thin text-blue-900 hover:text-blue-700"
+                                        onClick={() => { setSurvey(s) }}>
+                                        <>
+                                            {c.name} - {s.name}
+                                        </>
+                                        <span className='text-sm text-gray-400'>
+                                            {s.created_at.toString().slice(0, 16).replace(/T/g, ' ').replace(/-/g, '/')}
+                                        </span>
+                                    </button>
+                                </>
+                            ))
+                        ))
+                    }
+                </div>
             </aside>
         </>
     )
