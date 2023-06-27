@@ -79,10 +79,10 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                         <p className="text-2xl font-thin leading-9 tracking-tight text-blue-900">
                             アンケート結果入力
                         </p>
-                        <span className="text-base font-light my-4 leading-9 tracking-tight text-blue-900">
-                            生徒たちに実施したアンケート結果を記入してください(コピペ可能)
-                        </span>
-                        <div className="flex justify-end sm:ml-16 sm:mt-0 sm:flex-none">
+                        <div className='flex justify-between items-center'>
+                            <span className="text-base font-light my-4 leading-9 tracking-tight text-blue-900">
+                                生徒たちに実施したアンケート結果を記入してください(コピペ可能)
+                            </span>
                             <label
                                 htmlFor="my-modal-4"
                                 className="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -102,15 +102,16 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                                 </label>
                             </label>
                         </div>
-                        <div className='mt-4'>
+                        <div className='mt-2'>
                             <Table {...{ survey: classes.map((c) => c.surveys!).flat().find((survey: Survey) => survey.id == surveyId) }} />
                         </div>
                     </div>
                 </div>
             </main>
             <aside className="fixed inset-y-0 left-72 hidden w-96 overflow-y-auto border-r border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
-                <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">アンケート一覧</span>
-                <div className="flex justify-end sm:ml-16 sm:mt-0 sm:flex-none">
+                <div className='flex justify-between items-center'>
+
+                    <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">アンケート一覧</span>
                     <label
                         htmlFor="my-modal-2"
                         className="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

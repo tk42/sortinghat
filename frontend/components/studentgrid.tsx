@@ -7,7 +7,7 @@ type ContainerProps = {
 export function StudentGrid(props: ContainerProps) {
     return (
         <div className="px-4 sm:px-6 lg:px-8">
-            <div className="sm:flex sm:items-center">
+            <div className='flex justify-between items-center'>
                 <div className="sm:flex-auto">
                     <p className="mt-2 text-base font-light text-blue-900">
                         生徒の基本情報（名前，性別）を記入してください
