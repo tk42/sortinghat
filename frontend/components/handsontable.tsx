@@ -16,7 +16,7 @@ export const HandsonTable = (props: TableProps) => {
     <HotTable
       data={
         props.survey?.student_flavors?.map((studentFlavor: StudentFlavor) => {
-          console.log("HandsonTableStudent", studentFlavor, studentFlavor.student, studentFlavor.flavor)
+          // console.log("HandsonTableStudent", studentFlavor, studentFlavor.student, studentFlavor.flavor)
           return [
             studentFlavor.student.name,
             Sex(studentFlavor.student.sex as SexUnion),
