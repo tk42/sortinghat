@@ -7,6 +7,8 @@ content-type: application/json
     "max_team_num": 4,
     "max_leader": 2,
     "min_member": null,
+    "girl_geq_boy": true,
+    "boy_geq_girl": false,
     "timeout": 120,
     "flavors": [
         {

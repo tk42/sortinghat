@@ -86,6 +86,8 @@ class SolveRequest(BaseModel):
     max_leader: int | None = 1
     max_sub_leader: int | None = 1
     min_member: int | None = 1
+    girl_geq_boy: bool = False
+    boy_geq_girl: bool = False
     group_diff_coeff: float | None = 1.5
     timeout: int = 60 * 2
 
@@ -246,6 +248,18 @@ async def solve(req: SolveRequest):
         for j in teams:
             solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 1]) >= 1)
             solver.Add(solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 2]) >= 1)
+            if req.girl_geq_boy:
+                solver.Add(
+                    solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 1])
+                    - solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 2])
+                    <= 1
+                )
+            if req.boy_geq_girl:
+                solver.Add(
+                    solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 2])
+                    - solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 1])
+                    <= 1
+                )
 
         # Each team satisfies that member doesn't dislike another.
         for j in teams:
