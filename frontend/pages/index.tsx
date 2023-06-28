@@ -31,13 +31,10 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
             <main className="py-10 lg:pl-72">
                 <div className="px-4 sm:px-6 lg:px-8">
                     <span className="text-2xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        ようこそ！
+                        ようこそ！ Synergy MatchMaker へ
                     </span>
                     <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        {teacher.school.prefecture} {teacher.school.city} {teacher.school.name} {teacher.class.name}
-                    </h2>
-                    <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        {teacher.name} 様
+                        {teacher.school.city} {teacher.school.name} {teacher.class.name} ご担任 {teacher.name} 先生
                     </h2>
                     <h3 className='text-xl font-thin my-4 leading-9 tracking-tight text-blue-900'>
                         MI理論に基づくアンケートの実施方法
