@@ -14,7 +14,7 @@ export const Table = (props: TableProps) => {
         () => import('components/handsontable').then((mod) => mod.HandsonTable),
         { ssr: false }  // This line is important. It disables server-side rendering for this component.
     )
-    return props.survey ? <DynamicTable {...{ survey: props.survey }} /> : <></>
+    return <DynamicTable {...{ survey: props.survey }} />
 }
 
 
