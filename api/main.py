@@ -30,7 +30,7 @@ gql_client = Client(
 app = FastAPI(
     title="Synergy Matchmaker",
     description="Synergy Matchmaker API",
-    version="0.1.0",
+    version="0.2.0",
     docs_url=None,
     redoc_url=None,
 )
@@ -43,7 +43,8 @@ def eyesight_coeff(s):
 
 
 class StudentFlavor(BaseModel):
-    student_id: int | None
+    # TODO: comment out student_id which is needed in request also
+    # student_id: int | None
     dislikes: list[int] = []  # 0-indexed member number
     previous: int | None  # 0-indexed team number
     mi_a: int  # 1-indexed
@@ -119,7 +120,7 @@ async def solve(req: SolveRequest):
 
         dummy_flavors = [
             StudentFlavor(
-                student_id=None,
+                # student_id=None,
                 mi_a=1,
                 mi_b=1,
                 mi_c=1,
@@ -138,7 +139,7 @@ async def solve(req: SolveRequest):
 
         flavors = [
             StudentFlavor(
-                student_id=flavor.student_id,
+                # student_id=flavor.student_id,
                 mi_a=flavor.mi_a,
                 mi_b=flavor.mi_b,
                 mi_c=flavor.mi_c,
@@ -252,13 +253,13 @@ async def solve(req: SolveRequest):
                 solver.Add(
                     solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 1])
                     - solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 2])
-                    <= 1
+                    <= 0
                 )
             if req.boy_geq_girl:
                 solver.Add(
                     solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 2])
                     - solver.Sum([x[i, j] for i in members if scores.loc[i, "S"] == 1])
-                    <= 1
+                    <= 0
                 )
 
         # Each team satisfies that member doesn't dislike another.
@@ -363,7 +364,7 @@ async def solve(req: SolveRequest):
         for member, team in result.items():
             member_by_team[team] += [member]
 
-        # TODO: put the result to database. surveys, teams, student_flavor, dislikes
+        # TODO: update the result to database. surveys, teams, student_flavor, dislikes
 
         return {
             "score_by_member": score_by_member,

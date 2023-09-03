@@ -1,5 +1,5 @@
 ##### 2023/07
-POST http://localhost:8000/solve HTTP/1.1
+POST https://api-pc7xnvlxlq-uc.a.run.app/solve HTTP/1.1
 content-type: application/json
 
 {
