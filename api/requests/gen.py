@@ -34,7 +34,7 @@ def text_to_json(text):
     if elements[11] == "":
         dislikes = []
     else:
-        dislikes = [int(i) - 1 for i in elements[11].replace("・", ",").replace("、", ",").split(",")]
+        dislikes = [int(i) - 1 for i in elements[11].replace("\"", "").replace("・", ",").replace("、", ",").split(",")]
 
     # JSON形式で結果を返す
     return json.dumps({
@@ -54,7 +54,7 @@ def text_to_json(text):
 
 
 
-with open("2023-09_removed_column.tsv", "r") as f:
+with open("2023-10_removed_column.tsv", "r") as f:
     text = f.readlines()
 
 for i in range(len(text)):
