@@ -6,11 +6,12 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint | nextval('teachers_id_seq'::regclass) | false | [public.classes](public.classes.md) |  |  |
-| name | varchar(256) |  | false |  |  |  |
-| family_name | varchar(256) |  | true |  |  |  |
-| given_name | varchar(256) |  | true |  |  |  |
-| email | varchar(256) |  | false |  |  |  |
+| id | bigint |  | false | [public.classes](public.classes.md) |  |  |
+| name | varchar(255) |  | false |  |  |  |
+| family_name | varchar(255) |  | true |  |  |  |
+| given_name | varchar(255) |  | true |  |  |  |
+| school_id | bigint |  | true |  | [public.schools](public.schools.md) |  |
+| email | varchar(255) |  | true |  |  |  |
 | status | integer |  | false |  |  |  |
 | created_at | timestamp without time zone | now() | false |  |  |  |
 | updated_at | timestamp without time zone | now() | false |  |  |  |
@@ -20,6 +21,7 @@
 
 | Name | Type | Definition |
 | ---- | ---- | ---------- |
+| teachers_school_id_fkey | FOREIGN KEY | FOREIGN KEY (school_id) REFERENCES schools(id) |
 | teachers_pkey | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes

@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS surveys (
     class_id BIGINT NOT NULL,
     FOREIGN KEY (class_id) REFERENCES classes(id),
     name VARCHAR(255),
+    status INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

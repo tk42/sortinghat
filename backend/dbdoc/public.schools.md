@@ -1,4 +1,4 @@
-# public.classes
+# public.schools
 
 ## Description
 
@@ -6,9 +6,12 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint |  | false | [public.students](public.students.md) [public.surveys](public.surveys.md) |  |  |
+| id | bigint |  | false | [public.teachers](public.teachers.md) |  |  |
 | name | varchar(255) |  | false |  |  |  |
-| teacher_id | bigint |  | true |  | [public.teachers](public.teachers.md) |  |
+| postal_code | varchar(255) |  | true |  |  |  |
+| prefecture | varchar(255) |  | true |  |  |  |
+| city | varchar(255) |  | true |  |  |  |
+| address | varchar(255) |  | true |  |  |  |
 | created_at | timestamp without time zone | now() | false |  |  |  |
 | updated_at | timestamp without time zone | now() | false |  |  |  |
 
@@ -16,18 +19,17 @@
 
 | Name | Type | Definition |
 | ---- | ---- | ---------- |
-| classes_teacher_id_fkey | FOREIGN KEY | FOREIGN KEY (teacher_id) REFERENCES teachers(id) |
-| classes_pkey | PRIMARY KEY | PRIMARY KEY (id) |
+| schools_pkey | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes
 
 | Name | Definition |
 | ---- | ---------- |
-| classes_pkey | CREATE UNIQUE INDEX classes_pkey ON public.classes USING btree (id) |
+| schools_pkey | CREATE UNIQUE INDEX schools_pkey ON public.schools USING btree (id) |
 
 ## Relations
 
-![er](public.classes.svg)
+![er](public.schools.svg)
 
 ---
 

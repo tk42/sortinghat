@@ -1,13 +1,8 @@
-version: 2
+version: "2"
 sql:
   - engine: "postgresql"
     queries: ["sql/queries/teacher.sql"]
-    schema:
-      [
-        "sql/schema/001_teachers.sql",
-        "sql/schema/002_surveys.sql",
-        "sql/schema/003_student.sql",
-      ]
+    schema: ["sql/schema/001_schema.sql"]
     gen:
       go:
         package: "sqlc"
