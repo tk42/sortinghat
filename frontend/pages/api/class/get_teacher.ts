@@ -1,27 +1,26 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TEAMS_FIELDS } from 'pages/reports'
+import { Class, CLASS_FIELDS } from 'services/types/interfaces'
 import { fetchGqlAPI } from 'services/libs/fetchgql'
-import { Class, Survey } from 'services/types/interfaces'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.body.teacher_id) {
         const classes: Class[] | null = await fetchGqlAPI(`
-            ${TEAMS_FIELDS}
-            query GetReports ($id: bigint!) {
-                teachers_by_pk(id: $id) {
-                    teacher_classes {
-                        class {
-                            ...TeamsFields
-                        }
+            ${CLASS_FIELDS}
+            query GetClass ($teacher_id: bigint!) {
+                classes(
+                    where: {
+                        teacher_id: {_eq: $teacher_id}
                     }
+                ) {
+                    ...ClassFields
                 }
             }
         `,
             {
-                "id": req.body.teacher_id
+                "teacher_id": req.body.teacher_id
             }
         ).then((data: any) => {
-            return data.teachers_by_pk.teacher_classes.map((d: { class: Class[] }) => d.class) as Class[]
+            return data.classes as Class[]
         })
         res.status(200).json(classes)
     } else {

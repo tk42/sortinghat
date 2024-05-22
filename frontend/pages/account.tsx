@@ -48,7 +48,7 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                 </div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
                     <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        {teacher.school.prefecture} {teacher.school.city} {teacher.school.name} {teacher.class.name}
+                        {teacher.school.prefecture} {teacher.school.city} {teacher.school.name}
                     </h2>
                     <h3 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
                         {teacher.name} 様
@@ -57,7 +57,7 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                         ログアウト
                     </button>
                 </div>
-                <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
+                {/* <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
                     <div className="w-full py-2 lg:w-[80%]">
                         <div className="mx-auto grid max-w-full gap-8 py-10 lg:grid-cols-50/50">
                             <div className="flex w-full justify-between rounded-sm border border-gray-200 p-4">
@@ -105,7 +105,7 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                             <Invoices />
                         </div>
                     </div>
-                </div>
+                </div> */}
             </main>
         </>
     )

@@ -39,3 +39,18 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## TroubleShooting
+### Azure AD secret key expired
+```
+AADSTS7000222: The provided client secret keys for app are expired
+```
+
+Read this [FAQ](https://learn.microsoft.com/en-us/answers/questions/1423875/aadsts7000222-the-provided-client-secret-keys-for)
+
+Visit [here](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Credentials/appId/bedd69c5-b865-4990-ac13-ac6548f93204/defaultBlade/Branding)
+
+
+### Add user to Azure AD
+
+[here](https://portal.azure.com/#view/Microsoft_AAD_IAM/ManagedAppMenuBlade/~/Users/objectId/b1d14f49-49c5-4c69-aa5d-428c07ef6421/appId/bedd69c5-b865-4990-ac13-ac6548f93204/preferredSingleSignOnMode~/null/servicePrincipalType/Application/fromNav/)

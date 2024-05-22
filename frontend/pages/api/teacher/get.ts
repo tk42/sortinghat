@@ -1,24 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { Teacher } from 'services/types/interfaces'
+import { Teacher, TEACHER_FIELDS } from 'services/types/interfaces'
 import { fetchGqlAPI } from 'services/libs/fetchgql'
-import { CLASS_FIELDS } from 'pages/class'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.body.email) {
         const teacher: Teacher | null = await fetchGqlAPI(`
-            ${CLASS_FIELDS}
+            ${TEACHER_FIELDS}
             query getTeacher($email: String!) {
                 teachers(where: {email: {_eq: $email}}, limit: 1) {
-                    id
-                    name
-                    school {
-                        name
-                        prefecture
-                        city
-                    }
-                    class {
-                        ...ClassFields
-                    }
+                    ...TeacherFields
                 }
             }`,
             {

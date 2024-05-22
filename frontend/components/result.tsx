@@ -1,7 +1,7 @@
 // (1) import Layer
 import React from 'react'
 import { RadarChart } from 'components/radarchart'
-import { Survey, Team, MIScore, Flavor } from 'services/types/interfaces'
+import { Survey, Team, MIScore } from 'services/types/interfaces'
 import { createGradient, START_RGB, END_RGB, RGB, rgbToString } from 'services/libs/gradation';
 
 // (2) Types Layer
@@ -15,8 +15,7 @@ type Props = {
 // (3) Define Global Constants
 function MIScoreByTeam(team: Team): MIScore {
     let score: MIScore = [0, 0, 0, 0, 0, 0, 0, 0]
-    for (var ts of team.teams_students) {
-        const sf: Flavor = ts.student!.student_flavors![0].flavor
+    for (var sf of team.student_preferences!) {
         score[0] += sf.mi_a
         score[1] += sf.mi_b
         score[2] += sf.mi_c
@@ -34,9 +33,9 @@ const Component: React.FC<Props> = (props) => (
     <>
         <div className="grid grid-cols-3 gap-4">
             {
-                props.survey!.teams!.map((team: Team, index) => {
+                props.survey!.teams.map((team: Team, index: number) => {
                     return <RadarChart
-                        label={`Team ${index} (${team.teams_students.map((v) => v.student.name).join("-")})`}
+                        label={`Team ${index} (${team.student_preferences!.map((v) => v.student.name).join("-")})`}
                         data={MIScoreByTeam(team)}
                         color={rgbToString(props.colors[index])}
                     />

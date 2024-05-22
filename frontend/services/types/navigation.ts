@@ -8,9 +8,9 @@ import {
 
 enum Navigation {
     Home = 'ホーム',
-    Class = 'クラス',
     Matching = 'マッチング',
     Reports = 'レポート',
+    Class = '担任クラス',
     Account = 'アカウント',
 }
 

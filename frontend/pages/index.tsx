@@ -34,11 +34,12 @@ const Page: NextPageWithLayout & React.FC<ContainerProps> = (props) => {
                         ようこそ！ Synergy MatchMaker へ
                     </span>
                     <h2 className="text-xl font-thin my-4 leading-9 tracking-tight text-blue-900">
-                        {teacher.school.city} {teacher.school.name} {teacher.class.name} ご担任 {teacher.name} 先生
+                        {teacher.school.city} {teacher.school.name} {teacher.name} 先生
                     </h2>
                     <h3 className='text-xl font-thin my-4 leading-9 tracking-tight text-blue-900'>
                         MI理論に基づくアンケートの実施方法
                     </h3>
+                    (説明動画など)
                 </div>
             </main >
         </>

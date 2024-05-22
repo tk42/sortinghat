@@ -4,6 +4,19 @@ import 'handsontable/dist/handsontable.full.min.css';
 import { Survey, Student, StudentFlavor } from 'services/types/interfaces';
 import { Sex, Leader, EyeSight, SexUnion, LeaderUnion, EyeSightUnion } from 'services/types/enum';
 
+
+// import dynamic from 'next/dynamic'
+// import { TableProps } from 'components/handsontable'
+
+// export const Table = (props: TableProps) => {
+//     const DynamicTable = dynamic(
+//         () => import('components/handsontable').then((mod) => mod.HandsonTable),
+//         { ssr: false }  // This line is important. It disables server-side rendering for this component.
+//     )
+//     return <DynamicTable {...{ survey: props.survey }} />
+// }
+
+
 // register Handsontable's modules
 registerAllModules();
 
@@ -32,7 +45,7 @@ export const HandsonTable = (props: TableProps) => {
     ]
   }) : []
   const max_previous_team: number = data ? Math.max(...data.map((row) => { return Number(row[2]) })) : 1
-  const previous_team_list = [...Array(max_previous_team)].map((_, i) => i + 1)
+  const previous_team_list = max_previous_team > 0 ? [...Array(max_previous_team)].map((_, i) => i + 1) : []
   return (
     <HotTable
       data={data}
