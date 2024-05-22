@@ -9,10 +9,10 @@
 | [public.teachers](public.teachers.md) | 10 |  | BASE TABLE |
 | [public.classes](public.classes.md) | 5 |  | BASE TABLE |
 | [public.students](public.students.md) | 7 |  | BASE TABLE |
-| [public.surveys](public.surveys.md) | 4 |  | BASE TABLE |
-| [public.teams](public.teams.md) | 3 |  | BASE TABLE |
-| [public.student_preferences](public.student_preferences.md) | 14 |  | BASE TABLE |
-| [public.student_dislikes](public.student_dislikes.md) | 3 |  | BASE TABLE |
+| [public.surveys](public.surveys.md) | 6 |  | BASE TABLE |
+| [public.teams](public.teams.md) | 6 |  | BASE TABLE |
+| [public.student_preferences](public.student_preferences.md) | 16 |  | BASE TABLE |
+| [public.student_dislikes](public.student_dislikes.md) | 5 |  | BASE TABLE |
 
 ## Relations
 

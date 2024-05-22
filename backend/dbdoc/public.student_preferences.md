@@ -20,6 +20,8 @@
 | mi_h | integer |  | false |  |  |  |
 | leader | integer |  | false |  |  |  |
 | eyesight | integer |  | false |  |  |  |
+| created_at | timestamp without time zone | now() | false |  |  |  |
+| updated_at | timestamp without time zone | now() | false |  |  |  |
 
 ## Constraints
 
@@ -29,12 +31,14 @@
 | student_preferences_survey_id_fkey | FOREIGN KEY | FOREIGN KEY (survey_id) REFERENCES surveys(id) |
 | student_preferences_team_id_fkey | FOREIGN KEY | FOREIGN KEY (team_id) REFERENCES teams(id) |
 | student_preferences_pkey | PRIMARY KEY | PRIMARY KEY (id) |
+| student_preferences_student_id_survey_id_key | UNIQUE | UNIQUE (student_id, survey_id) |
 
 ## Indexes
 
 | Name | Definition |
 | ---- | ---------- |
 | student_preferences_pkey | CREATE UNIQUE INDEX student_preferences_pkey ON public.student_preferences USING btree (id) |
+| student_preferences_student_id_survey_id_key | CREATE UNIQUE INDEX student_preferences_student_id_survey_id_key ON public.student_preferences USING btree (student_id, survey_id) |
 
 ## Relations
 

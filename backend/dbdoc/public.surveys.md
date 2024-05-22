@@ -10,6 +10,8 @@
 | name | varchar(255) |  | false |  |  |  |
 | status | integer | 0 | false |  |  |  |
 | class_id | bigint |  | true |  | [public.classes](public.classes.md) |  |
+| created_at | timestamp without time zone | now() | false |  |  |  |
+| updated_at | timestamp without time zone | now() | false |  |  |  |
 
 ## Constraints
 

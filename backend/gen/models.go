@@ -42,6 +42,8 @@ type StudentDislike struct {
 	ID           int64
 	StudentID    sql.NullInt64
 	PreferenceID sql.NullInt64
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type StudentPreference struct {
@@ -59,13 +61,17 @@ type StudentPreference struct {
 	MiH       int32
 	Leader    int32
 	Eyesight  int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Survey struct {
-	ID      int64
-	Name    string
-	Status  int32
-	ClassID sql.NullInt64
+	ID        int64
+	Name      string
+	Status    int32
+	ClassID   sql.NullInt64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Teacher struct {
@@ -82,7 +88,10 @@ type Teacher struct {
 }
 
 type Team struct {
-	ID       int64
-	Name     string
-	SurveyID sql.NullInt64
+	ID        int64
+	TeamID    int64
+	Name      string
+	SurveyID  sql.NullInt64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
