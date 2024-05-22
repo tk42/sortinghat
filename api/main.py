@@ -1,30 +1,13 @@
-import os
 import logging
 import traceback
 import numpy as np
 import pandas as pd
 from scipy.sparse import lil_matrix
-from gql import Client
 
 from pydantic import BaseModel
 from fastapi import FastAPI
 
-from gql.transport.requests import RequestsHTTPTransport
 from ortools.linear_solver import pywraplp
-
-GRAPHQL_API_ENDPOINT = os.environ.get("GRAPHQL_API_ENDPOINT")
-assert GRAPHQL_API_ENDPOINT, "GRAPHQL_API_ENDPOINT is not set"
-
-gql_client = Client(
-    transport=RequestsHTTPTransport(
-        url=GRAPHQL_API_ENDPOINT,
-        use_json=True,
-        headers={"Content-type": "application/json"},
-        verify=False,
-        retries=3,
-    ),
-    fetch_schema_from_transport=True,
-)
 
 
 app = FastAPI(

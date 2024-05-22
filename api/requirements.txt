@@ -5,4 +5,3 @@ ortools
 uvicorn[standard]
 asyncpg
 fastapi
-gql[all]
