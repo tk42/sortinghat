@@ -103,6 +103,7 @@ export interface Survey {
     name: string;
     status: number;
     class: Class;
+    teams?: Team[]; // ???
     student_preferences: StudentPreference[];
 }
 

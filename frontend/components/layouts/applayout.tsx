@@ -40,7 +40,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     if (!session) {
         router.replace('/signin')
-        return
+        return <></>
     }
 
     return (

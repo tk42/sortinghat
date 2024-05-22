@@ -33,7 +33,7 @@ const Component: React.FC<Props> = (props) => (
     <>
         <div className="grid grid-cols-3 gap-4">
             {
-                props.survey!.teams.map((team: Team, index: number) => {
+                props.survey!.teams?.map((team: Team, index: number) => {
                     return <RadarChart
                         label={`Team ${index} (${team.student_preferences!.map((v) => v.student.name).join("-")})`}
                         data={MIScoreByTeam(team)}

@@ -24,10 +24,10 @@ export function StartMatchingDialog(props: ContainerProps) {
     const [girl_geq_boy, setGirlGeqBoy] = useState<boolean>(true)
     const [boy_geq_girl, setBoyGeqGirl] = useState<boolean>(false)
     const [max_team_num, setMaxTeamNum] = useState<number>(4)
-    const [max_leader, setMaxLeader] = useState<number | null>(null)
-    const [min_member, setMinMember] = useState<number | null>(null)
-    const [team_num_n, setTeamNumN] = useState<number | null>(null) // undefined means auto-calculated
-    const [previous_overlap_mode, setPreviousOverlapMode] = useState<number | null>(null)
+    const [max_leader, setMaxLeader] = useState<number | undefined>(undefined)
+    const [min_member, setMinMember] = useState<number | undefined>(undefined)
+    const [team_num_n, setTeamNumN] = useState<number | undefined>(undefined) // undefined means auto-calculated
+    const [previous_overlap_mode, setPreviousOverlapMode] = useState<number | undefined>(undefined)
     const [timeout, setTimeout] = useState<number>(10)
 
     const previousSurveyOption: Option[] = props.survey.class.surveys.map((c: Survey) => {
@@ -316,10 +316,10 @@ export function StartMatchingDialog(props: ContainerProps) {
             const req = {
                 class_id: previous_survey_id,
                 max_team_num: max_team_num,
-                team_num_n: team_num_n,
-                previous_overlap: previous_overlap_mode,
-                max_leader: max_leader,
-                min_member: min_member,
+                team_num_n: team_num_n ?? null,
+                previous_overlap: previous_overlap_mode ?? null,
+                max_leader: max_leader ?? null,
+                min_member: min_member ?? null,
                 girl_geq_boy: girl_geq_boy,
                 boy_geq_girl: boy_geq_girl,
                 timeout: timeout,
