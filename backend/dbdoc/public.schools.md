@@ -6,7 +6,7 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint |  | false | [public.teachers](public.teachers.md) |  |  |
+| id | bigint | nextval('schools_id_seq'::regclass) | false | [public.teachers](public.teachers.md) |  |  |
 | name | varchar(255) |  | false |  |  |  |
 | postal_code | varchar(255) |  | true |  |  |  |
 | prefecture | varchar(255) |  | true |  |  |  |

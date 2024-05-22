@@ -6,7 +6,7 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint |  | false |  |  |  |
+| id | bigint | nextval('student_dislikes_id_seq'::regclass) | false |  |  |  |
 | student_id | bigint |  | true |  | [public.students](public.students.md) |  |
 | preference_id | bigint |  | true |  | [public.student_preferences](public.student_preferences.md) |  |
 

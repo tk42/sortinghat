@@ -6,7 +6,7 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint |  | false | [public.student_dislikes](public.student_dislikes.md) |  |  |
+| id | bigint | nextval('student_preferences_id_seq'::regclass) | false | [public.student_dislikes](public.student_dislikes.md) |  |  |
 | student_id | bigint |  | true |  | [public.students](public.students.md) |  |
 | survey_id | bigint |  | true |  | [public.surveys](public.surveys.md) |  |
 | team_id | bigint |  | true |  | [public.teams](public.teams.md) |  |

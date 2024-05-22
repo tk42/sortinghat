@@ -6,7 +6,7 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint |  | false | [public.teams](public.teams.md) [public.student_preferences](public.student_preferences.md) |  |  |
+| id | bigint | nextval('surveys_id_seq'::regclass) | false | [public.teams](public.teams.md) [public.student_preferences](public.student_preferences.md) |  |  |
 | name | varchar(255) |  | false |  |  |  |
 | status | integer | 0 | false |  |  |  |
 | class_id | bigint |  | true |  | [public.classes](public.classes.md) |  |

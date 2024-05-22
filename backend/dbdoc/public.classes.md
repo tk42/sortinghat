@@ -6,7 +6,7 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint |  | false | [public.students](public.students.md) [public.surveys](public.surveys.md) |  |  |
+| id | bigint | nextval('classes_id_seq'::regclass) | false | [public.students](public.students.md) [public.surveys](public.surveys.md) |  |  |
 | name | varchar(255) |  | false |  |  |  |
 | teacher_id | bigint |  | true |  | [public.teachers](public.teachers.md) |  |
 | created_at | timestamp without time zone | now() | false |  |  |  |

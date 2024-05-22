@@ -32,7 +32,7 @@
 # 29 -> 26
 # 30 -> x
 # 31 -> 27
-POST http://localhost:8000/solve HTTP/1.1
+POST https://api-pc7xnvlxlq-uc.a.run.app/solve HTTP/1.1
 content-type: application/json
 
 {

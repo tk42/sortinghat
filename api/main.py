@@ -4,7 +4,7 @@ import traceback
 import numpy as np
 import pandas as pd
 from scipy.sparse import lil_matrix
-from gql import gql, Client
+from gql import Client
 
 from pydantic import BaseModel
 from fastapi import FastAPI
@@ -319,9 +319,11 @@ async def solve(req: SolveRequest):
         solver.Add(
             solver.Sum(
                 [
-                    1
-                    if solver.Sum([x[i, j] for i in bad_eye_sight_members]) >= 2
-                    else 0
+                    (
+                        1
+                        if solver.Sum([x[i, j] for i in bad_eye_sight_members]) >= 2
+                        else 0
+                    )
                     for j in teams
                 ]
             )

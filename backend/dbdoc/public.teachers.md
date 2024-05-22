@@ -6,7 +6,7 @@
 
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | bigint |  | false | [public.classes](public.classes.md) |  |  |
+| id | bigint | nextval('teachers_id_seq'::regclass) | false | [public.classes](public.classes.md) |  |  |
 | name | varchar(255) |  | false |  |  |  |
 | family_name | varchar(255) |  | true |  |  |  |
 | given_name | varchar(255) |  | true |  |  |  |
