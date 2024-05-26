@@ -115,7 +115,7 @@ export const SURVEY_FIELDS = `
         class {
             id
             name
-            students {
+            students(order_by: {id: asc}) {
                 id
                 name
                 sex
@@ -125,7 +125,7 @@ export const SURVEY_FIELDS = `
                 name
             }
         }
-        student_preferences {
+        student_preferences(order_by: {student: {id: asc}}) {
             student {
                 id
                 sex

@@ -107,7 +107,7 @@ export function StudentGrid(props: ContainerProps) {
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {
                                     props._class ? (
-                                        props._class!.students!.map((student: Student, index: number) => (
+                                        props._class!.students!.sort((a: Student, b: Student) => a.id - b.id).map((student: Student, index: number) => (
                                             <tr key={`student-${index}`} className="divide-x divide-gray-200">
                                                 <td
                                                     className="whitespace-nowrap font-medium text-gray-900 sm:pl-0"
