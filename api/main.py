@@ -81,6 +81,8 @@ class SolveRequest(BaseModel):
 @app.post("/solve")
 async def solve(req: SolveRequest):
     try:
+        # logger.info(f"Request: {req}")
+
         # previous_survey = get_previous_survey(req.class_id)
         nmembers = len(req.flavors)
         if nmembers > req.max_team_num * 10:

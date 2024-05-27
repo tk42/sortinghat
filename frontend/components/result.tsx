@@ -35,7 +35,8 @@ const Component: React.FC<Props> = (props) => (
             {
                 props.survey!.teams?.map((team: Team, index: number) => {
                     return <RadarChart
-                        label={`Team ${index} (${team.student_preferences!.map((v) => v.student.name).join("-")})`}
+                        label={`Team ${index}`}
+                        label_students={team.student_preferences!.map(sf => sf.student!)}
                         data={MIScoreByTeam(team)}
                         color={rgbToString(props.colors[index])}
                     />

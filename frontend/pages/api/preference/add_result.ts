@@ -4,7 +4,9 @@ import { fetchGqlAPI } from 'services/libs/fetchgql'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.body.request !== undefined) {
-        const objects = (req.body.request as StudentPreference[]).map(({ survey, student, student_dislikes, ...rest }) => rest);
+        const objects = (req.body.request as StudentPreference[])
+        .map(({ survey, student, student_dislikes, ...rest }) => rest)
+        .map(({ team, ...rest }) => ({team_id: team?.id, ...rest}));
         // console.log(JSON.stringify(objects))
 
         const affected_rows: number = await fetchGqlAPI(`
@@ -17,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     on_conflict: {
                         constraint: student_preferences_pkey, 
                         update_columns: [
-                            team_id
+                            team_id,
                         ]
                     }
                 ) {

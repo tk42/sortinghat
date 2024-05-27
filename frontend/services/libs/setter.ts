@@ -207,7 +207,7 @@ export async function addResult(result: Result, survey_id: number) {
         return await res.json() as Team[];
     })
 
-    console.log(JSON.stringify(resp_teams))
+    // console.log(JSON.stringify(resp_teams))
 
     const request: StudentPreference[] = data_sp.map((sp: StudentPreference, student_index: number) => {
         // console.log(`Team `+team_student_id.find((tbm: TeamByMember) => tbm.member == student_index)!.team.toString())

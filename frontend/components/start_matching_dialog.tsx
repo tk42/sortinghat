@@ -1,7 +1,7 @@
 import { NextRouter } from 'next/router';
 import React, {useEffect, useState} from 'react';
 import Select from 'react-select';
-import { Survey, Result, Team, StudentPreference } from 'services/types/interfaces';
+import { Survey, Result, Team, StudentPreference, StudentDislike, Student } from 'services/types/interfaces';
 import { findPreviousTeam, solve } from 'services/libs/getter';
 import {addResult} from 'services/libs/setter';
 
@@ -171,8 +171,8 @@ export function StartMatchingDialog(props: ContainerProps) {
             const flavors = previous_preferences_team.map((sp: StudentPreference, index: number) => {
                 const s = props.survey.student_preferences[index]
                 return {
-                    student: sp.student.id,
-                    previous: sp.team ? sp.team.id : null,
+                    student: s.student.student_no,
+                    previous: (typeof previous_survey_id == 'number' && sp.team) ? sp.team.id : null,
                     sex: sp.student.sex,
                     mi_a: s.mi_a,
                     mi_b: s.mi_b,
@@ -184,7 +184,7 @@ export function StartMatchingDialog(props: ContainerProps) {
                     mi_h: s.mi_h,
                     leader: s.leader,
                     eyesight: s.eyesight,
-                    dislikes: s.student_dislikes.map((d) => d.student_id)
+                    dislikes: s.student_dislikes.map((d: StudentDislike) => props.survey.class.students.find((s: Student)=>s.id == d.student_id)!.student_no)
                 }
             })
             .sort((a, b) => a.student - b.student)

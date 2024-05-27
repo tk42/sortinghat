@@ -68,8 +68,9 @@ export const CLASS_FIELDS = `
             id
             name
         }
-        students {
+        students(order_by: {student_no: asc}) {
             id
+            student_no
             name
             sex
             memo
@@ -79,6 +80,7 @@ export const CLASS_FIELDS = `
 
 export interface Student {
     id: number;
+    student_no: number;
     name: string;
     sex: number;
     memo?: string;
@@ -88,6 +90,7 @@ export interface Student {
 export const STUDENT_FIELDS = `
     fragment StudentFields on students {
         id
+        student_no
         name
         sex
         memo
@@ -115,8 +118,9 @@ export const SURVEY_FIELDS = `
         class {
             id
             name
-            students(order_by: {id: asc}) {
+            students(order_by: {student_no: asc}) {
                 id
+                student_no
                 name
                 sex
             }
@@ -125,9 +129,10 @@ export const SURVEY_FIELDS = `
                 name
             }
         }
-        student_preferences(order_by: {student: {id: asc}}) {
+        student_preferences(order_by: {student: {student_no: asc}}) {
             student {
                 id
+                student_no
                 sex
             }
             mi_a
@@ -140,7 +145,7 @@ export const SURVEY_FIELDS = `
             mi_h
             leader
             eyesight
-            student_dislikes {
+            student_dislikes(order_by: {id: asc}) {
                 student_id
             }
         }
@@ -160,9 +165,10 @@ export const TEAM_FIELDS = `
         id
         team_id
         name
-        student_preferences {
+        student_preferences(order_by: {student: {student_no: asc}}) {
             student {
                 id
+                student_no
                 name
                 sex
             }
@@ -203,6 +209,7 @@ export const STUDENT_PREFERENCE_FIELDS = `
         id
         student {
             id
+            student_no
             name
             sex
         }
@@ -233,8 +240,9 @@ export const STUDENT_PREFERENCE_FIELDS = `
 export const UPDATE_TEAM_STUDENT_PREFERENCE_FIELDS = `
     fragment UpdateTeamStudentPreferenceFields on student_preferences {
         id
-        student {
+        student(order_by: {student_no: asc}) {
             id
+            student_no
         }
         team {
             id

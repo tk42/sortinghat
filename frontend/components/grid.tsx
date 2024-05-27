@@ -166,7 +166,7 @@ const make_select = (
         >
           <Select
             isMulti
-            defaultValue={dislikeOptions.filter((option: Option) => value.split(',').map((v:string)=>(parseInt(v)-1).toString()).includes(option.value))}
+            defaultValue={dislikeOptions.filter((option: Option) => value.split(",").includes(option.value))}
             isClearable
             isSearchable
             onInputChange={onInputChange}

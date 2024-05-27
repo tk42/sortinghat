@@ -74,7 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             (pref.student_dislikes as StudentDislike[]).map((student_dislike: StudentDislike) => {
                 return {
                     preference_id: preferences[index].id,
-                    student_id: student_dislike.student_id+1
+                    student_id: student_dislike.student_id
                 } as StudentDislike
             })
         ).flat()

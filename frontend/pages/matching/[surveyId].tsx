@@ -27,7 +27,7 @@ const SurveyContainer = (props: {router: NextRouter, survey: Survey}) => {
         (props.survey.student_preferences[index] ?? {mi_h: ''}).mi_h.toString(),
         (props.survey.student_preferences[index] ?? {leader: ''}).leader.toString(),
         (props.survey.student_preferences[index] ?? {eyesight: ''}).eyesight.toString(),
-        (props.survey.student_preferences[index] ?? {student_dislikes: []}).student_dislikes.map((dislike: StudentDislike) => { return dislike.student_id.toString() }).join(',')
+        (props.survey.student_preferences[index] ?? {student_dislikes: []}).student_dislikes.map((dislike: StudentDislike) => { return (props.survey.class.students.find((s: Student)=>s.id == dislike.student_id)!.student_no-1).toString() }).join(',')
     ]));
 
     return (
@@ -81,9 +81,10 @@ const SurveyContainer = (props: {router: NextRouter, survey: Survey}) => {
                                                     eyesight: parseInt(values[11]),
                                                     student_dislikes: values[12].split(',').filter((val: string)=>{
                                                         return val !== ''
-                                                    }).map((id : string) => {
+                                                    }).map((dislike_student_row_index: string)=>{ // Table の仕様で row_index が入る. 0-indexed
+                                                        // console.log(JSON.stringify(props.survey.class.students[parseInt(dislike_student_row_index)]))
                                                         return {
-                                                            student_id: parseInt(id)
+                                                            student_id: props.survey.class.students[parseInt(dislike_student_row_index)].id
                                                         } as StudentDislike
                                                     })
                                                 } as unknown as StudentPreference
