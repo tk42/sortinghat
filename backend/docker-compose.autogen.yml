@@ -1,4 +1,3 @@
-version: "3"
 services:
   sqlc:
     image: kjconroy/sqlc:latest
@@ -11,8 +10,8 @@ services:
     image: ghcr.io/tk42/goose:latest
     platform: linux/amd64
     env_file:
-      - .env.local
-      # - .env.production
+      # - .env.local
+      - .env.production
       # - .env.qa
     working_dir: "/src"
     volumes:

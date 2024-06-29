@@ -8,12 +8,10 @@ services:
     tty: true
     ports:
       - 8000:8000
-    depends_on:
-      - postgres
+    volumes:
+      - ./api:/app
     env_file:
       - .env
-    # environment:
-    #   - POPULATE=1
 
   graphql-engine:
     image: hasura/graphql-engine:v2.18.0

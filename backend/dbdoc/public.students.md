@@ -7,6 +7,7 @@
 | Name | Type | Default | Nullable | Children | Parents | Comment |
 | ---- | ---- | ------- | -------- | -------- | ------- | ------- |
 | id | bigint | nextval('students_id_seq'::regclass) | false | [public.student_preferences](public.student_preferences.md) [public.student_dislikes](public.student_dislikes.md) |  |  |
+| student_no | integer |  | false |  |  |  |
 | name | varchar(255) |  | false |  |  |  |
 | sex | integer |  | false |  |  |  |
 | memo | text |  | true |  |  |  |

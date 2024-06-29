@@ -11,6 +11,7 @@ import (
 
 type Class struct {
 	ID        int64
+	ProxyUuid string
 	Name      string
 	TeacherID sql.NullInt64
 	CreatedAt time.Time
@@ -30,6 +31,7 @@ type School struct {
 
 type Student struct {
 	ID        int64
+	StudentNo int32
 	Name      string
 	Sex       int32
 	Memo      sql.NullString
@@ -67,6 +69,7 @@ type StudentPreference struct {
 
 type Survey struct {
 	ID        int64
+	ProxyUuid string
 	Name      string
 	Status    int32
 	ClassID   sql.NullInt64

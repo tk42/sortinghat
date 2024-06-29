@@ -1,21 +1,19 @@
 # POST https://api-pc7xnvlxlq-an.a.run.app/solve HTTP/1.1
 
-POST http://localhost:8000/solve HTTP/1.1
+POST https://localhost:8000/solve HTTP/1.1
 content-type: application/json
 
 {
-    "class_uuid": "36b8f84d-df4e-4d49-b662-bcde71a8764f",
-    "timeout": 10,
-    "constraint": {
-        "max_num_teams": 8,
-        "members_per_team": 4,
-        "unique_previous": true,
-        "girl_geq_boy": true,
-        "boy_geq_girl": false,
-        "at_least_one_pair_sex": true,
-        "at_least_one_leader": false,
-        "group_diff_coeff": 1.5
-    },
+    "class_id": 3,
+    "max_team_num": 4,
+    "team_num_n": 8,
+    "previous_overlap": 3,
+    "max_leader": null,
+    "min_member": null,
+    "girl_geq_boy": true,
+    "boy_geq_girl": false,
+    "timeout": 120,
+    "group_diff_coeff": 3.0,
     "flavors": [
         {
             "sex": 1,

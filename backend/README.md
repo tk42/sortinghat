@@ -46,6 +46,11 @@ docker push us-central1-docker.pkg.dev/synergy-matching/graphql/graphql-engine
   grant create on schema public to public;
   ```
 
+  1. Appendix. Delete the schema (with all tables)
+  ```
+  DROP SCHEMA public CASCADE;
+  ```
+
 ## Deploy (on GCE)
  1. Create a Container-Optimized instance on VM.
  2. Added docker-compose alias as follows;

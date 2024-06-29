@@ -7,9 +7,9 @@
 | [public.goose_db_version](public.goose_db_version.md) | 4 |  | BASE TABLE |
 | [public.schools](public.schools.md) | 8 |  | BASE TABLE |
 | [public.teachers](public.teachers.md) | 10 |  | BASE TABLE |
-| [public.classes](public.classes.md) | 5 |  | BASE TABLE |
-| [public.students](public.students.md) | 7 |  | BASE TABLE |
-| [public.surveys](public.surveys.md) | 6 |  | BASE TABLE |
+| [public.classes](public.classes.md) | 6 |  | BASE TABLE |
+| [public.students](public.students.md) | 8 |  | BASE TABLE |
+| [public.surveys](public.surveys.md) | 7 |  | BASE TABLE |
 | [public.teams](public.teams.md) | 6 |  | BASE TABLE |
 | [public.student_preferences](public.student_preferences.md) | 16 |  | BASE TABLE |
 | [public.student_dislikes](public.student_dislikes.md) | 5 |  | BASE TABLE |

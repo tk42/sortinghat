@@ -1,7 +1,7 @@
-numpy
-scipy
-pandas
-ortools
-uvicorn[standard]
-asyncpg
 fastapi
+uvicorn[standard]
+starlette
+pulp
+pandas
+numpy
+matplotlib
