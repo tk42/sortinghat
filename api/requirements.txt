@@ -5,3 +5,4 @@ pulp
 pandas
 numpy
 matplotlib
+gql[all]
