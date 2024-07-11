@@ -6,3 +6,5 @@ pandas
 numpy
 matplotlib
 gql[all]
+bcrypt==3.1.7
+passlib
