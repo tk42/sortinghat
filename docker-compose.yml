@@ -3,13 +3,22 @@ services:
     build:
       context: api
       dockerfile: Dockerfile
-    tty: true
+    platform: linux/x86_64
     ports:
-      - 8000:8000
-    volumes:
-      - ./api:/app
+      - 3001:8000
     env_file:
       - api/.env
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    platform: linux/x86_64
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+      - .env.production
 
   graphql-engine:
     image: hasura/graphql-engine:v2.18.0

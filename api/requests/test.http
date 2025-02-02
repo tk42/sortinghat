@@ -1,11 +1,9 @@
 # POST https://api-pc7xnvlxlq-an.a.run.app/solve HTTP/1.1
 
-POST http://localhost:8000/solve HTTP/1.1
+POST http://localhost:8088/match HTTP/1.1
 content-type: application/json
 
 {
-    "class_uuid": "36b8f84d-df4e-4d49-b662-bcde71a8764f",
-    "timeout": 10,
     "constraint": {
         "max_num_teams": 8,
         "members_per_team": 4,
@@ -16,8 +14,9 @@ content-type: application/json
         "at_least_one_leader": false,
         "group_diff_coeff": 1.5
     },
-    "flavors": [
+    "student_constraints": [
         {
+            "student_no": 0,
             "sex": 1,
             "previous": 2,
             "mi_a": 4,
@@ -33,6 +32,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 1,
             "sex": 1,
             "previous": 3,
             "mi_a": 6,
@@ -48,6 +48,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 2,
             "sex": 1,
             "previous": 4,
             "mi_a": 5,
@@ -63,6 +64,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 3,
             "sex": 1,
             "previous": 5,
             "mi_a": 5,
@@ -80,6 +82,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 4,
             "sex": 0,
             "previous": 4,
             "mi_a": 6,
@@ -95,6 +98,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 5,
             "sex": 0,
             "previous": 0,
             "mi_a": 5,
@@ -110,6 +114,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 6,
             "sex": 1,
             "previous": 1,
             "mi_a": 4,
@@ -128,6 +133,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 7,
             "sex": 0,
             "previous": 6,
             "mi_a": 4,
@@ -143,6 +149,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 8,
             "sex": 1,
             "previous": 6,
             "mi_a": 5,
@@ -158,6 +165,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 9,
             "sex": 0,
             "previous": 0,
             "mi_a": 6,
@@ -173,6 +181,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 10,
             "sex": 0,
             "previous": 7,
             "mi_a": 8,
@@ -188,6 +197,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 11,
             "sex": 1,
             "previous": 7,
             "mi_a": 2,
@@ -203,6 +213,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 12,
             "sex": 1,
             "previous": 2,
             "mi_a": 3,
@@ -220,6 +231,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 13,
             "sex": 1,
             "previous": 0,
             "mi_a": 3,
@@ -235,6 +247,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 14,
             "sex": 0,
             "previous": 1,
             "mi_a": 4,
@@ -250,6 +263,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 15,
             "sex": 1,
             "previous": 7,
             "mi_a": 5,
@@ -269,6 +283,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 16,
             "sex": 0,
             "previous": 5,
             "mi_a": 3,
@@ -284,6 +299,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 17,
             "sex": 1,
             "previous": 5,
             "mi_a": 3,
@@ -299,6 +315,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 18,
             "sex": 1,
             "previous": 3,
             "mi_a": 5,
@@ -316,6 +333,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 19,
             "sex": 0,
             "previous": 5,
             "mi_a": 4,
@@ -331,6 +349,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 20,
             "sex": 1,
             "previous": 0,
             "mi_a": 3,
@@ -346,6 +365,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 21,
             "sex": 0,
             "previous": 3,
             "mi_a": 6,
@@ -361,6 +381,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 22,
             "sex": 1,
             "previous": 1,
             "mi_a": 5,
@@ -379,6 +400,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 23,
             "sex": 1,
             "previous": 4,
             "mi_a": 7,
@@ -396,6 +418,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 24,
             "sex": 1,
             "previous": 2,
             "mi_a": 4,
@@ -413,6 +436,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 25,
             "sex": 1,
             "previous": 6,
             "mi_a": 8,
@@ -430,6 +454,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 26,
             "sex": 0,
             "previous": 4,
             "mi_a": 4,
@@ -447,6 +472,7 @@ content-type: application/json
             ]
         },
         {
+            "student_no": 27,
             "sex": 0,
             "previous": 2,
             "mi_a": 5,
@@ -462,6 +488,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 28,
             "sex": 1,
             "previous": 3,
             "mi_a": 3,
@@ -477,6 +504,7 @@ content-type: application/json
             "dislikes": []
         },
         {
+            "student_no": 29,
             "sex": 0,
             "previous": 1,
             "mi_a": 4,

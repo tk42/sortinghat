@@ -3,11 +3,14 @@ import sys
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 from routers import (
     users_router,
-    solve_router,
+    match_router,
+    # solve_router,
     system_router,
+    llm_router
 )
 from logging import getLogger, StreamHandler, INFO
 from starlette.types import Message
@@ -40,7 +43,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # @app.middleware("http")
 # async def log_middle(request: Request, call_next):
 #     # health_checkの場合はログを出力しない
@@ -68,5 +70,7 @@ async def health_check():
 
 
 app.include_router(users_router)
-app.include_router(solve_router)
+# app.include_router(solve_router)
+app.include_router(match_router)
 app.include_router(system_router)
+app.include_router(llm_router)

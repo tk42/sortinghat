@@ -1,10 +1,14 @@
-fastapi
-uvicorn[standard]
-starlette
-pulp
-pandas
-numpy
-matplotlib
-gql[all]
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+starlette==0.45.3
+pulp==2.9.0
+pandas==2.2.3
+numpy==2.2.2
+matplotlib==3.10.0
+gql[all]==3.5.0
 bcrypt==3.1.7
-passlib
+passlib==1.7.4
+itsdangerous==2.2.0
+openai==1.61.0
+python-multipart==0.0.20
+cvxpy ## todo: remove

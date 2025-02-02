@@ -1,0 +1,7 @@
+-- +goose Up
+ALTER TABLE TEACHERS
+ADD COLUMN stripe_id VARCHAR(255);
+
+-- +goose Down
+ALTER TABLE TEACHERS
+DROP COLUMN stripe_id;

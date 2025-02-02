@@ -1,6 +1,9 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from .graphql import client, gql
+import logging
+
+logger = logging.getLogger("uvicorn.app")
 
 
 router = APIRouter(
@@ -30,6 +33,8 @@ async def get_test_version():
     ]
     """
 
+    logger.info("Retrieving database version")
+    
     # Provide a GraphQL query
     query = gql(
         """

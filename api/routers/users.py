@@ -1,5 +1,3 @@
-import json
-
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
@@ -13,11 +11,7 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-router = APIRouter(
-    prefix="/users",
-    tags=["users"],
-    include_in_schema=True
-)
+router = APIRouter(prefix="/users", tags=["users"], include_in_schema=True)
 
 
 class User(BaseModel):
@@ -43,6 +37,11 @@ class UpdatePasswordEndpoint(BaseModel):
     user_id: int
     old_password: str
     new_password: str
+
+
+class RenewPasswordEndpoint(BaseModel):
+    email: str
+    password: str
 
 
 def verify(password: str, hashed: str):
@@ -78,28 +77,23 @@ async def signin(item: SignInEndpoint) -> Optional[User]:
     )
 
     # Execute the query on the transport
-    result = await client.execute_async(
-        query,
-        variable_values={"email": item.email}
-    )
+    result = await client.execute_async(query, variable_values={"email": item.email})
 
     users = result["teachers"]
 
     if len(users) != 1:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No user by the email"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="No user by the email"
         )
 
     user = users[0]
 
     if not verify(item.password, user["password"]):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Unauthorized"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unauthorized"
         )
 
-    return User(**{k: v for k, v in user.items() if k != 'password'})
+    return User(**{k: v for k, v in user.items() if k != "password"})
 
 
 @router.post("/password", response_class=JSONResponse)
@@ -121,22 +115,20 @@ async def update_password(item: UpdatePasswordEndpoint) -> bool:
 
     # Execute the query on the transport
     result = await client.execute_async(
-        query,
-        variable_values={"user_id": item.user_id}
+        query, variable_values={"user_id": item.user_id}
     )
 
     user = result["teachers_by_pk"]
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No user by the email"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="No user by the email"
         )
 
     if not verify(item.old_password, user["password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Unauthorized by the old password"
+            detail=f"Unauthorized by the old password",
         )
 
     encrypted_password = pwd_context.hash(item.new_password)
@@ -169,8 +161,8 @@ async def update_password(item: UpdatePasswordEndpoint) -> bool:
         variable_values={
             "user_id": item.user_id,
             "encrypted_password": encrypted_password,
-            "updated_at": datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f') + 'Z'
-        }
+            "updated_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
+        },
     )
 
     try:
@@ -178,10 +170,18 @@ async def update_password(item: UpdatePasswordEndpoint) -> bool:
     except:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Unauthorized by unknown reason"
+            detail=f"Unauthorized by unknown reason",
         )
 
     return True
+
+
+@router.post("/renew_password", response_class=JSONResponse)
+async def update_password(item: RenewPasswordEndpoint):
+    """
+    :return: str
+    """
+    return {"hash": pwd_context.hash(item.password)}
 
 
 @router.patch("/user", response_class=JSONResponse)
@@ -238,8 +238,8 @@ async def update(user: User) -> User:
             "given_name": user.given_name,
             "school_id": user.school_id,
             "status": user.status,
-            "updated_at": datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f') + 'Z'
-        }
+            "updated_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
+        },
     )
 
     updated_user = result["update_teachers_by_pk"]
@@ -269,12 +269,7 @@ async def delete(user_id: int) -> bool:
     )
 
     # Execute the query on the transport
-    result = await client.execute_async(
-        query,
-        variable_values={
-            "user_id": user_id
-        }
-    )
+    result = await client.execute_async(query, variable_values={"user_id": user_id})
 
     deleted_user = result["delete_teachers_by_pk"]
 

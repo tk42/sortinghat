@@ -3,6 +3,8 @@ services:
     image: kjconroy/sqlc:latest
     volumes:
       - ".:/src"
+      - "/etc/ssl/:/etc/ssl/"
+      - "/tmp:/tmp"
     working_dir: "/src"
     command: generate
 
@@ -11,7 +13,7 @@ services:
     platform: linux/amd64
     env_file:
       # - .env.local
-      - .env.production
+      - ../.env.production
       # - .env.qa
     working_dir: "/src"
     volumes:
@@ -25,7 +27,7 @@ services:
   postgres:
     image: postgres:latest
     env_file:
-      - .env.local
+      - ../.env.local
     ports:
       - 5432:5432
     volumes:
@@ -34,7 +36,7 @@ services:
   pgweb:
     image: "sosedoff/pgweb:latest"
     env_file:
-      - .env.local
+      - ../.env.local
     depends_on:
       - postgres
     ports:
