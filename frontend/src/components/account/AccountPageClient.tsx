@@ -179,6 +179,10 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
 
     const handleAccountDeletion = async () => {
         try {
+            if (!state.teacher) {
+                toast.error('教師情報が見つかりません。');
+                return;
+            }
             await handleDeleteAccount(router, state.user, state.teacher, onDeleteAccount);
         } catch (error) {
             console.error('Account deletion failed:', error);

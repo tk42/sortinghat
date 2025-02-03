@@ -13,6 +13,9 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
+      args:
+        - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
+        - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     platform: linux/x86_64
     ports:
       - 3000:3000

@@ -69,7 +69,7 @@ export const useLoginForm = () => {
       toast.error("エラーが発生しました。");
     }
   };
-  const isInValid: SubmitErrorHandler<SignUpFormSchemaType> = async (errors: any) => {
+  const isInValid: SubmitErrorHandler<LoginFormSchemaType> = async (errors: any) => {
     console.error("エラー:", errors);
     toast.error("エラーが発生しました。");
   };

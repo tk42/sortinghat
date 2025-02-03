@@ -6,7 +6,7 @@ import {
 } from "@/src/utils/form/basicform";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { auth } from "@/src/utils/firebase/firebase"
-import { sendEmailVerification, ActionCodeSettings, createUserWithEmailAndPassword } from "firebase/auth"
+import { sendEmailVerification, ActionCodeSettings, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 
 export const useSignupForm = () => {
   const {
@@ -26,7 +26,7 @@ export const useSignupForm = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
       // displayNameを設定
-      await userCredential.user.updateProfile({
+      await updateProfile(userCredential.user, {
         displayName: name
       });
 

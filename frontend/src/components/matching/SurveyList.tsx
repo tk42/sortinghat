@@ -94,7 +94,7 @@ export default function SurveyList({
                                     クラス: {survey.class.name}
                                 </p>
                                 <p className="text-sm text-gray-500">
-                                    作成日: {new Date(survey.created_at).toLocaleString()}
+                                    作成日: {survey.created_at ? new Date(survey.created_at).toLocaleString() : '日付なし'}
                                 </p>
                             </div>
                             <button

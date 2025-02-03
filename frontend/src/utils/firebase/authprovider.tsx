@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }: Props) => {
                                 throw new Error('Failed to create teacher');
                             }
 
-                            dispatch({ type: 'SET_TEACHER', payload: createTeacherResponse.data });
+                            dispatch({ type: 'SET_TEACHER', payload: createTeacherResponse.data as Teacher });
                         } catch (error) {
                             console.error('Error in creating teacher with stripe:', error);
                             if (error instanceof Error) {
@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }: Props) => {
                             dispatch({ type: 'SET_INITIALIZING', payload: false });
                         }
                     } else {
-                        dispatch({ type: 'SET_TEACHER', payload: teacherResponse.data });
+                        dispatch({ type: 'SET_TEACHER', payload: teacherResponse.data as Teacher });
                     }
                 } catch (error) {
                     console.error('Error in auth state change:', error);

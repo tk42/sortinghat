@@ -48,10 +48,9 @@ const CreateClassSchema = z.object({
 export async function createClass(formData: FormData) {
   try {
     // デバッグ: フォームデータの内容を確認
-    // console.log('FormData contents:');
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // Array.from(formData.entries()).forEach(([key, value]) => {
+    //   console.log(`${key}: ${value}`);
+    // });
 
     // バリデーション
     const validatedData = CreateClassSchema.parse({
