@@ -3,8 +3,15 @@
 import axios from 'axios'
 import { cookies } from 'next/headers'
 import { auth } from '@/src/utils/firebase/admin'
+import { Student, DashboardStudent } from '@/src/lib/interfaces';
 
-export async function fetchStudents(classId: string) {
+type HasuraStudent = Omit<Student, 'class'> & {
+  class_id: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function fetchStudents(classId: string): Promise<DashboardStudent[]> {
   if (!process.env.BACKEND_GQL_API) {
     throw new Error('BACKEND_GQL_API is not configured')
   }
@@ -55,12 +62,13 @@ export async function fetchStudents(classId: string) {
     }
 
     // GraphQLのレスポンスを適切な型に変換
-    const students = response.data.data?.students || []
-    return students.map(student => ({
+    const students = response.data.data?.students as HasuraStudent[] || [];
+    return students.map((student): DashboardStudent => ({
       ...student,
-      id: String(student.id),  // bigintをstringに変換
-      class_id: String(student.class_id)  // bigintをstringに変換
-    }))
+      id: String(student.id),
+      class_id: String(student.class_id),
+      memo: student.memo || null
+    }));
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('Axios error:', {

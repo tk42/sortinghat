@@ -91,6 +91,14 @@ export interface Student {
     class: Class;
 }
 
+export interface DashboardStudent extends Omit<Student, 'id' | 'class' | 'memo'> {
+    id: string;
+    class_id: string;
+    created_at: string;
+    updated_at: string;
+    memo: string | null;
+}
+
 export const STUDENT_FIELDS = `
     fragment StudentFields on students {
         id
@@ -110,8 +118,11 @@ export interface Survey {
     name: string;
     status: number;
     class: Class;
+    class_id: number;
+    student_preferences?: StudentPreference[];
+    created_at?: string;
+    updated_at?: string;
     teams?: Team[]; // ???
-    student_preferences: StudentPreference[];
 }
 
 export const SURVEY_FIELDS = `

@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { z } from 'zod'
-import Papa from 'papaparse'
+import { StudentPreference, StudentDislike } from '@/src/lib/interfaces';
 
 const CREATE_STUDENT_PREFERENCES = `
   mutation CreateStudentPreferences($objects: [student_preferences_insert_input!]!) {
@@ -58,6 +58,21 @@ const GET_STUDENT_IDS = `
   }
 `
 
+interface ProcessedPreference {
+  student_id: string;
+  mi_a: number;
+  mi_b: number;
+  mi_c: number;
+  mi_d: number;
+  mi_e: number;
+  mi_f: number;
+  mi_g: number;
+  mi_h: number;
+  eyesight: number;
+  leader: number;
+  student_dislikes: string[];
+}
+
 // バリデーションスキーマを修正
 const StudentPreferenceSchema = z.object({
   student_id: z.number().int().positive(),
@@ -74,7 +89,6 @@ const StudentPreferenceSchema = z.object({
   leader: z.number().int().min(1).max(8).default(1),
   student_dislikes: z.array(z.number().int().positive()).default([])
 })
-
 
 export async function createStudentPreferences(formData: FormData) {
   if (!process.env.BACKEND_GQL_API) {
@@ -109,16 +123,16 @@ export async function createStudentPreferences(formData: FormData) {
       throw new Error('バックエンドからの応答が不正です')
     }
 
-    const llm_processedData = backendResponse.data.preferences
+    const llm_processedData = backendResponse.data.preferences as ProcessedPreference[];
 
     // 学籍番号のリストを取得（数値として扱う）
-    const studentNos = llm_processedData.map(row => {
-      const studentNo = parseInt(row.student_id)
+    const studentNos = llm_processedData.map((row: ProcessedPreference) => {
+      const studentNo = parseInt(row.student_id);
       if (isNaN(studentNo)) {
-        throw new Error(`Invalid student number: ${row.student_id}`)
+        throw new Error(`Invalid student number: ${row.student_id}`);
       }
-      return studentNo
-    })
+      return studentNo;
+    });
 
     // 学籍番号から学生IDを取得
     const studentResponse = await axios.post(
@@ -215,23 +229,23 @@ export async function createStudentPreferences(formData: FormData) {
       throw new Error(response.data.errors[0].message)
     }
 
-    const createdPreferences = response.data.data.insert_student_preferences.returning
+    const createdPreferences = response.data.data.insert_student_preferences.returning as StudentPreference[];
 
     // dislikesを保存
-    const dislikesObjects = createdPreferences.flatMap(pref => {
-      const studentData = validatedData.find(d => d.student_id === pref.student.id)
-      if (!studentData || !studentData.student_dislikes.length) return []
+    const dislikesObjects = createdPreferences.flatMap((pref: StudentPreference) => {
+      const studentData = validatedData.find(d => d.student_id === pref.student.id);
+      if (!studentData || !studentData.student_dislikes.length) return [];
 
       return studentData.student_dislikes.map(dislikeStudentNo => {
-        const dislikeStudentId = studentIdMap.get(Number(dislikeStudentNo))
-        if (!dislikeStudentId) return null
+        const dislikeStudentId = studentIdMap.get(Number(dislikeStudentNo));
+        if (!dislikeStudentId) return null;
 
         return {
           student_id: dislikeStudentId,
           preference_id: pref.id
-        }
-      }).filter(Boolean)
-    })
+        } as StudentDislike;
+      }).filter(Boolean);
+    });
 
     if (dislikesObjects.length > 0) {
       const dislikesResponse = await axios.post(

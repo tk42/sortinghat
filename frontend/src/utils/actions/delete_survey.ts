@@ -8,7 +8,15 @@ import { Survey } from '@/src/lib/interfaces'
 // GraphQLクエリ
 const DELETE_SURVEY = `
   mutation DeleteSurvey($id: bigint!) {
-    # 先に関連する student_preferences を削除
+    # 最初に student_dislikes を削除
+    delete_student_dislikes(where: {
+      _and: [
+        { student_preference: { survey_id: { _eq: $id } } }
+      ]
+    }) {
+      affected_rows
+    }
+    # 次に student_preferences を削除
     delete_student_preferences(where: {survey_id: {_eq: $id}}) {
       affected_rows
     }
@@ -26,6 +34,9 @@ const DELETE_SURVEY = `
 
 interface DeleteSurveyResponse {
   data: {
+    delete_student_dislikes: {
+      affected_rows: number
+    }
     delete_student_preferences: {
       affected_rows: number
     }
@@ -71,6 +82,14 @@ export async function deleteSurvey(id: string): Promise<Survey> {
 
     if (response.data.errors) {
       throw new Error(`アンケートの削除に失敗しました: ${response.data.errors[0].message}`)
+    }
+
+    // student_dislikes の削除結果を確認
+    const deletedDislikes = response.data.data.delete_student_dislikes
+    if (!deletedDislikes) {
+      console.error('student_dislikes の削除結果が不明です')
+    } else {
+      console.log(`${deletedDislikes.affected_rows} 件の student_dislikes を削除しました`)
     }
 
     // student_preferences の削除結果を確認

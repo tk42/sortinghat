@@ -25,7 +25,7 @@ export default function StudentPreferences({
     const [isUploading, setIsUploading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
-    const [editingValues, setEditingValues] = useState<InputStudentPreference | null>(null)
+    const [editingValues, setEditingValues] = useState<StudentPreference | null>(null)
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         if (acceptedFiles.length === 0) return
@@ -71,33 +71,18 @@ export default function StudentPreferences({
         disabled: studentPreferences.length > 0 || isUploading
     })
 
-    const handleEdit = (preference: InputStudentPreference) => {
-        setEditingId(preference.student_id.toString())
-        setEditingValues({
-            id: preference.id,
-            student_id: preference.student_id,
-            previous_team: preference.previous_team,
-            mi_a: preference.mi_a,
-            mi_b: preference.mi_b,
-            mi_c: preference.mi_c,
-            mi_d: preference.mi_d,
-            mi_e: preference.mi_e,
-            mi_f: preference.mi_f,
-            mi_g: preference.mi_g,
-            mi_h: preference.mi_h,
-            eyesight: preference.eyesight,
-            leader: preference.leader,
-            student_dislikes: preference.student_dislikes
-        })
-    }
+    const handleEdit = (preference: StudentPreference) => {
+        setEditingId(preference.id.toString());
+        setEditingValues(preference);
+    };
 
     const handleSave = async (id: string) => {
         try {
-            await onUpdatePreference(id, [JSON.stringify(editingValues)])
-            setEditingId(null)
-            setEditingValues(null)
+            await onUpdatePreference(id, [JSON.stringify(editingValues)]);
+            setEditingId(null);
+            setEditingValues(null);
         } catch (err) {
-            setError('更新に失敗しました')
+            setError('更新に失敗しました');
         }
     }
 
@@ -164,13 +149,23 @@ export default function StudentPreferences({
                                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                                         {preference.student.name}
                                     </td>
-                                    {editingId === preference.id ? (
+                                    {editingId === preference.id.toString() ? (
                                         <>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
-                                                    value={editingValues.previous_team || ''}
-                                                    onChange={(e) => setEditingValues({...editingValues, previous_team: e.target.value})}
+                                                    value={editingValues?.team?.team_id || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        const newTeam = e.target.value ? {
+                                                            team_id: parseInt(e.target.value),
+                                                            name: `Team ${e.target.value}`
+                                                        } : undefined;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            team: newTeam
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -179,8 +174,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_a}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_a: Number(e.target.value)})}
+                                                    value={editingValues?.mi_a || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_a: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -189,8 +190,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_b}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_b: Number(e.target.value)})}
+                                                    value={editingValues?.mi_b || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_b: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -199,8 +206,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_c}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_c: Number(e.target.value)})}
+                                                    value={editingValues?.mi_c || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_c: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -209,8 +222,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_d}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_d: Number(e.target.value)})}
+                                                    value={editingValues?.mi_d || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_d: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -219,8 +238,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_e}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_e: Number(e.target.value)})}
+                                                    value={editingValues?.mi_e || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_e: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -229,8 +254,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_f}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_f: Number(e.target.value)})}
+                                                    value={editingValues?.mi_f || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_f: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -239,8 +270,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_g}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_g: Number(e.target.value)})}
+                                                    value={editingValues?.mi_g || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_g: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -249,8 +286,14 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.mi_h}
-                                                    onChange={(e) => setEditingValues({...editingValues, mi_h: Number(e.target.value)})}
+                                                    value={editingValues?.mi_h || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            mi_h: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -259,31 +302,48 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="1"
                                                     max="5"
-                                                    value={editingValues.eyesight}
-                                                    onChange={(e) => setEditingValues({...editingValues, eyesight: Number(e.target.value)})}
+                                                    value={editingValues?.eyesight || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            eyesight: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={editingValues.leader}
-                                                    onChange={(e) => setEditingValues({...editingValues, leader: e.target.checked})}
-                                                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                />
+                                                <select
+                                                    value={editingValues?.leader || 1}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            leader: Number(e.target.value)
+                                                        } as StudentPreference);
+                                                    }}
+                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                >
+                                                    <option value={1}>おまかせ</option>
+                                                    <option value={3}>サブリーダー</option>
+                                                    <option value={8}>リーダー</option>
+                                                </select>
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
-                                                    value={editingValues.student_dislikes?.map(d => d.student_id).join(', ') || ''}
+                                                    value={editingValues?.student_dislikes?.map(dislike => dislike.student_id).join(', ') || ''}
                                                     onChange={(e) => {
+                                                        if (!editingValues) return;
                                                         const studentIds = e.target.value.split(',').map(id => id.trim()).filter(Boolean)
                                                         setEditingValues({
                                                             ...editingValues,
                                                             student_dislikes: studentIds.map(id => ({
-                                                                student_id: Number(id)
+                                                                student_id: parseInt(id),
+                                                                updated_at: new Date().toISOString()
                                                             }))
-                                                        })
+                                                        } as StudentPreference);
                                                     }}
                                                     placeholder="学生IDをカンマ区切りで入力"
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -292,7 +352,7 @@ export default function StudentPreferences({
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                                 <div className="flex gap-2 justify-end">
                                                     <button
-                                                        onClick={() => handleSave(preference.id)}
+                                                        onClick={() => handleSave(preference.id.toString())}
                                                         className="rounded-full p-1 hover:bg-gray-100"
                                                         title="保存"
                                                     >
@@ -310,7 +370,7 @@ export default function StudentPreferences({
                                         </>
                                     ) : (
                                         <>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.previous_team}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.team?.name || ''}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_a}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_b}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_c}</td>
@@ -348,10 +408,10 @@ export default function StudentPreferences({
                                                 })()}
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                {preference.student_dislikes?.map((dislike_id, index) => (
-                                                    <span key={dislike_id}>
+                                                {preference.student_dislikes?.map((dislike, index) => (
+                                                    <span key={dislike.student_id}>
                                                         {index > 0 && ", "}
-                                                        {studentPreferences.find(p => p.student.id === dislike_id)?.student.name || `学生ID: ${dislike_id}`}
+                                                        {studentPreferences.find(p => p.student.id === dislike.student_id)?.student.name || `学生ID: ${dislike.student_id}`}
                                                     </span>
                                                 ))}
                                             </td>
@@ -365,7 +425,7 @@ export default function StudentPreferences({
                                                         <PencilIcon className="h-5 w-5 text-blue-600" />
                                                     </button>
                                                     <button
-                                                        onClick={() => onDeletePreference(preference.id)}
+                                                        onClick={() => onDeletePreference(preference.id.toString())}
                                                         className="rounded-full p-1 hover:bg-gray-100"
                                                         title="削除"
                                                     >
