@@ -28,7 +28,7 @@ services:
       - "postgres"
     restart: always
     env_file:
-      - backend/.env.local
+      - .env.local
     environment:
       ## postgres database to store Hasura metadata
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://user:passw0rd@postgres:5432/db
@@ -48,7 +48,7 @@ services:
     image: postgres:latest
     restart: always
     env_file:
-      - backend/.env.local
+      - .env.local
     ports:
       - 5432:5432
     volumes:

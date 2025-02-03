@@ -6,6 +6,13 @@ export async function POST(req: NextRequest) {
     const cookies = parse(req.headers.get('cookie') || '');
     const customerId = cookies.customer;
 
+    if (!customerId) {
+        return NextResponse.json(
+            { error: 'Customer ID not found' },
+            { status: 400 }
+        );
+    }
+
     const { newEmail } = await req.json();
 
     try {

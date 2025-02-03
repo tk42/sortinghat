@@ -15,7 +15,7 @@ function classNames(...classes: any[]) {
 const LOGIN_TAB = { name: 'ログイン' }
 const SIGNUP_TAB = { name: '新規登録' }
 
-const tabs = [LOGIN_TAB] // TODO: release the beta and add [LOGIN_TAB, SIGNUP_TAB]
+const tabs = (process.env.NODE_ENV === "development") ? [LOGIN_TAB] : [LOGIN_TAB, SIGNUP_TAB]
 
 
 function PageContent() {

@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
         });
 
         // クライアントシークレットを取得
-        const clientSecret = (subscription.latest_invoice?.payment_intent as Stripe.PaymentIntent)
-            ?.client_secret;
+        const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
+        const clientSecret = (latestInvoice.payment_intent as Stripe.PaymentIntent)?.client_secret;
 
         if (!clientSecret) {
             return NextResponse.json(
