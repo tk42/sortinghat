@@ -52,6 +52,22 @@ const UPDATE_STUDENT_TEAMS = `
   }
 `
 
+// 型定義
+interface Team {
+  id: number
+  team_id: number
+}
+
+interface TeamResponse {
+  data: {
+    insert_teams: {
+      returning: Team[]
+      affected_rows: number
+    }
+  }
+  errors?: Array<{ message: string }>
+}
+
 // バリデーションスキーマ
 const UpdateStudentTeamSchema = z.object({
   teams: z.record(z.string(), z.array(z.number())),
@@ -133,7 +149,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
       team_id: parseInt(teamNo)
     }))
 
-    const createTeamsResponse = await axios.post(
+    const createTeamsResponse = await axios.post<TeamResponse>(
       process.env.BACKEND_GQL_API!,
       {
         query: CREATE_TEAMS,
@@ -191,6 +207,8 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
     if (updateResponse.data.errors) {
       throw new Error(updateResponse.data.errors[0].message)
     }
+
+    console.log(`Updated ${updateResponse.data.data.update_student_preferences_many.affected_rows} student preferences`)
 
     return {
       success: true,
