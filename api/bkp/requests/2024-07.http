@@ -11,9 +11,27 @@ content-type: application/json
     "girl_geq_boy":false,
     "boy_geq_girl":false,
     "at_least_one_leader":false,
-    "unique_previous":false
+    "unique_previous": 1
   },
   "student_constraints":[
+    {
+      "student_no":0,
+      "sex":0,
+      "previous":1,
+      "mi_a":4,
+      "mi_b":7,
+      "mi_c":8,
+      "mi_d":4,
+      "mi_e":9,
+      "mi_f":9,
+      "mi_g":7,
+      "mi_h":9,
+      "leader":8,
+      "eyesight":1,
+      "dislikes":[
+        
+      ]
+    },
     {
       "student_no":1,
       "sex":1,
@@ -535,24 +553,6 @@ content-type: application/json
       "mi_g":6,
       "mi_h":2,
       "leader":1,
-      "eyesight":1,
-      "dislikes":[
-        
-      ]
-    },
-    {
-      "student_no":30,
-      "sex":0,
-      "previous":1,
-      "mi_a":4,
-      "mi_b":7,
-      "mi_c":8,
-      "mi_d":4,
-      "mi_e":9,
-      "mi_f":9,
-      "mi_g":7,
-      "mi_h":9,
-      "leader":8,
       "eyesight":1,
       "dislikes":[
         

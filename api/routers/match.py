@@ -18,7 +18,8 @@ router = APIRouter(prefix="/match", tags=["match"], include_in_schema=True)
 async def match(req: MatchingRequest):
     teams = matching(req.student_constraints, req.constraint)
 
-    print("Team assignments:", teams)
+    if teams is None:
+        return JSONResponse(content={"error": "No matching."})
 
     mi_score_by_team = calc_mi_score(req.student_constraints, teams)
     sex_by_team = calc_sex_by_team(req.student_constraints, teams)
