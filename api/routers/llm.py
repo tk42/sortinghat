@@ -95,4 +95,5 @@ async def upload_file(
 async def format_constraints(
     data: str = Form(...),
 ) -> Dict[str, Any]:
+    # 自然言語で入力された制約条件を Constraints に変換する
     return json.loads(data)
