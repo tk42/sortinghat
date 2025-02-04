@@ -1,6 +1,6 @@
 'use client'
 
-import { Survey, StudentPreference, InputStudentPreference } from '@/src/lib/interfaces'
+import { Survey, StudentPreference, InputStudentPreference, Student } from '@/src/lib/interfaces'
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { createStudentPreferences } from '@/src/utils/actions/create_student_preferences'
@@ -121,7 +121,8 @@ export default function StudentPreferences({
                     <table className="min-w-full divide-y divide-gray-300">
                         <thead>
                             <tr>
-                                <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">学生番号</th>
+                            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                     学生
                                 </th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -144,13 +145,29 @@ export default function StudentPreferences({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {studentPreferences.map((preference) => (
+                            {studentPreferences.sort((a, b) => a.student.student_no - b.student.student_no).map((preference) => (
                                 <tr key={preference.id} className={preference.student.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}>
-                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                                        {preference.student.name}
-                                    </td>
                                     {editingId === preference.id.toString() ? (
                                         <>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm">
+                                                <input
+                                                    type="number"
+                                                    value={editingValues?.student.student_no || ''}
+                                                    onChange={(e) => {
+                                                        if (!editingValues) return;
+                                                        setEditingValues({
+                                                            ...editingValues,
+                                                            student: {
+                                                                student_no: Number(e.target.value)
+                                                            } as Student,
+                                                        } as StudentPreference);
+                                                    }}
+                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                />
+                                            </td>
+                                            <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                                                {preference.student.name}
+                                            </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
@@ -173,7 +190,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_a || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -189,7 +206,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_b || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -205,7 +222,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_c || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -221,7 +238,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_d || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -237,7 +254,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_e || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -253,7 +270,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_f || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -269,7 +286,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_g || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -285,7 +302,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.mi_h || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -301,7 +318,7 @@ export default function StudentPreferences({
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    max="5"
+                                                    max="8"
                                                     value={editingValues?.eyesight || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -370,6 +387,8 @@ export default function StudentPreferences({
                                         </>
                                     ) : (
                                         <>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.student?.student_no || ''}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.student?.name || ''}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.team?.name || ''}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_a}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_b}</td>

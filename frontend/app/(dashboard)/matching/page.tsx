@@ -16,7 +16,7 @@ export default async function Page() {
     const sessionCookie = cookieStore.get('auth-token')?.value
 
     if (!sessionCookie) {
-      redirect('/login')
+        redirect('/login')
     }
 
     const decodedToken = await auth.verifySessionCookie(sessionCookie)
