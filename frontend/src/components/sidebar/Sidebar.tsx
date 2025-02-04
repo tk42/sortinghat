@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { IdentificationIcon, ChartBarIcon, AcademicCapIcon, HomeModernIcon } from '@heroicons/react/24/outline'; // @heroicons/react のアイコンを使用
+import { IdentificationIcon, PencilSquareIcon, ChartPieIcon, AcademicCapIcon, HomeModernIcon } from '@heroicons/react/24/outline'; // @heroicons/react のアイコンを使用
 import { NavigationItem } from './NavigationItem';
 
 export const Sidebar = () => {
@@ -38,11 +38,12 @@ export const Sidebar = () => {
                         }}
                     />
                 </div>
-                <NavigationItem icon={AcademicCapIcon} href={'/dashboard'} name={'担任クラス'} />
-                <NavigationItem icon={ChartBarIcon} href={'/matching'} name={'マッチング'} />
-                <NavigationItem icon={IdentificationIcon} href={'/account'} name={'アカウント'} />
+                <NavigationItem icon={AcademicCapIcon} href={'/dashboard'} name={'担任クラス'} matchingDrawer={false} />
+                <NavigationItem icon={PencilSquareIcon} href={'/surveys'} name={'アンケート'} matchingDrawer={true} />
+                <NavigationItem icon={ChartPieIcon} href={'/matching'} name={'マッチング'} matchingDrawer={false} />
+                <NavigationItem icon={IdentificationIcon} href={'/account'} name={'アカウント'} matchingDrawer={false} />
                 <div className="flex-grow"></div>
-                <NavigationItem icon={HomeModernIcon} href={'/'} name={'ホーム'} />
+                <NavigationItem icon={HomeModernIcon} href={'/'} name={'ホーム'} matchingDrawer={false} />
             </nav>
         </>
     );

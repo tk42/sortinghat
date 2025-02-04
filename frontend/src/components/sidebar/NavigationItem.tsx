@@ -5,13 +5,14 @@ type Props = {
     href: string;
     name: string;
     icon: React.ElementType; // アイコンの型を設定
+    matchingDrawer: boolean;
 };
 
 export const NavigationItem = (props: Props) => {
     const matchingDrawer = useMatchingDrawer();
 
     const handleClick = (e: React.MouseEvent) => {
-        if (props.href === '/matching' && matchingDrawer) {
+        if (props.matchingDrawer && matchingDrawer) {
             matchingDrawer.setIsDrawerOpen(true);
         }
     };

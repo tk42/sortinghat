@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import DashboardClient from '@/src/components/dashboard/DashboardClient'
 import { auth } from '@/src/utils/firebase/admin'
@@ -13,24 +12,14 @@ export const metadata: Metadata = {
 export default async function Page() {
   const cookieStore = cookies()
   const sessionCookie = cookieStore.get('auth-token')?.value
-
-  if (!sessionCookie) {
-    redirect('/login')
-  }
-
-  try {
-    const decodedToken = await auth.verifySessionCookie(sessionCookie)
-    const classes = await fetchClasses(decodedToken.uid)
-    
-    return (
-      <main className="py-10 px-4">
-        <div className="max-w-7xl mx-auto">
-          <DashboardClient initialClasses={classes} />
-        </div>
-      </main>
-    )
-  } catch (error) {
-    console.error('Error in dashboard page:', error)
-    redirect('/login')
-  }
+  const decodedToken = await auth.verifySessionCookie(sessionCookie!)
+  const classes = await fetchClasses(decodedToken.uid)
+  
+  return (
+    <main className="py-10 px-4">
+      <div className="max-w-7xl mx-auto">
+        <DashboardClient initialClasses={classes} />
+      </div>
+    </main>
+  )
 }

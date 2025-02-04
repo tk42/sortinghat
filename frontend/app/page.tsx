@@ -8,25 +8,25 @@ const features = [
   {
     name: '席替えを簡単に',
     description:
-      '多大な負荷となる席替えを考える時間を短くすることができます',
+      '複雑な席替えの計画を短時間で完了し、負担を軽減します',
     icon: ArrowsRightLeftIcon,
   },
   {
     name: '教員の主観を排除',
     description:
-      '児童の心理特性に基づいてスコアを算出するため，教員の主観を排除できます',
+      '児童の心理特性に基づいてスコアを算出し、客観的な席替えを実現します',
     icon: AcademicCapIcon,
   },
   {
     name: 'アクティブラーニング',
     description:
-      '班分け，人間関係について児童本人に考えさせることでアクティブラーニングを推進します',
+      '班分けや人間関係を児童自身が考えることで、アクティブラーニングを促進します',
     icon: UserGroupIcon,
   },
   {
-    name: '条件を柔軟に設定できます',
+    name: '柔軟な条件設定',
     description:
-      'AI搭載で，制約条件を柔軟に設定することができ，使いやすさにもこだわりました',
+      '制約条件を柔軟に調整し、使いやすさを追求しました',
     icon: CogIcon,
   },
 ]
@@ -45,7 +45,7 @@ const HowToUse = () => {
 
   return (
     <div className="mt-10 max-w-[1920px] mx-auto px-8">
-      <div className="text-center">
+      <div className="text-left">
         <div className="flex flex-col md:flex-row justify-between items-stretch gap-6">
           {/* 従来のプロセス */}
           <div className="flex-1 p-8 bg-gray-50 rounded-lg min-w-[400px] lg:min-w-[500px]">
@@ -84,7 +84,7 @@ const HowToUse = () => {
           <div className="flex-1 p-8 bg-blue-50 rounded-lg min-w-[400px] lg:min-w-[500px]">
             <h3 className="text-2xl font-semibold mb-8">提案方式</h3>
             <div className="space-y-6">
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 <NumberCircle number={1} />
                 <div className="flex-1">
                   <p className="text-lg">児童が心理テストに回答</p>
@@ -95,7 +95,7 @@ const HowToUse = () => {
                   alt="テストを受ける生徒"
                 />
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 <NumberCircle number={2} />
                 <div className="flex-1">
                   <p className="text-lg">回答結果をシステムに入力</p>
@@ -106,7 +106,7 @@ const HowToUse = () => {
                   alt="入力する先生"
                 />
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 <NumberCircle number={3} />
                 <div className="flex-1">
                   <p className="text-lg">最適な班分けが出力</p>
@@ -117,7 +117,7 @@ const HowToUse = () => {
                   alt="システム出力"
                 />
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 <NumberCircle number={4} />
                 <div className="flex-1">
                   <p className="text-lg">班毎に座席配置</p>

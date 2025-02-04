@@ -1,16 +1,15 @@
 "use client"
 
-import React, { Suspense, useState } from "react";
+import React, { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { Toaster } from 'react-hot-toast';
-import { Container as Loading } from "@/src/components/Common/Loading";
+// import { Container as Loading } from "@/src/components/Common/Loading";
 import SignupForm from "@/src/components/login/SignupForm";
 import LoginForm from "@/src/components/login/LoginForm";
 import { ResetPasswordModal } from "@/src/components/login/ResetPasswordModal";
+import { classNames } from "@/src/lib/utils";
 
-function classNames(...classes: any[]) {
-  return classes.filter(Boolean).join(' ')
-}
 
 const LOGIN_TAB = { name: 'ログイン' }
 const SIGNUP_TAB = { name: '新規登録' }
@@ -18,7 +17,7 @@ const SIGNUP_TAB = { name: '新規登録' }
 const tabs = (process.env.NODE_ENV === "production" && process.env.STRIPE_SECRET_KEY?.startsWith("pk_live_")) ? [LOGIN_TAB, SIGNUP_TAB] : [LOGIN_TAB]
 
 
-function PageContent() {
+export default function PageContent() {
   const [tabIndex, setTabIndex] = useState(0);
 
   const [show, setShow] = useState(false);
@@ -30,17 +29,19 @@ function PageContent() {
       <div className="hero-content flex-col text-center">
         <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
           <div className="card-body">
-            <Image 
-              src="/logo.png" 
-              width={256} 
-              height={256} 
-              alt="Synergy MatchMaker" 
-              priority 
-              style={{
-                width: '100%',
-                height: 'auto',
-              }}
-            />
+            <Link href="/">
+              <Image 
+                src="/logo.png" 
+                width={256} 
+                height={256} 
+                alt="Synergy MatchMaker" 
+                priority 
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                }}
+              />
+            </Link>
             <div className="hidden sm:block">
               <div className="border-b border-gray-200">
                 <nav aria-label="Tabs" className="-mb-px flex justify-center">
@@ -76,13 +77,4 @@ function PageContent() {
       </div>
     </div >
   )
-}
-
-export default function LoginPage() {
-
-  return (
-    <Suspense fallback={<Loading />}>
-      <PageContent />
-    </Suspense>
-  );
 }

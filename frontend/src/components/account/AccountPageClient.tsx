@@ -26,11 +26,11 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
     const [prices, setPrices] = useState<Price[]>([]);
     const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [paymentClientSecret, setPaymentClientSecret] = useState<string>('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const handleTeacherName = async (name: string) => {
         if (!state.user) {
@@ -63,7 +63,7 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
     useEffect(() => {
         const initialize = async () => {
             if (!state.user) {
-                setLoading(false);
+                setIsInitialLoading(false);
                 return;
             }
 
@@ -152,7 +152,7 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
                 console.error('Failed to fetch data:', error);
                 setError(error instanceof Error ? error.message : 'データの取得に失敗しました');
             } finally {
-                setLoading(false);
+                setIsInitialLoading(false);
             }
         };
 
@@ -160,7 +160,7 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
     }, [state.user, state.teacher]);
 
     // Early return for loading state
-    if (loading) {
+    if (isInitialLoading) {
         return <Loading />;
     }
 
@@ -193,7 +193,7 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
     // サブスクリプションの中止
     const handlePauseSubscription = async () => {
         try {
-            setIsLoading(true);
+            setIsProcessing(true);
             const idToken = await getIdToken(state.user!);
             
             const response = await fetch('/api/stripe/pause-subscription', {
@@ -217,14 +217,14 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
         } catch (error: any) {
             toast.error(error.message);
         } finally {
-            setIsLoading(false);
+            setIsProcessing(false);
         }
     };
 
     // サブスクリプションの再開
     const handleResumeSubscription = async () => {
         try {
-            setIsLoading(true);
+            setIsProcessing(true);
             const idToken = await getIdToken(state.user!);
             
             const response = await fetch('/api/stripe/resume-subscription', {
@@ -248,7 +248,7 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
         } catch (error: any) {
             toast.error(error.message);
         } finally {
-            setIsLoading(false);
+            setIsProcessing(false);
         }
     };
 
@@ -420,19 +420,19 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
                                             {subscription.status === 'active' && !subscription.pause_collection && (
                                                 <button
                                                     onClick={handlePauseSubscription}
-                                                    disabled={isLoading}
+                                                    disabled={isProcessing}
                                                     className="mt-4 w-full px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:bg-gray-400"
                                                 >
-                                                    {isLoading ? '処理中...' : 'プランを中止する'}
+                                                    {isProcessing ? '処理中...' : 'プランを中止する'}
                                                 </button>
                                             )}
                                             {subscription.status === 'active' && subscription.pause_collection?.behavior === 'keep_as_draft' && (
                                                 <button
                                                     onClick={handleResumeSubscription}
-                                                    disabled={isLoading}
+                                                    disabled={isProcessing}
                                                     className="mt-4 w-full px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
                                                 >
-                                                    {isLoading ? '処理中...' : 'プランを再開する'}
+                                                    {isProcessing ? '処理中...' : 'プランを再開する'}
                                                 </button>
                                             )}
 
