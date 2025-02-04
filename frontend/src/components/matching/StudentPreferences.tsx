@@ -329,21 +329,21 @@ export default function StudentPreferences({
                     <table className="min-w-full divide-y divide-gray-300">
                         <thead>
                             <tr>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-32">名簿番号</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-48">名簿番号</th>
                                 <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                     学生
                                 </th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-32">
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-48">
                                     前回チーム
                                 </th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-A</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-B</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-C</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-D</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-E</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-F</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-G</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-H</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">A</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">B</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">C</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">D</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">E</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">F</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">G</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">視力</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">リーダー</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">嫌いな学生</th>
@@ -359,7 +359,7 @@ export default function StudentPreferences({
                                         <>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
-                                                    type="number"
+                                                    type="text"
                                                     value={editingValues?.student.student_no || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -394,7 +394,7 @@ export default function StudentPreferences({
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_a || ''}
                                                     onChange={(e) => {
@@ -404,13 +404,13 @@ export default function StudentPreferences({
                                                             mi_a: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_b || ''}
                                                     onChange={(e) => {
@@ -420,13 +420,13 @@ export default function StudentPreferences({
                                                             mi_b: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_c || ''}
                                                     onChange={(e) => {
@@ -436,13 +436,13 @@ export default function StudentPreferences({
                                                             mi_c: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_d || ''}
                                                     onChange={(e) => {
@@ -452,13 +452,13 @@ export default function StudentPreferences({
                                                             mi_d: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_e || ''}
                                                     onChange={(e) => {
@@ -468,13 +468,13 @@ export default function StudentPreferences({
                                                             mi_e: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_f || ''}
                                                     onChange={(e) => {
@@ -484,13 +484,13 @@ export default function StudentPreferences({
                                                             mi_f: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_g || ''}
                                                     onChange={(e) => {
@@ -500,13 +500,13 @@ export default function StudentPreferences({
                                                             mi_g: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="number"
-                                                    min="1"
+                                                    min="0"
                                                     max="8"
                                                     value={editingValues?.mi_h || ''}
                                                     onChange={(e) => {
@@ -516,7 +516,7 @@ export default function StudentPreferences({
                                                             mi_h: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -529,7 +529,7 @@ export default function StudentPreferences({
                                                             eyesight: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 >
                                                     <option value={1}>どこでもいいよ</option>
                                                     <option value={3}>どちらかというと前</option>

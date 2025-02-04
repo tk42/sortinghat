@@ -163,7 +163,10 @@ export default function StudentList({
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {[...students].sort((a, b) => a.student_no - b.student_no).map((student) => (
-                  <tr key={student.id}>
+                  <tr 
+                    key={student.id}
+                    className={`${student.sex === 1 ? 'bg-blue-50' : student.sex === 2 ? 'bg-pink-50' : ''}`}
+                  >
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                       {editingId === student.id ? (
                         <input
