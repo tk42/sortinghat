@@ -50,6 +50,26 @@ const UPDATE_STUDENT_PREFERENCE = `
       leader
       eyesight
       previous_team
+      student_dislikes {
+        student_id
+        updated_at
+      }
+    }
+  }
+`
+
+const DELETE_STUDENT_DISLIKES = `
+  mutation DeleteStudentDislikes($preference_id: bigint!) {
+    delete_student_dislikes(where: {student_preference_id: {_eq: $preference_id}}) {
+      affected_rows
+    }
+  }
+`
+
+const INSERT_STUDENT_DISLIKES = `
+  mutation InsertStudentDislikes($objects: [student_dislikes_insert_input!]!) {
+    insert_student_dislikes(objects: $objects) {
+      affected_rows
     }
   }
 `
@@ -82,7 +102,9 @@ export async function updateStudentPreference(formData: FormData) {
     }
 
     await auth.verifySessionCookie(sessionCookie)
-    const response = await axios.post(
+
+    // 1. Update student preferences
+    const preferenceResponse = await axios.post(
       process.env.BACKEND_GQL_API,
       {
         query: UPDATE_STUDENT_PREFERENCE,
@@ -99,7 +121,7 @@ export async function updateStudentPreference(formData: FormData) {
           leader: Number(preferences.leader),
           eyesight: Number(preferences.eyesight),
           previous_team: preferences.previous_team ? preferences.previous_team.toString() : null
-        },
+        }
       },
       {
         headers: {
@@ -107,21 +129,55 @@ export async function updateStudentPreference(formData: FormData) {
           'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_ADMIN_SECRET,
         },
       }
-    )
+    );
 
-    if (response.data.errors) {
-      console.error('GraphQL Response:', JSON.stringify(response.data, null, 2))
-      throw new Error(`GraphQL Error: ${JSON.stringify(response.data.errors)}`)
+    if (preferenceResponse.data.errors) {
+      throw new Error(`GraphQL Error: ${JSON.stringify(preferenceResponse.data.errors)}`);
     }
 
-    if (!response.data.data?.update_student_preferences_by_pk) {
-      console.error('Unexpected response format:', JSON.stringify(response.data, null, 2))
-      throw new Error('Failed to update student preference: No data returned')
+    // 2. Delete existing dislikes
+    await axios.post(
+      process.env.BACKEND_GQL_API,
+      {
+        query: DELETE_STUDENT_DISLIKES,
+        variables: {
+          preference_id: String(validatedData.id)
+        }
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_ADMIN_SECRET,
+        },
+      }
+    );
+
+    // 3. Insert new dislikes if any
+    if (preferences.student_dislikes && preferences.student_dislikes.length > 0) {
+      await axios.post(
+        process.env.BACKEND_GQL_API,
+        {
+          query: INSERT_STUDENT_DISLIKES,
+          variables: {
+            objects: preferences.student_dislikes.map((dislike: any) => ({
+              student_preference_id: String(validatedData.id),
+              student_id: Number(dislike.student_id),
+              updated_at: new Date().toISOString()
+            }))
+          }
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_ADMIN_SECRET,
+          },
+        }
+      );
     }
 
-    return response.data.data.update_student_preferences_by_pk
+    return preferenceResponse.data.data.update_student_preferences_by_pk;
   } catch (error) {
-    console.error('Error updating student preference:', error)
-    throw error
+    console.error('Error updating student preference:', error);
+    throw error;
   }
 }

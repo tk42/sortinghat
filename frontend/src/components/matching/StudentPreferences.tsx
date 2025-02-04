@@ -520,10 +520,7 @@ export default function StudentPreferences({
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    max="8"
+                                                <select
                                                     value={editingValues?.eyesight || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
@@ -533,7 +530,11 @@ export default function StudentPreferences({
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                />
+                                                >
+                                                    <option value={1}>どこでもいいよ</option>
+                                                    <option value={3}>どちらかというと前</option>
+                                                    <option value={8}>目が悪いので前</option>
+                                                </select>
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <select
@@ -555,19 +556,18 @@ export default function StudentPreferences({
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
-                                                    value={editingValues?.student_dislikes?.map(dislike => dislike.student_id).join(', ') || ''}
+                                                    value={editingValues?.student_dislikes?.map(dislike => studentPreferences.find(p => p.student.id === dislike.student_id)?.student.student_no).join(', ') || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
-                                                        const studentIds = e.target.value.split(',').map(id => id.trim()).filter(Boolean)
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            student_dislikes: studentIds.map(id => ({
-                                                                student_id: parseInt(id),
+                                                            student_dislikes: e.target.value === '' ? [] : e.target.value.split(',').map(id => ({
+                                                                student_id: parseInt(id) || 0,
                                                                 updated_at: new Date().toISOString()
                                                             }))
                                                         } as StudentPreference);
                                                     }}
-                                                    placeholder="学生IDをカンマ区切りで入力"
+                                                    placeholder="学生IDをカンマ区切りで入力（例: 1, 2, 3）"
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
