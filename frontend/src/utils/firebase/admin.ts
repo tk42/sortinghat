@@ -5,7 +5,10 @@ if (!serviceAccountStr) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not set');
 }
 
-const serviceAccount = JSON.parse(serviceAccountStr);
+// Base64デコードしてJSONに変換
+const serviceAccount = JSON.parse(
+    Buffer.from(serviceAccountStr, 'base64').toString('utf-8')
+);
 
 // Firebase Admin SDK の初期化
 if (!admin.apps.length) {
