@@ -280,7 +280,7 @@ export default function StudentPreferences({
                                                     <input
                                                         type="number"
                                                         id="unique_previous"
-                                                        value={constraint.unique_previous || ''}
+                                                        value={constraint.unique_previous}
                                                         onChange={(e) => setConstraint({ ...constraint, unique_previous: e.target.value ? parseInt(e.target.value) : undefined })}
                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
@@ -329,7 +329,7 @@ export default function StudentPreferences({
                     <table className="min-w-full divide-y divide-gray-300">
                         <thead>
                             <tr>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-32">学生番号</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-32">名簿番号</th>
                                 <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                     学生
                                 </th>

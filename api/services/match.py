@@ -6,57 +6,69 @@ from models.match import StudentConstraint, Constraint
 logger = logging.getLogger(__name__)
 
 
-def calc_mi_score(students, teams):
+# def calc_mi_score(students, teams):
+#     if teams is None:
+#         return None
+
+#     # スコアの合計を計算する
+#     categories = ["mi_a", "mi_b", "mi_c", "mi_d", "mi_e", "mi_f", "mi_g", "mi_h"]
+#     team_scores = {team: [0.0] * (len(categories)) for team in teams}
+
+#     for team, members in teams.items():
+#         for member in members:
+#             for i, cat in enumerate(categories):
+#                 team_scores[team][i] += getattr(students[member], cat)
+
+#     return team_scores
+
+
+# def calc_sex_by_team(students, teams):
+#     if teams is None:
+#         return None
+
+#     # チーム毎の性別を計算する
+#     team_sexes = {team: [] for team in teams}
+#     for team, members in teams.items():
+#         for member in members:
+#             team_sexes[team].append(students[member].sex)
+#     return team_sexes
+
+
+# def calc_previous_by_team(students, teams):
+#     if teams is None:
+#         return None
+
+#     # チーム毎の前回のチームを計算する
+#     team_previous = {team: [] for team in teams}
+#     for team, members in teams.items():
+#         for member in members:
+#             team_previous[team].append(students[member].previous)
+#     return team_previous
+
+
+# def calc_dislikes_by_team(students, teams):
+#     if teams is None:
+#         return None
+
+#     # チーム毎の嫌いな生徒を計算する
+#     team_dislikes = {team: [] for team in teams}
+#     for team, members in teams.items():
+#         team_dislikes[team] = []
+#         for member in members:
+#             team_dislikes[team] += [students[member].dislikes]
+#     return team_dislikes
+
+
+def calc_student_no_by_team(students, teams):
     if teams is None:
         return None
 
-    # スコアの合計を計算する
-    categories = ["mi_a", "mi_b", "mi_c", "mi_d", "mi_e", "mi_f", "mi_g", "mi_h"]
-    team_scores = {team: [0.0] * (len(categories)) for team in teams}
+    # student_no に変換する
+    student_no_by_team = {t: [students[m].student_no + 1 for m in members] for t, members in teams.items()}
 
-    for team, members in teams.items():
-        for member in members:
-            for i, cat in enumerate(categories):
-                team_scores[team][i] += getattr(students[member], cat)
-
-    return team_scores
-
-
-def calc_sex_by_team(students, teams):
-    if teams is None:
-        return None
-
-    # チーム毎の性別を計算する
-    team_sexes = {team: [] for team in teams}
-    for team, members in teams.items():
-        for member in members:
-            team_sexes[team].append(students[member].sex)
-    return team_sexes
-
-
-def calc_previous_by_team(students, teams):
-    if teams is None:
-        return None
-
-    # チーム毎の前回のチームを計算する
-    team_previous = {team: [] for team in teams}
-    for team, members in teams.items():
-        for member in members:
-            team_previous[team].append(students[member].previous)
-    return team_previous
-
-
-def calc_dislikes_by_team(students, teams):
-    if teams is None:
-        return None
-
-    # チーム毎の嫌いな生徒を計算する
-    team_dislikes = {team: [] for team in teams}
-    for team, members in teams.items():
-        team_dislikes[team] = []
-        for member in members:
-            team_dislikes[team] += [students[member].dislikes]
-    return team_dislikes
+    # チームのメンバーをソートする
+    student_no_by_team = {t: sorted(members) for t, members in student_no_by_team.items()}
+    return student_no_by_team
 
 
 def matching(
@@ -177,7 +189,7 @@ def matching(
         # 制約8：嫌いな生徒との割り当てを避ける
         for i in range(len(student_constraints)):
             for disliked in student_constraints[i].dislikes:
-                if disliked < len(student_constraints):  # 有効な学生番号かチェック
+                if disliked < len(student_constraints):  # 有効な名簿番号かチェック
                     for t in range(constraint.max_num_teams):
                         prob += x[(i, t)] + x[(disliked, t)] <= 1
 
@@ -248,10 +260,11 @@ def matching(
                 for t in range(constraint.max_num_teams):
                     if x[(i, t)].value() > 0.5:  # バイナリ変数なので0.5以上を1とみなす
                         teams[t].append(i)
-            return teams
         else:
             logger.error("No feasible solution found")
             return None
+
+        return teams
 
     except Exception as e:
         logger.error(f"Error in matching: {str(e)}")

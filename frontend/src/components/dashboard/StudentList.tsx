@@ -145,7 +145,7 @@ export default function StudentList({
               <thead>
                 <tr>
                   <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                    生徒番号
+                    名簿番号
                   </th>
                   <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     名前
@@ -286,7 +286,7 @@ export default function StudentList({
                           setNewStudent({ ...newStudent, student_no: value ? parseInt(value) : 0 });
                         }
                       }}
-                      placeholder="生徒番号を入力"
+                      placeholder="名簿番号を入力"
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                   </td>

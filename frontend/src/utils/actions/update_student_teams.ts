@@ -178,7 +178,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
       return studentNos.map(studentNo => ({
         where: {
           _and: [
-            { student: { student_no: { _eq: studentNo } } },
+            { student: { student_no: { _eq: studentNo + 1 } } },  // Adjust for 1-indexing
             { survey_id: { _eq: validatedData.surveyId } }
           ]
         },

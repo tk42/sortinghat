@@ -32,7 +32,7 @@ const CREATE_STUDENT = `
 
 // バリデーションスキーマ
 const CreateStudentSchema = z.object({
-  student_no: z.number().int().positive('生徒番号は正の整数である必要があります'),
+  student_no: z.number().int().positive('名簿番号は正の整数である必要があります'),
   name: z.string().min(1, '生徒名は必須です'),
   sex: z.number().int().min(1).max(2, '性別は1（男性）または2（女性）である必要があります'),
   memo: z.string().optional(),
