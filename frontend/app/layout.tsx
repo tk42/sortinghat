@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/src/utils/firebase/authprovider";
+import { MatchingDrawerProvider } from "@/src/contexts/MatchingDrawerContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +28,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <AuthProvider>
-          {children}
+          <MatchingDrawerProvider>
+            {children}
+          </MatchingDrawerProvider>
         </AuthProvider>
       </body>
     </html>

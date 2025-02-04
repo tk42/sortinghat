@@ -13,7 +13,7 @@ import { deleteSurvey } from '@/src/utils/actions/delete_survey'
 import { Teacher, Class, Survey, StudentPreference } from '@/src/lib/interfaces'
 import SurveyList from './SurveyList'
 import StudentPreferences from './StudentPreferences'
-
+import { useMatchingDrawer } from '@/src/contexts/MatchingDrawerContext'
 
 interface MatchingPageClientProps {
     initialSurveys: Survey[]
@@ -22,6 +22,7 @@ interface MatchingPageClientProps {
 export default function MatchingPageClient({ initialSurveys }: MatchingPageClientProps) {
     const { state } = useAuthContext()
     const router = useRouter()
+    const { isDrawerOpen, setIsDrawerOpen } = useMatchingDrawer()
     const [surveys, setSurveys] = useState<Survey[]>(initialSurveys)
     const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null)
     const [studentPreferences, setStudentPreferences] = useState<StudentPreference[]>([])
@@ -132,32 +133,29 @@ export default function MatchingPageClient({ initialSurveys }: MatchingPageClien
 
     return (
         <div className="px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-12 gap-8">
-                {/* アンケート一覧 */}
-                <div className="col-span-4">
-                    <SurveyList
-                        surveys={surveys}
-                        classes={classes}
-                        selectedSurvey={selectedSurvey}
-                        onSelectSurvey={setSelectedSurvey}
-                        onCreateSurvey={handleCreateSurvey}
-                        onDeleteSurvey={handleDeleteSurvey}
-                    />
-                </div>
+            <SurveyList
+                surveys={surveys}
+                classes={classes}
+                selectedSurvey={selectedSurvey}
+                onSelectSurvey={(survey) => {
+                    setSelectedSurvey(survey);
+                    setIsDrawerOpen(false);  
+                }}
+                onCreateSurvey={handleCreateSurvey}
+                onDeleteSurvey={handleDeleteSurvey}
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+            />
 
-                {/* アンケート回答表示 */}
-                <div className="col-span-8">
-                    {selectedSurvey && (
-                        <StudentPreferences
-                            survey={selectedSurvey}
-                            studentPreferences={studentPreferences}
-                            setStudentPreferences={setStudentPreferences}
-                            onUpdatePreference={handleUpdatePreference}
-                            onDeletePreference={handleDeletePreference}
-                        />
-                    )}
-                </div>
-            </div>
+            {selectedSurvey && (
+                <StudentPreferences
+                    survey={selectedSurvey}
+                    studentPreferences={studentPreferences}
+                    setStudentPreferences={setStudentPreferences}
+                    onUpdatePreference={handleUpdatePreference}
+                    onDeletePreference={handleDeletePreference}
+                />
+            )}
         </div>
     )
 }

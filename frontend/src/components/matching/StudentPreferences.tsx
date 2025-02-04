@@ -121,11 +121,11 @@ export default function StudentPreferences({
                     <table className="min-w-full divide-y divide-gray-300">
                         <thead>
                             <tr>
-                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">学生番号</th>
-                            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-32">学生番号</th>
+                                <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                     学生
                                 </th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-32">
                                     前回チーム
                                 </th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">MI-A</th>
@@ -162,7 +162,7 @@ export default function StudentPreferences({
                                                             } as Student,
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
@@ -174,13 +174,11 @@ export default function StudentPreferences({
                                                     value={editingValues?.team?.team_id || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
-                                                        const newTeam = e.target.value ? {
-                                                            team_id: parseInt(e.target.value),
-                                                            name: `Team ${e.target.value}`
-                                                        } : undefined;
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            team: newTeam
+                                                            team: {
+                                                                team_id: e.target.value
+                                                            },
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
