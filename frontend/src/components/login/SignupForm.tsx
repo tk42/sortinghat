@@ -1,5 +1,6 @@
 "use client"
 
+import Link from 'next/link';
 import { useSignupForm } from "@/src/hooks/useSingupForm";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 
@@ -81,6 +82,10 @@ export default function SignupForm() {
                         </div>
                     </div>
                 )}
+            </div>
+            <div className="mt-5 text-xs text-gray-600">
+                本サービスを利用しているユーザーは、<br />
+                <Link href="/terms-of-services" className="underline">利用規約</Link>に同意したものとみなします
             </div>
 
             <div className="form-control mt-6">

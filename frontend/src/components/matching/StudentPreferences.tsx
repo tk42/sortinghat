@@ -1,11 +1,14 @@
 'use client'
 
-import { Survey, StudentPreference, InputStudentPreference, Student } from '@/src/lib/interfaces'
-import { useState, useCallback } from 'react'
+import { Survey, StudentPreference, Student, Constraint } from '@/src/lib/interfaces'
+import { useState, useCallback, Fragment } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { createStudentPreferences } from '@/src/utils/actions/create_student_preferences'
+import { updateStudentTeams } from '@/src/utils/actions/update_student_teams'
 import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-hot-toast'
+import { Dialog, Transition } from '@headlessui/react'
+import { redirect } from 'next/navigation'
 
 interface StudentPreferencesProps {
     survey: Survey
@@ -13,6 +16,7 @@ interface StudentPreferencesProps {
     setStudentPreferences: (preferences: StudentPreference[]) => void
     onUpdatePreference: (preferenceId: string, preferences: string[]) => Promise<void>
     onDeletePreference: (preferenceId: string) => Promise<void>
+    matchStudentPreferences: (constraint: Constraint, preferences: StudentPreference[]) => Promise<Record<string, number[]>>
 }
 
 export default function StudentPreferences({ 
@@ -20,12 +24,24 @@ export default function StudentPreferences({
     studentPreferences,
     setStudentPreferences,
     onUpdatePreference,
-    onDeletePreference
+    onDeletePreference,
+    matchStudentPreferences
 }: StudentPreferencesProps) {
     const [isUploading, setIsUploading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingValues, setEditingValues] = useState<StudentPreference | null>(null)
+    const [isMatchingModalOpen, setIsMatchingModalOpen] = useState(false)
+    const [constraint, setConstraint] = useState<Constraint>({
+        max_num_teams: 8,
+        members_per_team: 4,
+        at_least_one_pair_sex: true,
+        girl_geq_boy: true,
+        boy_geq_girl: false,
+        at_least_one_leader: false,
+        unique_previous: 1,
+        group_diff_coeff: 1.5
+    })
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         if (acceptedFiles.length === 0) return
@@ -45,7 +61,7 @@ export default function StudentPreferences({
             formData.append('survey_id', survey.id.toString())
 
             const newPreferences = await createStudentPreferences(formData)
-            console.log("newPreferences", newPreferences)
+            // console.log("newPreferences", newPreferences)
             if (newPreferences) {
                 setStudentPreferences(newPreferences)
                 toast.success('アンケートを正常にアップロードしました')
@@ -91,6 +107,33 @@ export default function StudentPreferences({
         setEditingValues(null)
     }
 
+    const handleMatching = async () => {
+        try {
+            // console.log('Matching with constraints:', constraint)
+            // console.log('Student preferences:', studentPreferences)
+
+            // matching API call
+            const teams: Record<string, number[]> = await matchStudentPreferences(constraint, studentPreferences)
+            // console.log('Matching result teams:', JSON.stringify(teams, null, 2))
+
+            // survey_idを取得（student_preferencesから）
+            const survey: Survey = studentPreferences[0]?.survey
+
+            if (!survey) {
+                throw new Error('Survey ID not found')
+            }
+
+            // console.log('Survey ID:', survey)  // {id: 60, name: 'アンケート_20250204_1204'}
+
+            await updateStudentTeams(teams, survey.id)
+
+            toast.success('マッチングを見つけました')
+            setIsMatchingModalOpen(false)
+        } catch (error) {
+            toast.error('マッチングを見つけられませんでした')
+        }
+    }
+
     if (studentPreferences.length === 0) {
         return (
             <div className="p-4">
@@ -116,6 +159,171 @@ export default function StudentPreferences({
 
     return (
         <div className="mt-8 flow-root">
+            <div className="flex justify-end mb-4">
+                <button
+                    type="button"
+                    onClick={() => setIsMatchingModalOpen(true)}
+                    className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                    マッチング条件設定
+                </button>
+            </div>
+
+            <Transition.Root show={isMatchingModalOpen} as={Fragment}>
+                <Dialog as="div" className="relative z-10" onClose={setIsMatchingModalOpen}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 z-10 overflow-y-auto">
+                        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                            <Transition.Child
+                                as={Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                enterTo="opacity-100 translate-y-0 sm:scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                            >
+                                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                                    <div>
+                                        <div className="mt-3 sm:mt-5">
+                                            <Dialog.Title as="h3" className="text-xl font-semibold leading-6 text-gray-900">
+                                                マッチング条件設定
+                                            </Dialog.Title>
+                                            <div className="mt-4 space-y-4">
+                                                <div>
+                                                    <label htmlFor="max_num_teams" className="block text-sm font-medium text-gray-700">
+                                                        チーム数
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        id="max_num_teams"
+                                                        value={constraint.max_num_teams}
+                                                        onChange={(e) => setConstraint({ ...constraint, max_num_teams: parseInt(e.target.value) })}
+                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="members_per_team" className="block text-sm font-medium text-gray-700">
+                                                        チームあたりの最大人数
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        id="members_per_team"
+                                                        value={constraint.members_per_team || ''}
+                                                        onChange={(e) => setConstraint({ ...constraint, members_per_team: e.target.value ? parseInt(e.target.value) : undefined })}
+                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="at_least_one_pair_sex"
+                                                        checked={constraint.at_least_one_pair_sex}
+                                                        onChange={(e) => setConstraint({ ...constraint, at_least_one_pair_sex: e.target.checked })}
+                                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                    />
+                                                    <label htmlFor="at_least_one_pair_sex" className="ml-2 block text-sm text-gray-700">
+                                                        男女ペアを1組以上含む
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="girl_geq_boy"
+                                                        checked={constraint.girl_geq_boy}
+                                                        onChange={(e) => setConstraint({ ...constraint, girl_geq_boy: e.target.checked })}
+                                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                    />
+                                                    <label htmlFor="girl_geq_boy" className="ml-2 block text-sm text-gray-700">
+                                                        女子が男子以上
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="boy_geq_girl"
+                                                        checked={constraint.boy_geq_girl}
+                                                        onChange={(e) => setConstraint({ ...constraint, boy_geq_girl: e.target.checked })}
+                                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                    />
+                                                    <label htmlFor="boy_geq_girl" className="ml-2 block text-sm text-gray-700">
+                                                        男子が女子以上
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="at_least_one_leader"
+                                                        checked={constraint.at_least_one_leader}
+                                                        onChange={(e) => setConstraint({ ...constraint, at_least_one_leader: e.target.checked })}
+                                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                    />
+                                                    <label htmlFor="at_least_one_leader" className="ml-2 block text-sm text-gray-700">
+                                                        リーダーを1人以上含む
+                                                    </label>
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="unique_previous" className="block text-sm font-medium text-gray-700">
+                                                        前回チームメンバーの重複制限（任意）
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        id="unique_previous"
+                                                        value={constraint.unique_previous || ''}
+                                                        onChange={(e) => setConstraint({ ...constraint, unique_previous: e.target.value ? parseInt(e.target.value) : undefined })}
+                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="group_diff_coeff" className="block text-sm font-medium text-gray-700">
+                                                        グループ差異係数（任意）
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.1"
+                                                        id="group_diff_coeff"
+                                                        value={constraint.group_diff_coeff || ''}
+                                                        onChange={(e) => setConstraint({ ...constraint, group_diff_coeff: e.target.value ? parseFloat(e.target.value) : undefined })}
+                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                                        <button
+                                            type="button"
+                                            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
+                                            onClick={handleMatching}
+                                        >
+                                            マッチング
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                                            onClick={() => setIsMatchingModalOpen(false)}
+                                        >
+                                            キャンセル
+                                        </button>
+                                    </div>
+                                </Dialog.Panel>
+                            </Transition.Child>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition.Root>
+
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                     <table className="min-w-full divide-y divide-gray-300">
@@ -171,18 +379,13 @@ export default function StudentPreferences({
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
-                                                    value={editingValues?.team?.team_id || ''}
+                                                    value={editingValues?.previous_team || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
                                                         const teamId = e.target.value;
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            team: teamId ? {
-                                                                id: editingValues.team?.id,
-                                                                team_id: Number(teamId),
-                                                                name: `Team ${teamId}`,
-                                                                survey: editingValues.survey
-                                                            } : undefined
+                                                            previous_team: Number(teamId)
                                                         });
                                                     }}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -201,7 +404,7 @@ export default function StudentPreferences({
                                                             mi_a: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -217,7 +420,7 @@ export default function StudentPreferences({
                                                             mi_b: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -233,7 +436,7 @@ export default function StudentPreferences({
                                                             mi_c: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -249,7 +452,7 @@ export default function StudentPreferences({
                                                             mi_d: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -265,7 +468,7 @@ export default function StudentPreferences({
                                                             mi_e: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -281,7 +484,7 @@ export default function StudentPreferences({
                                                             mi_f: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -297,7 +500,7 @@ export default function StudentPreferences({
                                                             mi_g: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -313,7 +516,7 @@ export default function StudentPreferences({
                                                             mi_h: Number(e.target.value)
                                                         } as StudentPreference);
                                                     }}
-                                                    className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="block w-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -391,7 +594,7 @@ export default function StudentPreferences({
                                         <>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.student?.student_no || ''}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.student?.name || ''}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.team?.name || ''}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.previous_team || ''}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_a}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_b}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{preference.mi_c}</td>

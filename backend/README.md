@@ -32,10 +32,10 @@ docker push us-central1-docker.pkg.dev/synergy-matching/graphql/graphql-engine
 ```
  1. Set as following based on [here](https://github.com/hasura/graphql-engine/issues/2673#issuecomment-545182529)
   ```
-  postgres://<user>:<password>@/<database>?host=/cloudsql/<instance_name>
+  postgresql://<user>:<password>@/<database>?host=/cloudsql/<project>:<region>:<instance_name>
   ```
  1. for migration, add a network temp as [here](https://cloud.google.com/sql/docs/postgres/configure-ip)
- 1. Test connection
+ 2. Test connection
   ```
   psql -h <CloudSQL IP> -p 5432 -U <User> -d <Database>
   ```

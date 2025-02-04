@@ -8,9 +8,10 @@ import { fetchClasses } from '@/src/utils/actions/fetch_classes'
 import { fetchStudentPreferences } from '@/src/utils/actions/fetch_student_preferences'
 import { updateStudentPreference } from '@/src/utils/actions/update_student_preference'
 import { deleteStudentPreference } from '@/src/utils/actions/delete_student_preference'
+import { matchStudentPreferences } from '@/src/utils/actions/match_student_preferences'
 import { createSurvey } from '@/src/utils/actions/create_survey'
 import { deleteSurvey } from '@/src/utils/actions/delete_survey'
-import { Teacher, Class, Survey, StudentPreference } from '@/src/lib/interfaces'
+import { Constraint, Class, Survey, StudentPreference } from '@/src/lib/interfaces'
 import SurveyList from './SurveyList'
 import StudentPreferences from './StudentPreferences'
 import { useMatchingDrawer } from '@/src/contexts/MatchingDrawerContext'
@@ -131,6 +132,10 @@ export default function MatchingPageClient({ initialSurveys }: MatchingPageClien
         }
     }
 
+    async function handleMatching(constraint: Constraint, preferences: StudentPreference[]) {
+        return await matchStudentPreferences(constraint, preferences)
+    }
+
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <SurveyList
@@ -154,6 +159,7 @@ export default function MatchingPageClient({ initialSurveys }: MatchingPageClien
                     setStudentPreferences={setStudentPreferences}
                     onUpdatePreference={handleUpdatePreference}
                     onDeletePreference={handleDeletePreference}
+                    matchStudentPreferences={handleMatching}
                 />
             )}
         </div>

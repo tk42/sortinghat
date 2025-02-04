@@ -69,9 +69,10 @@ CREATE TABLE TEAMS (
 
 CREATE TABLE STUDENT_PREFERENCES (
     id BIGSERIAL PRIMARY KEY,
-    student_id BIGINT,
-    survey_id BIGINT,
+    student_id BIGINT NOT NULL,
+    survey_id BIGINT NOT NULL,
     team_id BIGINT,
+    previous_team BIGINT NOT NULL,
     mi_a INTEGER NOT NULL,
     mi_b INTEGER NOT NULL,
     mi_c INTEGER NOT NULL,

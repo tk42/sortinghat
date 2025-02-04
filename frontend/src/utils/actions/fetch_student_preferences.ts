@@ -30,10 +30,7 @@ export async function fetchStudentPreferences(surveyId: string) {
           id
           name
         }
-        team {
-          id
-          name
-        }
+        previous_team
         mi_a
         mi_b
         mi_c

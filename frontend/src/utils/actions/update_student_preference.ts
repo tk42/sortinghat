@@ -33,7 +33,7 @@ const UPDATE_STUDENT_PREFERENCE = `
         mi_h: $mi_h,
         leader: $leader,
         eyesight: $eyesight,
-        team_id: $previous_team
+        previous_team: $previous_team
       }
     ) {
       id
@@ -49,7 +49,7 @@ const UPDATE_STUDENT_PREFERENCE = `
       mi_h
       leader
       eyesight
-      team_id
+      previous_team
     }
   }
 `

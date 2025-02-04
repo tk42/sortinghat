@@ -1,32 +1,14 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from typing import Dict, Any
-import json
-from openai import OpenAI
 import os
+import json
 import logging
-from pydantic import BaseModel
+from openai import OpenAI
+from typing import Dict, Any
+from fastapi import APIRouter, UploadFile, File, Form
+
+from models.match import StudentPreferences
+
 
 logger = logging.getLogger("uvicorn.app")
-
-
-class StudentPreference(BaseModel):
-    student_id: int
-    previous_team: int
-    mi_a: int
-    mi_b: int
-    mi_c: int
-    mi_d: int
-    mi_e: int
-    mi_f: int
-    mi_g: int
-    mi_h: int
-    leader: int
-    eyesight: int
-    student_dislikes: list[int]
-
-
-class StudentPreferences(BaseModel):
-    preferences: list[StudentPreference]
 
 
 router = APIRouter(

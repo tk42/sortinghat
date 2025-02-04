@@ -15,6 +15,11 @@ const CREATE_STUDENT_PREFERENCES = `
           name
           sex
         }
+        survey {
+          id
+          name
+        }
+        previous_team
         mi_a
         mi_b
         mi_c
@@ -60,6 +65,7 @@ const GET_STUDENT_IDS = `
 
 interface ProcessedPreference {
   student_id: string;
+  previous_team: number;
   mi_a: number;
   mi_b: number;
   mi_c: number;
@@ -77,14 +83,15 @@ interface ProcessedPreference {
 const StudentPreferenceSchema = z.object({
   student_id: z.number().int().positive(),
   survey_id: z.number().int().positive(),
-  mi_a: z.number().int().min(1).max(8).default(1),
-  mi_b: z.number().int().min(1).max(8).default(1),
-  mi_c: z.number().int().min(1).max(8).default(1),
-  mi_d: z.number().int().min(1).max(8).default(1),
-  mi_e: z.number().int().min(1).max(8).default(1),
-  mi_f: z.number().int().min(1).max(8).default(1),
-  mi_g: z.number().int().min(1).max(8).default(1),
-  mi_h: z.number().int().min(1).max(8).default(1),
+  previous_team: z.number().int().positive(),
+  mi_a: z.number().int().min(0).max(8).default(0),
+  mi_b: z.number().int().min(0).max(8).default(0),
+  mi_c: z.number().int().min(0).max(8).default(0),
+  mi_d: z.number().int().min(0).max(8).default(0),
+  mi_e: z.number().int().min(0).max(8).default(0),
+  mi_f: z.number().int().min(0).max(8).default(0),
+  mi_g: z.number().int().min(0).max(8).default(0),
+  mi_h: z.number().int().min(0).max(8).default(0),
   eyesight: z.number().int().min(1).max(8).default(1),
   leader: z.number().int().min(1).max(8).default(1),
   student_dislikes: z.array(z.number().int().positive()).default([])
@@ -175,14 +182,15 @@ export async function createStudentPreferences(formData: FormData) {
       const validated = StudentPreferenceSchema.parse({
         student_id: studentId,
         survey_id: surveyId,
-        mi_a: row.mi_a || 1,
-        mi_b: row.mi_b || 1,
-        mi_c: row.mi_c || 1,
-        mi_d: row.mi_d || 1,
-        mi_e: row.mi_e || 1,
-        mi_f: row.mi_f || 1,
-        mi_g: row.mi_g || 1,
-        mi_h: row.mi_h || 1,
+        previous_team: row.previous_team,
+        mi_a: row.mi_a || 0,
+        mi_b: row.mi_b || 0,
+        mi_c: row.mi_c || 0,
+        mi_d: row.mi_d || 0,
+        mi_e: row.mi_e || 0,
+        mi_f: row.mi_f || 0,
+        mi_g: row.mi_g || 0,
+        mi_h: row.mi_h || 0,
         eyesight: row.eyesight,
         leader: row.leader,
         student_dislikes: row.student_dislikes || []
@@ -204,6 +212,7 @@ export async function createStudentPreferences(formData: FormData) {
           objects: validatedData.map(d => ({
             student_id: d.student_id,
             survey_id: d.survey_id,
+            previous_team: d.previous_team,
             mi_a: d.mi_a,
             mi_b: d.mi_b,
             mi_c: d.mi_c,
@@ -214,6 +223,11 @@ export async function createStudentPreferences(formData: FormData) {
             mi_h: d.mi_h,
             eyesight: d.eyesight,
             leader: d.leader,
+            student_dislikes: {
+              data: d.student_dislikes.map(student_id => ({
+                student_id: studentIdMap.get(Number(student_id))
+              }))
+            }
           }))
         },
       },
@@ -230,46 +244,7 @@ export async function createStudentPreferences(formData: FormData) {
     }
 
     const createdPreferences = response.data.data.insert_student_preferences.returning as StudentPreference[];
-
-    // dislikesを保存
-    const dislikesObjects = createdPreferences.flatMap((pref: StudentPreference) => {
-      const studentData = validatedData.find(d => d.student_id === pref.student.id);
-      if (!studentData || !studentData.student_dislikes.length) return [];
-
-      return studentData.student_dislikes.map(dislikeStudentNo => {
-        const dislikeStudentId = studentIdMap.get(Number(dislikeStudentNo));
-        if (!dislikeStudentId) return null;
-
-        return {
-          student_id: dislikeStudentId,
-          preference_id: pref.id
-        } as StudentDislike;
-      }).filter(Boolean);
-    });
-
-    if (dislikesObjects.length > 0) {
-      const dislikesResponse = await axios.post(
-        process.env.BACKEND_GQL_API,
-        {
-          query: CREATE_STUDENT_DISLIKES,
-          variables: {
-            objects: dislikesObjects
-          },
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_ADMIN_SECRET,
-          },
-        }
-      )
-
-      if (dislikesResponse.data.errors) {
-        throw new Error(dislikesResponse.data.errors[0].message)
-      }
-    }
-
-    return createdPreferences
+    return createdPreferences;
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(error.errors[0].message)

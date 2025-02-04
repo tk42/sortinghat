@@ -1,6 +1,27 @@
 from pydantic import BaseModel
 
 
+class StudentPreference(BaseModel):
+    student_id: int
+    # without sex
+    previous_team: int
+    mi_a: int
+    mi_b: int
+    mi_c: int
+    mi_d: int
+    mi_e: int
+    mi_f: int
+    mi_g: int
+    mi_h: int
+    leader: int
+    eyesight: int
+    student_dislikes: list[int]
+
+
+class StudentPreferences(BaseModel):
+    preferences: list[StudentPreference]
+
+
 class StudentConstraint(BaseModel):
     # all fields are 0-indexed
     student_no: int | None

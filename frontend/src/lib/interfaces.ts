@@ -215,28 +215,12 @@ export const STUDENT_DISLIKE_FIELDS = `
     }
 `
 
-export interface InputStudentPreference {
-    id: number;
-    student_id: number;
-    previous_team: number;
-    mi_a: number;
-    mi_b: number;
-    mi_c: number;
-    mi_d: number;
-    mi_e: number;
-    mi_f: number;
-    mi_g: number;
-    mi_h: number;
-    leader: string;
-    eyesight: string;
-    student_dislikes: number[];
-}
-
 export interface StudentPreference {
     id: number;
     student: Student;
     survey: Survey;
     team?: Team;
+    previous_team: number;
     mi_a: number;
     mi_b: number;
     mi_c: number;
@@ -325,6 +309,17 @@ export interface Subscription {
     pause_collection?: {
         behavior: 'keep_as_draft' | 'mark_uncollectible' | 'void';
     };
+}
+
+export interface Constraint {
+    max_num_teams: number;
+    members_per_team?: number;
+    at_least_one_pair_sex: boolean;
+    girl_geq_boy: boolean;
+    boy_geq_girl: boolean;
+    at_least_one_leader: boolean;
+    unique_previous?: number;
+    group_diff_coeff?: number;
 }
 
 export interface Score {
