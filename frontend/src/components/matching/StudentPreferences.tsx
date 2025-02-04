@@ -174,12 +174,16 @@ export default function StudentPreferences({
                                                     value={editingValues?.team?.team_id || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const teamId = e.target.value;
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            team: {
-                                                                team_id: e.target.value
-                                                            },
-                                                        } as StudentPreference);
+                                                            team: teamId ? {
+                                                                id: editingValues.team?.id,
+                                                                team_id: Number(teamId),
+                                                                name: `Team ${teamId}`,
+                                                                survey: editingValues.survey
+                                                            } : undefined
+                                                        });
                                                     }}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
