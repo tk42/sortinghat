@@ -124,7 +124,7 @@ export async function createStudentPreferences(formData: FormData) {
       throw new Error('CSVファイルのアップロード中にエラーが発生しました')
     })
 
-    console.log('Backend response:', backendResponse.data)
+    // console.log('Backend response:', backendResponse.data)
 
     if (!backendResponse.data.preferences) {
       throw new Error('バックエンドからの応答が不正です')

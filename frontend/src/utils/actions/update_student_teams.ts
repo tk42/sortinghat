@@ -87,15 +87,6 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
       surveyId,
     })
 
-    const cookieStore = cookies()
-    const sessionCookie = cookieStore.get('auth-token')?.value
-
-    if (!sessionCookie) {
-      throw new Error('Not authenticated')
-    }
-
-    await auth.verifySessionCookie(sessionCookie)
-
     // まずstudent_preferencesのteam_idをnullに設定
     const resetResponse = await axios.post(
       process.env.BACKEND_GQL_API!,
@@ -117,7 +108,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
       throw new Error(resetResponse.data.errors[0].message)
     }
 
-    console.log(`Reset ${resetResponse.data.data.update_student_preferences.affected_rows} student preferences`)
+    // console.log(`Reset ${resetResponse.data.data.update_student_preferences.affected_rows} student preferences`)
 
     // 既存のチームを削除
     const deleteResponse = await axios.post(
@@ -140,7 +131,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
       throw new Error(deleteResponse.data.errors[0].message)
     }
 
-    console.log(`Deleted ${deleteResponse.data.data.delete_teams.affected_rows} existing teams`)
+    // console.log(`Deleted ${deleteResponse.data.data.delete_teams.affected_rows} existing teams`)
 
     // チームを一括作成
     const teamObjects = Object.entries(validatedData.teams).map(([teamNo, _]) => ({
@@ -178,7 +169,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
       return studentNos.map(studentNo => ({
         where: {
           _and: [
-            { student: { student_no: { _eq: studentNo + 1 } } },  // Adjust for 1-indexing
+            { student: { student_no: { _eq: studentNo } } },
             { survey_id: { _eq: validatedData.surveyId } }
           ]
         },
@@ -208,7 +199,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
       throw new Error(updateResponse.data.errors[0].message)
     }
 
-    console.log(`Updated ${updateResponse.data.data.update_student_preferences_many.affected_rows} student preferences`)
+    // console.log(`Updated ${updateResponse.data.data.update_student_preferences_many.affected_rows} student preferences`)
 
     return {
       success: true,
