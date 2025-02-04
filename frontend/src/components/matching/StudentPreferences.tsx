@@ -346,7 +346,7 @@ export default function StudentPreferences({
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">視力</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">リーダー</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">嫌いな学生</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-96">嫌いな学生（名簿番号をカンマ区切りで入力）</th>
                                 <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                     <span className="sr-only">Actions</span>
                                 </th>
@@ -567,7 +567,7 @@ export default function StudentPreferences({
                                                             }))
                                                         } as StudentPreference);
                                                     }}
-                                                    placeholder="学生IDをカンマ区切りで入力（例: 1, 2, 3）"
+                                                    placeholder="例: 1, 2, 3"
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </td>
@@ -631,7 +631,7 @@ export default function StudentPreferences({
                                                     }
                                                 })()}
                                             </td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            <td className="whitespace-wrap px-3 py-4 text-sm text-gray-500">
                                                 {preference.student_dislikes?.map((dislike, index) => (
                                                     <span key={dislike.student_id}>
                                                         {index > 0 && ", "}
