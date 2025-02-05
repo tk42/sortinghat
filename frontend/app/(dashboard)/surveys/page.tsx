@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { auth } from '@/src/utils/firebase/admin'
 import SurveysPageClient from '@/src/components/survey/SurveysPageClient'
 import { fetchSurveys } from '@/src/utils/actions/fetch_surveys'

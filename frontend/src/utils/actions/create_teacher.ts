@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers'
 import admin from '@/src/utils/firebase/admin'
 import { fetchGqlAPI } from '@/src/lib/fetchGqlAPI'
-import { Teacher, TEACHER_FIELDS } from '@/src/lib/interfaces'
+import { Teacher } from '@/src/lib/interfaces'
 import { z } from 'zod'
 import { TeacherSchema, ActionResponse, verifyAuth } from '@/src/utils/types/teacher'
 
@@ -28,7 +28,6 @@ export async function createTeacher(
     }
     
     const query = `
-      ${TEACHER_FIELDS}
       mutation AddTeacher($firebase_uid: String!, $name: String!, $email: String!, $stripe_id: String) {
         insert_teachers_one(object: {
           firebase_uid: $firebase_uid,
@@ -36,7 +35,13 @@ export async function createTeacher(
           email: $email,
           stripe_id: $stripe_id
         }) {
-          ...TeacherFields
+          id
+          firebase_uid
+          name
+          email
+          stripe_id
+          created_at
+          updated_at
         }
       }
     `

@@ -7,6 +7,7 @@ import { fetchSurveys } from '@/src/utils/actions/fetch_surveys'
 import { fetchClasses } from '@/src/utils/actions/fetch_classes'
 import { fetchStudentPreferences } from '@/src/utils/actions/fetch_student_preferences'
 import { updateStudentPreference } from '@/src/utils/actions/update_student_preference'
+import { duplicateSurvey } from '@/src/utils/actions/duplicate_survey'
 import { deleteStudentPreference } from '@/src/utils/actions/delete_student_preference'
 import { matchStudentPreferences } from '@/src/utils/actions/match_student_preferences'
 import { createSurvey } from '@/src/utils/actions/create_survey'
@@ -114,6 +115,19 @@ export default function SurveysPageClient({ initialSurveys }: SurveysPageClientP
         }
     }
 
+    async function handleDuplicateSurvey(surveyId: string) {
+        try {
+            await duplicateSurvey(surveyId)
+            if (state.user?.uid) {
+                // アンケート複製後に surveys を再取得
+                const updatedSurveys = await fetchSurveys(state.user.uid)
+                setSurveys(updatedSurveys)
+            }
+        } catch (error) {
+            console.error('Failed to duplicate survey:', error)
+        }
+    }
+
     async function handleDeleteSurvey(surveyId: string) {
         try {
             await deleteSurvey(surveyId)
@@ -147,6 +161,7 @@ export default function SurveysPageClient({ initialSurveys }: SurveysPageClientP
                     setIsDrawerOpen(false);  
                 }}
                 onCreateSurvey={handleCreateSurvey}
+                onDuplicateSurvey={handleDuplicateSurvey}
                 onDeleteSurvey={handleDeleteSurvey}
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}

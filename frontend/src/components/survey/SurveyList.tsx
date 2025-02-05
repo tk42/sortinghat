@@ -3,8 +3,7 @@
 import { Survey, Class } from '@/src/lib/interfaces'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { TrashIcon } from '@heroicons/react/24/outline'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-hot-toast';
 
 export interface SurveyListProps {
@@ -14,6 +13,7 @@ export interface SurveyListProps {
     selectedSurvey?: Survey | null
     onSelectSurvey?: (survey: Survey) => void
     onDeleteSurvey?: (surveyId: string) => Promise<void>
+    onDuplicateSurvey?: (surveyId: string) => Promise<void>
     isOpen: boolean
     onClose: () => void
 }
@@ -25,6 +25,7 @@ export default function SurveyList({
     onSelectSurvey = () => {}, 
     onCreateSurvey = async () => {},
     onDeleteSurvey = async () => {},
+    onDuplicateSurvey = async () => {},
     isOpen,
     onClose
 }: SurveyListProps) {
@@ -55,6 +56,16 @@ export default function SurveyList({
             toast.success('アンケートを削除しました')
         } catch (error) {
             console.error('Failed to delete survey:', error)
+        }
+    }
+
+    const handleDuplicate = async (surveyId: string) => {
+        try {
+            await onDuplicateSurvey(surveyId)
+            toast.success('アンケートを複製しました')
+        } catch (error) {
+            console.error('Failed to duplicate survey:', error)
+            toast.error('アンケートの複製に失敗しました')
         }
     }
 
@@ -108,7 +119,7 @@ export default function SurveyList({
                             {surveys.map((survey) => (
                                 <div
                                     key={survey.id}
-                                    className={`p-4 rounded-lg border cursor-pointer transition-colors relative ${
+                                    className={`p-4 rounded-lg border cursor-pointer transition-colors relative group ${
                                         selectedSurvey?.id === survey.id
                                             ? 'bg-blue-50 border-blue-500'
                                             : 'border-gray-200 hover:bg-gray-50'
@@ -123,16 +134,28 @@ export default function SurveyList({
                                             作成日: {survey.created_at ? new Date(survey.created_at).toLocaleString() : '日付なし'}
                                         </p>
                                     </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            handleDelete(survey.id.toString())
-                                        }}
-                                        className="absolute top-4 right-4 rounded-full p-1 hover:bg-gray-100"
-                                        title="削除"
-                                    >
-                                        <TrashIcon className="h-5 w-5 text-red-600" aria-hidden="true" />
-                                    </button>
+                                    <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleDuplicate(survey.id.toString())
+                                            }}
+                                            className="rounded-full p-1 hover:bg-gray-100"
+                                            title="複製"
+                                        >
+                                            <DocumentDuplicateIcon className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleDelete(survey.id.toString())
+                                            }}
+                                            className="rounded-full p-1 hover:bg-gray-100"
+                                            title="削除"
+                                        >
+                                            <TrashIcon className="h-5 w-5 text-red-600" aria-hidden="true" />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

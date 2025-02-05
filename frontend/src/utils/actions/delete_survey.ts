@@ -21,7 +21,7 @@ const DELETE_SURVEY = `
       affected_rows
     }
     # 関連する teams を削除
-    delete_teams(where: {survey_id: {_eq: $id}}) {
+    delete_teams(where: {matching_result: {survey: {id: {_eq: $id}}}}) {
       affected_rows
     }
     # 最後にアンケートを削除

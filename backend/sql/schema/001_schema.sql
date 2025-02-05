@@ -56,22 +56,35 @@ CREATE TABLE SURVEYS (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- マッチング計算の実行履歴を保存するテーブル
+CREATE TABLE MATCHING_RESULTS (
+    id BIGSERIAL PRIMARY KEY,
+    survey_id BIGINT NOT NULL,
+    name VARCHAR(255),  -- 任意の名前（例：「第1回マッチング」）
+    status INTEGER NOT NULL DEFAULT 0,  -- マッチング状態（0:draft, 1:confirmed など）
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (survey_id) REFERENCES SURVEYS(id)
+);
+
+-- チーム編成結果を保存するテーブル
 CREATE TABLE TEAMS (
     id BIGSERIAL PRIMARY KEY,
     team_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
-    survey_id BIGINT,
-    FOREIGN KEY (survey_id) REFERENCES SURVEYS(id),
+    matching_result_id BIGINT NOT NULL,
+    student_preference_id BIGINT NOT NULL,
+    FOREIGN KEY (matching_result_id) REFERENCES MATCHING_RESULTS(id),
+    FOREIGN KEY (student_preference_id) REFERENCES STUDENT_PREFERENCES(id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    UNIQUE (survey_id, team_id)
+    UNIQUE (matching_result_id, team_id, student_preference_id)
 );
 
 CREATE TABLE STUDENT_PREFERENCES (
     id BIGSERIAL PRIMARY KEY,
     student_id BIGINT NOT NULL,
     survey_id BIGINT NOT NULL,
-    team_id BIGINT,
     previous_team BIGINT NOT NULL,
     mi_a INTEGER NOT NULL,
     mi_b INTEGER NOT NULL,
@@ -85,7 +98,6 @@ CREATE TABLE STUDENT_PREFERENCES (
     eyesight INTEGER NOT NULL,
     FOREIGN KEY (student_id) REFERENCES STUDENTS(id),
     FOREIGN KEY (survey_id) REFERENCES SURVEYS(id),
-    FOREIGN KEY (team_id) REFERENCES TEAMS(id),
     UNIQUE (student_id, survey_id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
