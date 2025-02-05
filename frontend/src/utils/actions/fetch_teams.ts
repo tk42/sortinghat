@@ -55,6 +55,9 @@ const GET_TEAMS = `
         mi_h
         leader
         eyesight
+        student_dislikes {
+          student_id
+        }
       }
     }
   }

@@ -51,6 +51,9 @@ const GET_MATCHING_RESULTS = `
           mi_h
           leader
           eyesight
+          student_dislikes {
+            student_id
+          }
         }
       }
     }

@@ -29,12 +29,6 @@ export type RadarChartProps = {
 export function RadarChart(props: RadarChartProps) {
     return (
         <div className='w-auto'>
-            {
-                props.label_students.map((student: { name: string; sex: number }, index: number) => {
-                    const textColor: string = student.sex === 1 ? 'text-blue-900' : 'text-pink-500';
-                    return <span key={index} className={`text-center text-sm font-light ${textColor}`}>[{student.name}]{index == props.label_students.length -1 ? '':'　'}</span>
-                })
-            }
             <Radar
                 data={{
                     labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
