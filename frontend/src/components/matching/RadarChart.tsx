@@ -49,7 +49,15 @@ export function RadarChart(props: RadarChartProps) {
                             ticks: {
                                 stepSize: 5
                             },
+                            pointLabels: {
+                                display: false,
+                            },
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
                     }
                 }}
             />

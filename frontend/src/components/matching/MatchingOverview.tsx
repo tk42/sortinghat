@@ -33,7 +33,7 @@ interface MatchingOverviewProps {
 }
 
 export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
-  console.log(JSON.stringify(selectedMatching, null, 2))
+//   console.log(JSON.stringify(selectedMatching, null, 2))
 
   // チームごとに生徒データを集計
   const teamsById = selectedMatching.teams.reduce((acc, teamData: any) => {
@@ -72,6 +72,14 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
     return acc;
   }, {} as Record<number, TeamAggregated>);
 
+  const studentsById = selectedMatching.teams.map((teamData: any) => {
+    const student = teamData.student_preference.student;
+    return {
+        student_id: student.id,
+        name: student.name,
+    }
+  });
+
   // オブジェクトから配列に変換
   const teamsArray = Object.values(teamsById);
 
@@ -87,13 +95,6 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
           // 各生徒ごとに、同じチーム内に「嫌いな生徒」が含まれているかをチェック
           const studentDislikeTable = (
             <table className="w-full text-sm text-left border-collapse">
-              <thead>
-                <tr>
-                  <th className="px-2 py-1 border">生徒名</th>
-                  <th className="px-2 py-1 border">役割</th>
-                  <th className="px-2 py-1 border">嫌いな生徒</th>
-                </tr>
-              </thead>
               <tbody>
                 {team.students.map(student_pref => {
                     let leadership;
@@ -107,19 +108,20 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                     default:
                         leadership = 'メンバー';
                     }
-                    let conflict = false;
-                    if (student_pref.student_dislikes && student_pref.student_dislikes.length > 0) {
-                        // 数値の配列なので、dislikedStudentId として直接比較する
-                        conflict = student_pref.student_dislikes.some(dislikedStudentId =>
-                            teamStudentIds.includes(dislikedStudentId)
-                        );
-                    }
+                    // console.log("student_pref", JSON.stringify(teamStudentIds, null, 2), JSON.stringify(student_pref, null, 2))
                     return (
-                    <tr key={student_pref.id}>
-                        <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{student_pref.name}</td>
-                        <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership}</td>
-                        <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{conflict ? "あり" : "なし"}</td>
-                    </tr>
+                        <tr key={student_pref.id}>
+                            <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{student_pref.name}</td>
+                            <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership}</td>
+                            <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
+                                {student_pref.student_dislikes && student_pref.student_dislikes.length > 0 
+                                    ? student_pref.student_dislikes
+                                        .map(dislikeId => studentsById.find(s => s.student_id === dislikeId)?.name || `ID:${dislikeId}`)
+                                        .join(', ')
+                                    : 'なし'
+                                }
+                            </td>
+                        </tr>
                     );
                 })}
             </tbody>
@@ -138,7 +140,6 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                 />
               </div>
               <div className="mt-4">
-                <h4 className="font-semibold mb-2">生徒の不適合状況</h4>
                 {studentDislikeTable}
               </div>
             </div>
