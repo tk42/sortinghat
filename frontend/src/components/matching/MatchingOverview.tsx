@@ -32,11 +32,12 @@ interface MatchingOverviewProps {
   selectedMatching: MatchingResult;
 }
 
+
 export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
 //   console.log(JSON.stringify(selectedMatching, null, 2))
 
   // チームごとに生徒データを集計
-  const teamsById = selectedMatching.teams.reduce((acc, teamData: any) => {
+  const teamsById = selectedMatching.teams.sort((a, b) => a.team_id - b.team_id).reduce((acc, teamData: any) => {
     const teamId = teamData.team_id;
     if (!acc[teamId]) {
       acc[teamId] = {
@@ -89,9 +90,6 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {teamsArray.map((team, index) => {
           const colorIndex = index % colors.length;
-          // チーム内の全生徒のID一覧
-          const teamStudentIds = team.students.map(student => student.id);
-
           // 各生徒ごとに、同じチーム内に「嫌いな生徒」が含まれているかをチェック
           const studentDislikeTable = (
             <table className="w-full text-sm text-left border-collapse">
@@ -111,7 +109,7 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                     // console.log("student_pref", JSON.stringify(teamStudentIds, null, 2), JSON.stringify(student_pref, null, 2))
                     return (
                         <tr key={student_pref.id}>
-                            <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{student_pref.name}</td>
+                            <td className={`px-2 py-1 border font-bold ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{student_pref.name}</td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership}</td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
                                 {student_pref.student_dislikes && student_pref.student_dislikes.length > 0 
