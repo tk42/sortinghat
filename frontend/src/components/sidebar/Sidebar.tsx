@@ -5,12 +5,19 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { IdentificationIcon, PencilSquareIcon, ChartPieIcon, AcademicCapIcon, HomeModernIcon } from '@heroicons/react/24/outline'; // @heroicons/react のアイコンを使用
 import { NavigationItem } from './NavigationItem';
+import { useDrawer } from '@/src/contexts/DrawerContext'
 
 export const Sidebar = () => {
     const isSidebarOpen = useState();
 
     const pathname = usePathname(); // 現在のルートを取得
     const noSidebarRoutes = ["/", "/error", "/login", "/privacy-policy", "/specified-commercial-transaction-act", "/terms-of-services"]; // サイドバーを非表示にしたいパスを指定
+
+    const { toggleDrawer } = useDrawer()
+
+    const handleDoNothing = () => {}
+    const handleMatchingClick = () => toggleDrawer('matching')
+    const handleSurveyClick = () => toggleDrawer('survey')
 
     // 現在のルートがサイドバー非表示ルートに含まれているかどうかを判定
     const showSidebar = !noSidebarRoutes.some(route => pathname === route);
@@ -38,12 +45,12 @@ export const Sidebar = () => {
                         }}
                     />
                 </div>
-                <NavigationItem icon={AcademicCapIcon} href={'/dashboard'} name={'担任クラス'} matchingDrawer={false} />
-                <NavigationItem icon={PencilSquareIcon} href={'/surveys'} name={'アンケート'} matchingDrawer={true} />
-                <NavigationItem icon={ChartPieIcon} href={'/matching'} name={'マッチング'} matchingDrawer={false} />
-                <NavigationItem icon={IdentificationIcon} href={'/account'} name={'アカウント'} matchingDrawer={false} />
+                <NavigationItem icon={AcademicCapIcon} href={'/dashboard'} name={'担任クラス'} handleClick={handleDoNothing} />
+                <NavigationItem icon={PencilSquareIcon} href={'/surveys'} name={'アンケート'} handleClick={handleSurveyClick} />
+                <NavigationItem icon={ChartPieIcon} href={'/matching'} name={'マッチング'} handleClick={handleMatchingClick} />
+                <NavigationItem icon={IdentificationIcon} href={'/account'} name={'アカウント'} handleClick={handleDoNothing} />
                 <div className="flex-grow"></div>
-                <NavigationItem icon={HomeModernIcon} href={'/'} name={'ホーム'} matchingDrawer={false} />
+                <NavigationItem icon={HomeModernIcon} href={'/'} name={'ホーム'} handleClick={handleDoNothing} />
             </nav>
         </>
     );

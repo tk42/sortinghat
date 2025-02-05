@@ -10,12 +10,9 @@ async function handleLogout() {
         // Firebaseのセッションを終了
         await auth.signOut();
         
-        // auth-tokenクッキーを削除
+        // auth-tokenクッキーを削除 -> middleware が login ページに飛ばしてくれる
         const cookieStore = cookies();
         cookieStore.delete('auth-token');
-        
-        // ログインページへリダイレクト
-        redirect('/login');
     } catch (error) {
         console.error('Logout failed:', error);
         throw error;
@@ -36,8 +33,8 @@ async function handleDeleteAccount() {
         // auth-tokenクッキーを削除
         cookieStore.delete('auth-token');
         
-        // ログインページへリダイレクト
-        redirect('/login');
+        // トップページへリダイレクト
+        redirect('/');
     } catch (error) {
         console.error('Account deletion failed:', error);
         throw error;

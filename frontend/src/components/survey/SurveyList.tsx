@@ -1,3 +1,5 @@
+"use client"
+
 import { Survey, Class } from '@/src/lib/interfaces'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -5,24 +7,24 @@ import { TrashIcon } from '@heroicons/react/24/outline'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-hot-toast';
 
-interface SurveyListProps {
-    surveys: Survey[]
-    classes: Class[]
-    onCreateSurvey: (formData: FormData) => Promise<any>
-    selectedSurvey: Survey | null
-    onSelectSurvey: (survey: Survey) => void
-    onDeleteSurvey: (surveyId: string) => Promise<void>
+export interface SurveyListProps {
+    surveys?: Survey[]
+    classes?: Class[]
+    onCreateSurvey?: (formData: FormData) => Promise<any>
+    selectedSurvey?: Survey | null
+    onSelectSurvey?: (survey: Survey) => void
+    onDeleteSurvey?: (surveyId: string) => Promise<void>
     isOpen: boolean
     onClose: () => void
 }
 
 export default function SurveyList({ 
-    surveys, 
-    classes, 
-    selectedSurvey, 
-    onSelectSurvey, 
-    onCreateSurvey,
-    onDeleteSurvey,
+    surveys = [], 
+    classes = [], 
+    selectedSurvey = null, 
+    onSelectSurvey = () => {}, 
+    onCreateSurvey = async () => {},
+    onDeleteSurvey = async () => {},
     isOpen,
     onClose
 }: SurveyListProps) {
