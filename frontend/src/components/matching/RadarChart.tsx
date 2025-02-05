@@ -9,7 +9,6 @@ import {
     Legend,
 } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
-import { Student } from '@/src/lib/interfaces';
 
 ChartJS.register(
     RadialLinearScale,
@@ -22,7 +21,7 @@ ChartJS.register(
 
 export type RadarChartProps = {
     label: string,
-    label_students: Student[],
+    label_students: { name: string; sex: number }[],
     data: number[],
     color: string
 }
@@ -31,14 +30,14 @@ export function RadarChart(props: RadarChartProps) {
     return (
         <div className='w-auto'>
             {
-                props.label_students.map((student: Student, index: number) => {
-                    const textColor: string = student.sex === 0 ? 'text-blue-900' : 'text-pink-500';
-                    return <span className={`text-center text-sm font-light ${textColor}`}>[{student.name}]{index == props.label_students.length -1 ? '':'　'}</span>
+                props.label_students.map((student: { name: string; sex: number }, index: number) => {
+                    const textColor: string = student.sex === 1 ? 'text-blue-900' : 'text-pink-500';
+                    return <span key={index} className={`text-center text-sm font-light ${textColor}`}>[{student.name}]{index == props.label_students.length -1 ? '':'　'}</span>
                 })
             }
             <Radar
                 data={{
-                    labels: ['Score A', 'Score B', 'Score C', 'Score D', 'Score E', 'Score F', 'Score G', 'Score H'],
+                    labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
                     datasets: [
                         {
                             label: props.label,
