@@ -11,7 +11,7 @@ type HasuraStudent = Omit<Student, 'class'> & {
   updated_at: string;
 };
 
-export async function fetchStudents(classId: string): Promise<DashboardStudent[]> {
+export async function fetchStudents(classId: string): Promise<Student[]> {
   if (!process.env.BACKEND_GQL_API) {
     throw new Error('BACKEND_GQL_API is not configured')
   }
@@ -31,7 +31,15 @@ export async function fetchStudents(classId: string): Promise<DashboardStudent[]
         name
         sex
         memo
-        class_id
+        class {
+          id
+          name
+          uuid
+          teacher
+          students
+          surveys
+          created_at
+        }
         created_at
         updated_at
       }
@@ -39,8 +47,6 @@ export async function fetchStudents(classId: string): Promise<DashboardStudent[]
   `
 
   try {
-    const decodedToken = await auth.verifySessionCookie(sessionCookie)
-
     const response = await axios.post(
       process.env.BACKEND_GQL_API,
       {
@@ -62,12 +68,20 @@ export async function fetchStudents(classId: string): Promise<DashboardStudent[]
     }
 
     // GraphQLのレスポンスを適切な型に変換
-    const students = response.data.data?.students as HasuraStudent[] || [];
-    return students.map((student): DashboardStudent => ({
+    const students = response.data.data?.students as Student[] || [];
+    return students.map((student): Student => ({
       ...student,
-      id: String(student.id),
-      class_id: String(student.class_id),
-      memo: student.memo || null
+      id: student.id,
+      class: {
+        id: student.class.id,
+        name: student.class.name,
+        uuid: student.class.uuid,
+        teacher: student.class.teacher,
+        students: student.class.students,
+        surveys: student.class.surveys,
+        created_at: student.class.created_at,
+      },
+      memo: student.memo || "",
     }));
   } catch (error) {
     if (axios.isAxiosError(error)) {

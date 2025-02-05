@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useFormStatus } from 'react-dom'
+import { Class, Student } from '@/src/lib/interfaces'
 import ClassList from '@/src/components/dashboard/ClassList'
 import StudentList from '@/src/components/dashboard/StudentList'
 import { useAuthContext } from '@/src/utils/firebase/authprovider'
@@ -12,38 +12,40 @@ import { updateStudent } from '@/src/utils/actions/update_student'
 import { deleteStudent } from '@/src/utils/actions/delete_student'
 import { fetchStudents } from '@/src/utils/actions/fetch_students'
 
-interface Class {
-  id: string
-  name: string
-  created_at: string
-}
+// interface Class {
+//   id: string
+//   name: string
+//   created_at: string
+// }
+
+
+// interface Student {
+//   id: string
+//   student_no: number
+//   name: string
+//   sex: number
+//   memo: string | null
+//   class_id: string
+//   created_at: string
+//   updated_at: string
+// }
+
+// function SubmitButton() {
+//   const { pending } = useFormStatus()
+//   return (
+//     <button
+//       type="submit"
+//       disabled={pending}
+//       className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+//     >
+//       {pending ? '作成中...' : '新規クラスを作成'}
+//     </button>
+//   )
+// }
+
 
 interface DashboardClientProps {
   initialClasses: Class[]
-}
-
-interface Student {
-  id: string
-  student_no: number
-  name: string
-  sex: number
-  memo: string | null
-  class_id: string
-  created_at: string
-  updated_at: string
-}
-
-function SubmitButton() {
-  const { pending } = useFormStatus()
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
-    >
-      {pending ? '作成中...' : '新規クラスを作成'}
-    </button>
-  )
 }
 
 export default function DashboardClient({ initialClasses }: DashboardClientProps) {

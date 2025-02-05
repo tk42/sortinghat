@@ -2,17 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Student } from '@/src/lib/interfaces'
 
-interface Student {
-  id: string
-  student_no: number
-  name: string
-  sex: number
-  memo: string | null
-  class_id: string
-  created_at: string
-  updated_at: string
-}
+
+// interface Student {
+//   id: string
+//   student_no: number
+//   name: string
+//   sex: number
+//   memo: string | null
+//   class_id: string
+//   created_at: string
+//   updated_at: string
+// }
 
 interface StudentListProps {
   classId: string
@@ -79,7 +81,7 @@ export default function StudentList({
   }
 
   const handleEdit = (student: Student) => {
-    setEditingId(student.id)
+    setEditingId(student.id.toString())
     setEditedStudentNo(student.student_no)
     setEditedName(student.name)
     setEditedSex(student.sex || 1)
@@ -104,7 +106,7 @@ export default function StudentList({
       if (updatedStudent) {
         setStudents(prevStudents => 
           prevStudents.map(student => 
-            student.id === id ? updatedStudent : student
+            student.id.toString() === id ? updatedStudent : student
           )
         )
         
@@ -132,7 +134,7 @@ export default function StudentList({
 
     const success = await onDeleteStudent(formData)
     if (success) {
-      setStudents(students.filter(student => student.id !== id))
+      setStudents(students.filter(student => student.id.toString() !== id))
     }
   }
 
@@ -168,7 +170,7 @@ export default function StudentList({
                     className={`${student.sex === 1 ? 'bg-blue-50' : student.sex === 2 ? 'bg-pink-50' : ''}`}
                   >
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                      {editingId === student.id ? (
+                      {editingId === student.id.toString() ? (
                         <input
                           type="text"
                           pattern="[0-9]*"
@@ -187,7 +189,7 @@ export default function StudentList({
                       )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {editingId === student.id ? (
+                      {editingId === student.id.toString() ? (
                         <input
                           type="text"
                           value={editedName}
@@ -199,7 +201,7 @@ export default function StudentList({
                       )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {editingId === student.id ? (
+                      {editingId === student.id.toString() ? (
                         <select
                           value={editedSex}
                           onChange={(e) => setEditedSex(parseInt(e.target.value))}
@@ -214,7 +216,7 @@ export default function StudentList({
                       )}
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500">
-                      {editingId === student.id ? (
+                      {editingId === student.id.toString() ? (
                         <input
                           type="text"
                           value={editedMemo}
@@ -226,10 +228,10 @@ export default function StudentList({
                       )}
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                      {editingId === student.id ? (
+                      {editingId === student.id.toString() ? (
                         <div className="flex gap-2 justify-end">
                           <button
-                            onClick={() => handleSave(student.id)}
+                            onClick={() => handleSave(student.id.toString())}
                             disabled={!isValidStudentData(editedStudentNo, editedName, editedSex)}
                             className={`${
                               isValidStudentData(editedStudentNo, editedName, editedSex)
@@ -264,7 +266,7 @@ export default function StudentList({
                             <PencilIcon className="h-5 w-5 text-blue-600" />
                           </button>
                           <button
-                            onClick={() => handleDelete(student.id)}
+                            onClick={() => handleDelete(student.id.toString())}
                             className="rounded-full p-1 hover:bg-gray-100"
                             title="削除"
                           >

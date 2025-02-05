@@ -39,6 +39,12 @@ export interface Student {
     class: Class;
 }
 
+export interface DashboardStudent extends Omit<Student, 'class'> {
+    class_id: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface Survey {
     id: number;
     name: string;
@@ -69,7 +75,7 @@ export interface StudentPreference {
     id: number;
     student: Student;
     survey: Survey;
-    team?: Team;
+    team?: Team;  // 未使用？
     previous_team: number;
     mi_a: number;
     mi_b: number;
@@ -84,6 +90,33 @@ export interface StudentPreference {
     student_dislikes: StudentDislike[];
     created_at: string;
     updated_at: string;
+}
+
+export interface Price {
+    id: string;
+    product: string;
+    unit_amount: number;
+    currency: string;
+    recurring: {
+        interval: string;
+    };
+}
+
+export interface PaymentHistory {
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    created: number;
+}
+
+export interface Subscription {
+    id: string;
+    status: string;
+    current_period_end: number;
+    pause_collection?: {
+        behavior: 'keep_as_draft' | 'mark_uncollectible' | 'void';
+    };
 }
 
 export interface Constraint {
@@ -106,6 +139,49 @@ export interface MatchingResult {
     teams: Team[];
     created_at: string;
     updated_at: string;
+}
+
+export interface MatchingResultWithTeams extends MatchingResult {
+    survey: {
+        id: number;
+        name: string;
+        status: number;
+        class: {
+            id: number;
+            name: string;
+            uuid: string;
+            teacher: Teacher;
+            students: Student[];
+            surveys: Survey[];
+            created_at: string;
+        };
+        class_id: number;
+        student_preferences?: StudentPreference[];
+        created_at?: string;
+        updated_at?: string;
+        teams?: Team[];
+    };
+    teams: Array<Team & {
+        student_preference: {
+            student: {
+                id: number;
+                student_no: number;
+                name: string;
+                sex: number;
+            };
+            mi_a: number;
+            mi_b: number;
+            mi_c: number;
+            mi_d: number;
+            mi_e: number;
+            mi_f: number;
+            mi_g: number;
+            mi_h: number;
+            leader: number;
+            eyesight: number;
+            student_dislikes: StudentDislike[];
+        }
+    }>;
 }
 
 // GraphQL Response Interfaces

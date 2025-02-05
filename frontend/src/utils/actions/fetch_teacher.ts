@@ -1,8 +1,8 @@
 'use server'
 
 import { fetchGqlAPI } from '@/src/lib/fetchGqlAPI'
-import { Teacher, TEACHER_FIELDS } from '@/src/lib/interfaces'
-import { ActionResponse, verifyAuth } from '@/src/utils/types/teacher'
+import { Teacher } from '@/src/lib/interfaces'
+import { ActionResponse } from '@/src/utils/types/teacher'
 import admin from '@/src/utils/firebase/admin'
 
 export async function findTeacher(token: string): Promise<ActionResponse<Teacher>> {
@@ -11,10 +11,20 @@ export async function findTeacher(token: string): Promise<ActionResponse<Teacher
     const firebase_uid = decoded_token.uid
     
     const query = `
-      ${TEACHER_FIELDS}
       query Teacher($firebase_uid: String!) {
         teachers(where: {firebase_uid: {_eq: $firebase_uid}}) {
-          ...TeacherFields
+          id
+          firebase_uid
+          name
+          email
+          stripe_id
+          school {
+              id
+              name
+              city
+          }
+          created_at
+          updated_at
         }
       }
     `

@@ -1,24 +1,23 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/src/utils/firebase/authprovider'
 import { fetchMatchingResult } from '@/src/utils/actions/fetch_matching_result'
 import { fetchClasses } from '@/src/utils/actions/fetch_classes'
 import { deleteMatchingResult } from '@/src/utils/actions/delete_matching_result'
-import { Class, MatchingResult } from '@/src/lib/interfaces'
+import { Class, MatchingResult, MatchingResultWithTeams } from '@/src/lib/interfaces'
 import MatchingList from './MatchingList'
 import { useDrawer } from '@/src/contexts/DrawerContext'
+import { MatchingOverview } from './MatchingOverview'
 
 interface MatchingPageClientProps {
-    initialMatchingResults: MatchingResult[]
+    initialMatchingResults: MatchingResultWithTeams[]
 }
 
 export default function MatchingPageClient({ initialMatchingResults }: MatchingPageClientProps) {
     const { state } = useAuthContext()
-    const router = useRouter()
     const { isDrawerOpen, setIsDrawerOpen } = useDrawer()
-    const [matchingResults, setMatchingResults] = useState<MatchingResult[]>(initialMatchingResults)
+    const [matchingResults, setMatchingResults] = useState<MatchingResultWithTeams[]>(initialMatchingResults)
     const [selectedMatching, setSelectedMatching] = useState<MatchingResult | null>(null)
     const [classes, setClasses] = useState<Class[]>([])
 
@@ -39,7 +38,7 @@ export default function MatchingPageClient({ initialMatchingResults }: MatchingP
         }
 
         loadTeacherData()
-    }, [state.user, router])
+    }, [state.user])
 
     async function handleDeleteMatching(matchingId: string) {
         try {
@@ -74,10 +73,7 @@ export default function MatchingPageClient({ initialMatchingResults }: MatchingP
             />
 
             {selectedMatching && (
-                <div>
-                    <h2>{selectedMatching.name}</h2>
-                    {/* ここにチームの詳細情報やメンバー一覧などを表示するコンポーネントを追加予定 */}
-                </div>
+                <MatchingOverview selectedMatching={selectedMatching} />
             )}
         </div>
     )

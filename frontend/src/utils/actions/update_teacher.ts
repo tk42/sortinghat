@@ -1,7 +1,7 @@
 'use server'
 
 import { fetchGqlAPI } from '@/src/lib/fetchGqlAPI'
-import { Teacher, TEACHER_FIELDS } from '@/src/lib/interfaces'
+import { Teacher } from '@/src/lib/interfaces'
 import { z } from 'zod'
 import { TeacherSchema, ActionResponse } from '@/src/utils/types/teacher'
 import admin from '@/src/utils/firebase/admin'
@@ -19,7 +19,6 @@ export async function updateTeacher(
     const firebase_uid = decoded_token.uid
     
     const query = `
-      ${TEACHER_FIELDS}
       mutation UpdateTeacher($firebase_uid: String!, $name: String!, $email: String!) {
         update_teachers(
           where: {firebase_uid: {_eq: $firebase_uid}},
@@ -29,7 +28,19 @@ export async function updateTeacher(
           }
         ) {
           returning {
-            ...TeacherFields
+              id
+              firebase_uid
+              name
+              email
+              stripe_id
+              school {
+                  id
+                  name
+                  city
+              }
+              created_at
+              updated_at
+            }
           }
         }
       }

@@ -5,12 +5,13 @@ import { useState } from 'react'
 import DeleteClassButton from '@/src/components/dashboard/DeleteClassButton'
 import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { updateClass } from '@/src/utils/actions/update_class'
+import { Class } from '@/src/lib/interfaces'
 
-interface Class {
-  id: string
-  name: string
-  created_at: string
-}
+// interface Class {
+//   id: string
+//   name: string
+//   created_at: string
+// }
 
 interface ClassListProps {
   classes: Class[]
@@ -33,7 +34,7 @@ export default function ClassList({
   })
 
   const handleEdit = (classItem: Class) => {
-    setEditingId(classItem.id)
+    setEditingId(classItem.id.toString())
     setEditedName(classItem.name)
   }
 
@@ -111,13 +112,13 @@ export default function ClassList({
               {classes.map((classItem) => (
                 <tr 
                   key={classItem.id}
-                  onClick={() => onSelectClass(classItem.id)}
+                  onClick={() => onSelectClass(classItem.id.toString())}
                   className={`cursor-pointer hover:bg-gray-50 ${
-                    selectedClassId === classItem.id ? 'bg-indigo-50' : ''
+                    selectedClassId === classItem.id.toString() ? 'bg-indigo-50' : ''
                   }`}
                 >
                   <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0" style={{ minWidth: '200px' }}>
-                    {editingId === classItem.id ? (
+                    {editingId === classItem.id.toString() ? (
                       <input
                         type="text"
                         value={editedName}
@@ -125,7 +126,7 @@ export default function ClassList({
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            handleSave(classItem.id)
+                            handleSave(classItem.id.toString())
                           } else if (e.key === 'Escape') {
                             handleCancel()
                           }
@@ -145,11 +146,11 @@ export default function ClassList({
                   </td>
                   <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                     <div className="flex gap-2 justify-end">
-                      {editingId === classItem.id ? (
+                      {editingId === classItem.id.toString() ? (
                         <>
                           <button
                             type="button"
-                            onClick={() => handleSave(classItem.id)}
+                            onClick={() => handleSave(classItem.id.toString())}
                             className="rounded-full p-1 hover:bg-gray-100"
                             title="保存"
                           >
@@ -174,7 +175,7 @@ export default function ClassList({
                           >
                             <PencilIcon className="h-5 w-5 text-blue-600" aria-hidden="true" />
                           </button>
-                          <DeleteClassButton classId={classItem.id} onSuccess={() => router.refresh()}>
+                          <DeleteClassButton classId={classItem.id.toString()} onSuccess={() => router.refresh()}>
                             <button
                               type="button"
                               className="rounded-full p-1 hover:bg-gray-100"

@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { fetchMatchingResult } from '@/src/utils/actions/fetch_matching_result'
 import MatchingPageClient from '@/src/components/matching/MatchingPageClient'
 import { Toaster } from 'react-hot-toast'
+import { MatchingResultWithTeams } from '@/src/lib/interfaces'
 
 export const metadata: Metadata = {
     title: 'Matching - SynergyMatchMaker',
@@ -14,7 +15,7 @@ export default async function Page() {
     const cookieStore = cookies()
     const sessionCookie = cookieStore.get('auth-token')?.value
     const decodedToken = await auth.verifySessionCookie(sessionCookie!)
-    const matchingResults = await fetchMatchingResult(decodedToken.uid)
+    const matchingResults: MatchingResultWithTeams[] = await fetchMatchingResult(decodedToken.uid)
 
     return (
         <>
