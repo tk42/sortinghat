@@ -79,14 +79,14 @@ export const AuthProvider = ({ children }: Props) => {
                         },
                         body: JSON.stringify({ idToken }),
                     });
-    
+
                     if (!response.ok) {
                         throw new Error('Failed to create session');
                     }
-    
+
                     // Teacherの情報を取得
                     const teacherResponse = await findTeacher(idToken);
-    
+
                     if (!teacherResponse.success || !teacherResponse.data) {
                         // メール確認後の最初のログイン時のみ実行
                         try {

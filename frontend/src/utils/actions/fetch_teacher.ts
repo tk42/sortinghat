@@ -7,9 +7,19 @@ import admin from '@/src/utils/firebase/admin'
 
 export async function findTeacher(token: string): Promise<ActionResponse<Teacher>> {
   try {
+    if (!token) {
+      console.error('findTeacher: No token provided');
+      return { success: false, error: 'No token provided' };
+    }
+
     const decoded_token = await admin.auth().verifyIdToken(token)
     const firebase_uid = decoded_token.uid
     
+    if (!firebase_uid) {
+      console.error('findTeacher: No firebase_uid in decoded token');
+      return { success: false, error: 'Invalid token' };
+    }
+
     const query = `
       query Teacher($firebase_uid: String!) {
         teachers(where: {firebase_uid: {_eq: $firebase_uid}}) {

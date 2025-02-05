@@ -35,9 +35,6 @@ export async function fetchStudents(classId: string): Promise<Student[]> {
           id
           name
           uuid
-          teacher
-          students
-          surveys
           created_at
         }
         created_at
@@ -76,9 +73,6 @@ export async function fetchStudents(classId: string): Promise<Student[]> {
         id: student.class.id,
         name: student.class.name,
         uuid: student.class.uuid,
-        teacher: student.class.teacher,
-        students: student.class.students,
-        surveys: student.class.surveys,
         created_at: student.class.created_at,
       },
       memo: student.memo || "",
