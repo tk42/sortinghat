@@ -24,9 +24,9 @@ export interface Class {
     id: number;
     name: string;
     uuid: string;
-    teacher: Teacher;
-    students: Student[];
-    surveys: Survey[];
+    teacher?: Teacher;
+    students?: Student[];
+    surveys?: Survey[];
     created_at: string;
 }
 
