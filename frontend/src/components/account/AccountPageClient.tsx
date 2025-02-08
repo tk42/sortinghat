@@ -13,11 +13,12 @@ import { Price, PaymentHistory, Subscription } from '@/src/lib/interfaces';
 import PaymentModal from '@/src/components/account/PaymentModal';
 
 interface AccountPageClientProps {
+    showPaymentColumn: boolean;
     onLogout: () => Promise<void>;
     onDeleteAccount: () => Promise<void>;
 }
 
-export default function AccountPageClient({ onLogout, onDeleteAccount }: AccountPageClientProps) {
+export default function AccountPageClient({ showPaymentColumn, onLogout, onDeleteAccount }: AccountPageClientProps) {
     const router = useRouter();
     const { state } = useAuthContext();
     const [name, setName] = useState(state.teacher?.name || '');
@@ -370,7 +371,14 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => handleResetPassword(email)}
+                                            onClick={() => {
+                                                const emailToReset = email || state.user?.email;
+                                                if (!emailToReset) {
+                                                    toast.error('メールアドレスが見つかりません');
+                                                    return;
+                                                }
+                                                handleResetPassword(emailToReset);
+                                            }}
                                             className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
                                         >
                                             パスワードリセット
@@ -401,104 +409,106 @@ export default function AccountPageClient({ onLogout, onDeleteAccount }: Account
                             </div>
 
                             {/* Right Column - Subscription Status */}
+                            {showPaymentColumn && (
                             <div className="space-y-6">
-                                <section>
-                                    {subscription && (
-                                        <div className="mb-4">
-                                            <h3 className="font-semibold">現在のプラン</h3>
-                                            <p>ステータス: {getStatusInJapanese(subscription.status)}</p>
-                                            {subscription.current_period_end && (
-                                                <p>有効期限: {formatDate(subscription.current_period_end)}</p>
-                                            )}
-                                            {subscription.pause_collection?.behavior === 'keep_as_draft' && (
-                                                <p className="text-yellow-600">
-                                                    ※ 次回の請求は一時停止されています
-                                                </p>
-                                            )}
+                            <section>
+                                {subscription && (
+                                    <div className="mb-4">
+                                        <h3 className="font-semibold">現在のプラン</h3>
+                                        <p>ステータス: {getStatusInJapanese(subscription.status)}</p>
+                                        {subscription.current_period_end && (
+                                            <p>有効期限: {formatDate(subscription.current_period_end)}</p>
+                                        )}
+                                        {subscription.pause_collection?.behavior === 'keep_as_draft' && (
+                                            <p className="text-yellow-600">
+                                                ※ 次回の請求は一時停止されています
+                                            </p>
+                                        )}
 
-                                            {/* サブスクリプション管理ボタン */}
-                                            {subscription.status === 'active' && !subscription.pause_collection && (
-                                                <button
-                                                    onClick={handlePauseSubscription}
-                                                    disabled={isProcessing}
-                                                    className="mt-4 w-full px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:bg-gray-400"
-                                                >
-                                                    {isProcessing ? '処理中...' : 'プランを中止する'}
-                                                </button>
-                                            )}
-                                            {subscription.status === 'active' && subscription.pause_collection?.behavior === 'keep_as_draft' && (
-                                                <button
-                                                    onClick={handleResumeSubscription}
-                                                    disabled={isProcessing}
-                                                    className="mt-4 w-full px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
-                                                >
-                                                    {isProcessing ? '処理中...' : 'プランを再開する'}
-                                                </button>
-                                            )}
+                                        {/* サブスクリプション管理ボタン */}
+                                        {subscription.status === 'active' && !subscription.pause_collection && (
+                                            <button
+                                                onClick={handlePauseSubscription}
+                                                disabled={isProcessing}
+                                                className="mt-4 w-full px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+                                            >
+                                                {isProcessing ? '処理中...' : 'プランを中止する'}
+                                            </button>
+                                        )}
+                                        {subscription.status === 'active' && subscription.pause_collection?.behavior === 'keep_as_draft' && (
+                                            <button
+                                                onClick={handleResumeSubscription}
+                                                disabled={isProcessing}
+                                                className="mt-4 w-full px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+                                            >
+                                                {isProcessing ? '処理中...' : 'プランを再開する'}
+                                            </button>
+                                        )}
 
-                                            {/* 購入履歴 */}
-                                            {subscription.status === 'active' && paymentHistory.length > 0 && (
-                                                <div className="mt-6">
-                                                    <h3 className="font-semibold mb-4">購入履歴</h3>
-                                                    <div className="space-y-3">
-                                                        {paymentHistory.map((payment) => (
-                                                            <div key={payment.id} className="border-b pb-3">
-                                                                <div className="flex justify-between items-center">
-                                                                    <div>
-                                                                        <p className="text-sm text-gray-600">
-                                                                            {new Date(payment.created * 1000).toLocaleDateString('ja-JP', {
-                                                                                year: 'numeric',
-                                                                                month: '2-digit',
-                                                                                day: '2-digit'
-                                                                            })}
-                                                                        </p>
-                                                                    </div>
-                                                                    <p className="font-medium">
-                                                                        {(payment.amount).toLocaleString()}円
+                                        {/* 購入履歴 */}
+                                        {subscription.status === 'active' && paymentHistory.length > 0 && (
+                                            <div className="mt-6">
+                                                <h3 className="font-semibold mb-4">購入履歴</h3>
+                                                <div className="space-y-3">
+                                                    {paymentHistory.map((payment) => (
+                                                        <div key={payment.id} className="border-b pb-3">
+                                                            <div className="flex justify-between items-center">
+                                                                <div>
+                                                                    <p className="text-sm text-gray-600">
+                                                                        {new Date(payment.created * 1000).toLocaleDateString('ja-JP', {
+                                                                            year: 'numeric',
+                                                                            month: '2-digit',
+                                                                            day: '2-digit'
+                                                                        })}
                                                                     </p>
                                                                 </div>
+                                                                <p className="font-medium">
+                                                                    {(payment.amount).toLocaleString()}円
+                                                                </p>
                                                             </div>
-                                                        ))}
-                                                    </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    
-                                    {/* 利用可能なプランの表示 - アクティブなサブスクリプションがない場合のみ表示 */}
-                                    {(!subscription || subscription.status !== 'active') && (
-                                        <>
-                                            <h3 className="font-semibold">利用可能なプラン</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {prices.map((price) => (
-                                                    <div key={price.id} className="border p-4 rounded-lg">
-                                                        <h4 className="font-medium">{price.product}</h4>
-                                                        <p className="text-lg font-bold">
-                                                            {(price.unit_amount).toLocaleString()}円
-                                                            {price.recurring?.interval === 'month' ? '/月' : '/年'}
-                                                        </p>
-                                                        <button
-                                                            onClick={() => {
-                                                                if (!state.teacher?.stripe_id) {
-                                                                    toast.error('ユーザー情報が見つかりません');
-                                                                    return;
-                                                                }
-                                                                createSubscription(
-                                                                    price.id,
-                                                                    state.teacher.stripe_id
-                                                                );
-                                                            }}
-                                                            className="mt-2 w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-                                                        >
-                                                            このプランを選択
-                                                        </button>
-                                                    </div>
-                                                ))}
                                             </div>
-                                        </>
-                                    )}
-                                </section>
-                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                
+                                {/* 利用可能なプランの表示 - アクティブなサブスクリプションがない場合のみ表示 */}
+                                {(!subscription || subscription.status !== 'active') && (
+                                    <>
+                                        <h3 className="font-semibold">利用可能なプラン</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {prices.map((price) => (
+                                                <div key={price.id} className="border p-4 rounded-lg">
+                                                    <h4 className="font-medium">{price.product}</h4>
+                                                    <p className="text-lg font-bold">
+                                                        {(price.unit_amount).toLocaleString()}円
+                                                        {price.recurring?.interval === 'month' ? '/月' : '/年'}
+                                                    </p>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (!state.teacher?.stripe_id) {
+                                                                toast.error('ユーザー情報が見つかりません');
+                                                                return;
+                                                            }
+                                                            createSubscription(
+                                                                price.id,
+                                                                state.teacher.stripe_id
+                                                            );
+                                                        }}
+                                                        className="mt-2 w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                                                    >
+                                                        このプランを選択
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </section>
+                        </div>
+)}
                         </div>
                     </div>
                 </div>

@@ -7,9 +7,79 @@ import { z } from 'zod'
 import { Teacher } from '@/src/lib/interfaces'
 
 // GraphQLクエリ
-const DELETE_TEACHER = `
-  mutation DeleteTeacher($id: bigint!) {
-    delete_teachers_by_pk(id: $id) {
+const DELETE_TEACHER_CASCADE = `
+  mutation DeleteTeacherCascade($teacherId: bigint!) {
+    # 1. Delete all teams first (because it references student_preferences)
+    delete_teams(where: {
+      matching_result: {
+        survey: {
+          class: {
+            teacher_id: { _eq: $teacherId }
+          }
+        }
+      }
+    }) {
+      affected_rows
+    }
+    
+    # 2. Delete all matching results
+    delete_matching_results(where: {
+      survey: {
+        class: {
+          teacher_id: { _eq: $teacherId }
+        }
+      }
+    }) {
+      affected_rows
+    }
+
+    # 3. Now safe to delete student preferences and dislikes
+    delete_student_dislikes(where: {
+      student: {
+        class: {
+          teacher_id: { _eq: $teacherId }
+        }
+      }
+    }) {
+      affected_rows
+    }
+    delete_student_preferences(where: {
+      student: {
+        class: {
+          teacher_id: { _eq: $teacherId }
+        }
+      }
+    }) {
+      affected_rows
+    }
+    
+    # 4. Delete all surveys
+    delete_surveys(where: {
+      class: {
+        teacher_id: { _eq: $teacherId }
+      }
+    }) {
+      affected_rows
+    }
+    
+    # 5. Delete all students
+    delete_students(where: {
+      class: {
+        teacher_id: { _eq: $teacherId }
+      }
+    }) {
+      affected_rows
+    }
+    
+    # 6. Delete all classes
+    delete_classes(where: {
+      teacher_id: { _eq: $teacherId }
+    }) {
+      affected_rows
+    }
+    
+    # 7. Finally delete the teacher
+    delete_teachers_by_pk(id: $teacherId) {
       id
       name
       email
@@ -20,7 +90,7 @@ const DELETE_TEACHER = `
 
 interface DeleteTeacherResponse {
   data: {
-    delete_teachers_by_pk: Teacher | null
+    delete_teachers_by_pk: Teacher | undefined
   }
   errors?: Array<{ message: string }>
 }
@@ -54,10 +124,8 @@ export async function deleteTeacher(formData: FormData): Promise<{ data?: Teache
     const response = await axios.post<DeleteTeacherResponse>(
       process.env.BACKEND_GQL_API,
       {
-        query: DELETE_TEACHER,
-        variables: { 
-          id: parseInt(validatedData.id)
-        },
+        query: DELETE_TEACHER_CASCADE,
+        variables: { teacherId: parseInt(validatedData.id) },
       },
       {
         headers: {
@@ -68,17 +136,11 @@ export async function deleteTeacher(formData: FormData): Promise<{ data?: Teache
     )
 
     if (response.data.errors) {
-      console.error('教師の削除エラー:', response.data.errors)
-      return { error: `教師の削除に失敗しました: ${response.data.errors[0].message}` }
+      const errorMessage = response.data.errors.map(e => e.message).join('\n')
+      return { error: `教師の削除中にエラーが発生しました: ${errorMessage}` }
     }
 
-    const deletedTeacher = response.data.data.delete_teachers_by_pk
-    if (!deletedTeacher) {
-      console.error('教師の削除エラー: 教師が見つかりません')
-      return { error: '指定された教師が見つかりませんでした' }
-    }
-
-    return { data: deletedTeacher }
+    return { data: response.data.data.delete_teachers_by_pk }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message }

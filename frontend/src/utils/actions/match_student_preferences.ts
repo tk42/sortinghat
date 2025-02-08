@@ -29,9 +29,6 @@ export async function matchStudentPreferences(constraint: Constraint, preference
       dislikes: p.student_dislikes.map(d => preferences.find(p => p.student.id === d.student_id)!.student.student_no - 1) // Adjust for 0-indexing
     }))
 
-    // console.log("convertedPreferences", convertedPreferences)
-
-    // Send data as JSON instead of FormData
     const backendResponse = await axios.post(
       `${process.env.BACKEND_API_URL}/match`,
       {
@@ -54,15 +51,58 @@ export async function matchStudentPreferences(constraint: Constraint, preference
       }
     )
 
-    if (backendResponse.data.error) {
-      throw new Error(backendResponse.data.error)
+    return {
+      data: backendResponse.data.teams,
+      error: null
     }
 
-    const teams = backendResponse.data.teams
-
-    return teams
   } catch (error) {
-    console.error('Error finding matchings:', error)
-    throw error
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+
+        switch (error.response.data.error) {
+          case "No Solution Found":
+            return {
+              data: null,
+              error: 'マッチングを見つけられませんでした'
+            }
+          case "No Solution Exists":
+            return {
+              data: null,
+              error: 'マッチングが存在しません'
+            }
+          case "Solution is Unbounded":
+            return {
+              data: null,
+              error: '解は無限大です'
+            }
+          case "Status is Undefined":
+            return {
+              data: null,
+              error: 'ステータスは未定義です'
+            }
+          default:
+            console.error('Error finding matchings:', error)
+            return {
+              data: null,
+              error: error.response.data.error || 'マッチングを見つけられませんでした'
+            }
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Error finding matchings:', error)
+        return {
+          data: null,
+          error: 'サーバーからの応答がありませんでした'
+        }
+      }
+    }
+    // For any other type of error
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'マッチング処理中にエラーが発生しました'
+    }
   }
 }

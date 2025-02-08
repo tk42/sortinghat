@@ -5,10 +5,12 @@ import { useState, useCallback, Fragment } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { createStudentPreferences } from '@/src/utils/actions/create_student_preferences'
 import { updateStudentTeams } from '@/src/utils/actions/update_student_teams'
-import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-hot-toast'
 import { Dialog, Transition } from '@headlessui/react'
-import { redirect } from 'next/navigation'
+
+
+type MatchResult = { data: Record<string, number[]> | null, error: string | null }
 
 interface StudentPreferencesProps {
     survey: Survey
@@ -16,7 +18,7 @@ interface StudentPreferencesProps {
     setStudentPreferences: (preferences: StudentPreference[]) => void
     onUpdatePreference: (preferenceId: string, preferences: string[]) => Promise<void>
     onDeletePreference: (preferenceId: string) => Promise<void>
-    matchStudentPreferences: (constraint: Constraint, preferences: StudentPreference[]) => Promise<Record<string, number[]>>
+    matchStudentPreferences: (constraint: Constraint, preferences: StudentPreference[]) => Promise<MatchResult>
 }
 
 export default function StudentPreferences({ 
@@ -109,28 +111,38 @@ export default function StudentPreferences({
 
     const handleMatching = async () => {
         try {
-            // console.log('Matching with constraints:', constraint)
-            // console.log('Student preferences:', studentPreferences)
-
-            // matching API call
-            const teams: Record<string, number[]> = await matchStudentPreferences(constraint, studentPreferences)
-            // console.log('Matching result teams:', JSON.stringify(teams, null, 2))
-
             // survey_idを取得（student_preferencesから）
             const survey: Survey = studentPreferences[0]?.survey
 
             if (!survey) {
                 throw new Error('Survey ID not found')
             }
-
             // console.log('Survey ID:', survey)  // {id: 60, name: 'アンケート_20250204_1204'}
 
-            await updateStudentTeams(teams, survey.id)
+            // console.log('Matching with constraints:', constraint)
+            // console.log('Student preferences:', studentPreferences)
+
+            // matching API call
+            const result: MatchResult = await matchStudentPreferences(constraint, studentPreferences)
+            // console.log('Matching result teams:', JSON.stringify(teams, null, 2))
+
+            if (result.error) {
+                toast.error(result.error)
+                return
+            }
+
+            if (!result.data) {
+                toast.error('マッチングを見つけられませんでした')
+                return
+            }
+
+            await updateStudentTeams(result.data, survey.id)
 
             toast.success('マッチングを見つけました')
             setIsMatchingModalOpen(false)
         } catch (error) {
-            toast.error('マッチングを見つけられませんでした')
+            console.error('Matching error:', error)
+            toast.error('マッチング探索中にエラーが発生しました')
         }
     }
 
@@ -145,11 +157,25 @@ export default function StudentPreferences({
                 >
                     <input {...getInputProps()} />
                     {isUploading ? (
-                        <p>アップロード中...</p>
+                        <p>アップロード中...(十数秒かかります)</p>
                     ) : isDragActive ? (
                         <p>ファイルをドロップしてください</p>
                     ) : (
-                        <p>CSVファイルをドラッグ＆ドロップ、またはクリックして選択してください</p>
+                        <Fragment>
+                            <div className="flex flex-col items-center justify-center space-y-2">
+                                <p>
+                                    CSVファイルをドラッグ＆ドロップ、またはクリックして選択してください
+                                </p>
+                                <p className="flex items-center gap-1">
+                                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
+                                    <span>ヘッダー行を含めてください</span>
+                                </p>
+                                <p className="flex items-center gap-1">
+                                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
+                                    <span>正しく読み込めないときは名簿番号,現在の班,MI-A~H,チームの役割,嫌いな生徒の名簿番号のみを含めてください</span>
+                                </p>
+                            </div>
+                        </Fragment>
                     )}
                 </div>
                 {error && <p className="text-red-500 mt-2">{error}</p>}
@@ -363,11 +389,13 @@ export default function StudentPreferences({
                                                     value={editingValues?.student.student_no || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
                                                             student: {
-                                                                student_no: Number(e.target.value)
-                                                            } as Student,
+                                                                ...editingValues.student,
+                                                                student_no: value === '' ? 0 : value
+                                                            }
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -379,13 +407,13 @@ export default function StudentPreferences({
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
-                                                    value={editingValues?.previous_team || ''}
+                                                    value={editingValues?.previous_team ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
-                                                        const teamId = e.target.value;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            previous_team: Number(teamId)
+                                                            previous_team: value === '' ? 0 : value
                                                         });
                                                     }}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -396,12 +424,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_a || ''}
+                                                    value={editingValues?.mi_a ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_a: Number(e.target.value)
+                                                            mi_a: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -412,12 +441,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_b || ''}
+                                                    value={editingValues?.mi_b ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_b: Number(e.target.value)
+                                                            mi_b: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -428,12 +458,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_c || ''}
+                                                    value={editingValues?.mi_c ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_c: Number(e.target.value)
+                                                            mi_c: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -444,12 +475,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_d || ''}
+                                                    value={editingValues?.mi_d ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_d: Number(e.target.value)
+                                                            mi_d: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -460,12 +492,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_e || ''}
+                                                    value={editingValues?.mi_e ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_e: Number(e.target.value)
+                                                            mi_e: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -476,12 +509,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_f || ''}
+                                                    value={editingValues?.mi_f ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_f: Number(e.target.value)
+                                                            mi_f: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -492,12 +526,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_g || ''}
+                                                    value={editingValues?.mi_g ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_g: Number(e.target.value)
+                                                            mi_g: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -508,12 +543,13 @@ export default function StudentPreferences({
                                                     type="number"
                                                     min="0"
                                                     max="8"
-                                                    value={editingValues?.mi_h || ''}
+                                                    value={editingValues?.mi_h ?? ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
+                                                        const value = e.target.value === '' ? '' : Number(e.target.value);
                                                         setEditingValues({
                                                             ...editingValues,
-                                                            mi_h: Number(e.target.value)
+                                                            mi_h: value === '' ? 0 : value
                                                         } as StudentPreference);
                                                     }}
                                                     className="block w-6 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"

@@ -54,12 +54,6 @@ function generateUUID(classId: number): string {
   return base64URLEncode(hash).substring(0, 36)
 }
 
-// タイムスタンプからアンケート名を生成
-function generateSurveyName(): string {
-  const now = new Date()
-  return `アンケート_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`
-}
-
 export async function createSurvey(formData: FormData) {
   try {
     // バリデーション
@@ -72,7 +66,11 @@ export async function createSurvey(formData: FormData) {
       return { error: 'バックエンドAPIの設定が見つかりません' }
     }
 
-    const surveyName = generateSurveyName()
+    const surveyName = `アンケート_${new Date().toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+  })}`
     const classId = parseInt(validatedData.classId)
     const uuid = generateUUID(classId)
 

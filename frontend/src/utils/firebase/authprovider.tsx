@@ -89,6 +89,9 @@ export const AuthProvider = ({ children }: Props) => {
 
                     if (!teacherResponse.success || !teacherResponse.data) {
                         // メール確認後の最初のログイン時のみ実行
+
+                        console.warn('FOUND A FRESH LOGIN', JSON.stringify(teacherResponse))
+
                         try {
                             // まずStripe customerを作成
                             const response = await fetch('/api/stripe/create-customer', {

@@ -15,6 +15,8 @@ const LOGIN_TAB = { name: 'ログイン' }
 const SIGNUP_TAB = { name: '新規登録' }
 
 const tabs = (process.env.NODE_ENV === "production" && process.env.STRIPE_SECRET_KEY?.startsWith("pk_live_")) ? [LOGIN_TAB, SIGNUP_TAB] : [LOGIN_TAB]
+// const tabs = [LOGIN_TAB, SIGNUP_TAB]
+
 
 export default function PageContent() {
   const [tabIndex, setTabIndex] = useState(0);

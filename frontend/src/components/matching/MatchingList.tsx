@@ -80,7 +80,11 @@ export default function MatchingList({
                                                 <div className="mt-1 flex items-center space-x-2">
                                                     <span className="text-gray-300">•</span>
                                                     <p className="text-xs text-gray-400">
-                                                        {new Date(matching.created_at).toLocaleString()}
+                                                        {new Date(matching.created_at).toLocaleDateString('ja-JP', {
+                                                                                year: 'numeric',
+                                                                                month: '2-digit',
+                                                                                day: '2-digit'
+                                                                            })}
                                                     </p>
                                                 </div>
                                             </div>

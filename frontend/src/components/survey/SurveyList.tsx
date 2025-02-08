@@ -109,8 +109,14 @@ export default function SurveyList({
                                     </select>
                                     <button
                                         type="submit"
-                                        className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                        className={`w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                                            !selectedClassId 
+                                                ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                                : 'bg-blue-500 hover:bg-blue-700 text-white'
+                                        }`}
                                         disabled={!selectedClassId}
+                                        aria-disabled={!selectedClassId}
+                                        title={!selectedClassId ? 'クラスを選択してください' : 'アンケートを新規作成'}
                                     >
                                         新規アンケート作成
                                     </button>
@@ -131,7 +137,11 @@ export default function SurveyList({
                                             クラス: {survey.class.name}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            作成日: {survey.created_at ? new Date(survey.created_at).toLocaleString() : '日付なし'}
+                                            作成日: {survey.created_at ? new Date(survey.created_at).toLocaleDateString('ja-JP', {
+                                                                                year: 'numeric',
+                                                                                month: '2-digit',
+                                                                                day: '2-digit'
+                                                                            }) : '日付なし'}
                                         </p>
                                     </div>
                                     <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -1,9 +1,19 @@
 import logging
-from pulp import LpMaximize, LpProblem, LpVariable, lpSum, LpBinary, PULP_CBC_CMD, LpInteger
+from enum import Enum
+from pulp import LpMaximize, LpProblem, LpVariable, lpSum, LpBinary, PULP_CBC_CMD, LpInteger, LpStatus
 
 from models.match import StudentConstraint, Constraint
 
 logger = logging.getLogger(__name__)
+
+class LpStatusType(Enum):
+    # pulp.LpStatus
+    UNDEFINED = -3
+    UNBOUNDED = -2
+    INFEASIBLE = -1
+    NOT_SOLVED = 0
+    OPTIMAL = 1
+    FEASIBLE = 2
 
 
 # def calc_mi_score(students, teams):
@@ -249,23 +259,33 @@ def matching(
         # 最適化問題を解く
         solver = PULP_CBC_CMD(msg=True, timeLimit=30)
         status = prob.solve(solver)
+        lp_status_type = LpStatusType(status)
 
         # 結果の取得とログ出力
         logger.info(f"Optimization status: {status}")
         logger.info(f"Objective value: {prob.objective.value()}")
 
         teams = {t: [] for t in range(constraint.max_num_teams)}
-        if status == 1:  # 最適解が見つかった場合
-            for i in range(len(student_constraints)):
-                for t in range(constraint.max_num_teams):
-                    if x[(i, t)].value() > 0.5:  # バイナリ変数なので0.5以上を1とみなす
-                        teams[t].append(i)
-        else:
-            logger.error("No feasible solution found")
-            return None
-
-        return teams
+        match lp_status_type:
+            case LpStatusType.OPTIMAL | LpStatusType.FEASIBLE:  # 最適解が見つかった場合
+                for i in range(len(student_constraints)):
+                    for t in range(constraint.max_num_teams):
+                        if x[(i, t)].value() > 0.5:  # バイナリ変数なので0.5以上を1とみなす
+                            teams[t].append(i)
+                return teams, lp_status_type, ""
+            case LpStatusType.NOT_SOLVED:
+                logger.error("No Solution Found")
+                return None, LpStatusType.NOT_SOLVED, "No Solution Found"
+            case LpStatusType.INFEASIBLE:
+                logger.error("No Solution Exists")
+                return None, LpStatusType.INFEASIBLE, "No Solution Exists"
+            case LpStatusType.UNBOUNDED:
+                logger.error("Solution is Unbounded")
+                return None, LpStatusType.UNBOUNDED, "Solution is Unbounded"
+            case LpStatusType.UNDEFINED:
+                logger.error("Status is Undefined")
+                return None, LpStatusType.UNDEFINED, "Status is Undefined"
 
     except Exception as e:
         logger.error(f"Error in matching: {str(e)}")
-        return None
+        return None, LpStatusType.UNDEFINED, f"Error in matching: {str(e)}"

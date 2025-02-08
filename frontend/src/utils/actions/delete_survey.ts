@@ -8,20 +8,22 @@ import { Survey } from '@/src/lib/interfaces'
 // GraphQLクエリ
 const DELETE_SURVEY = `
   mutation DeleteSurvey($id: bigint!) {
-    # 最初に student_dislikes を削除
+    # まずteamsを削除
+    delete_teams(where: {matching_result: {survey: {id: {_eq: $id}}}}) {
+      affected_rows
+    }
+    # 次にstudent_dislikesを削除
     delete_student_dislikes(where: {
-      _and: [
-        { student_preference: { survey_id: { _eq: $id } } }
-      ]
+      student_preference: { survey_id: { _eq: $id } }
     }) {
       affected_rows
     }
-    # 次に student_preferences を削除
+    # student_preferencesを削除
     delete_student_preferences(where: {survey_id: {_eq: $id}}) {
       affected_rows
     }
-    # 関連する teams を削除
-    delete_teams(where: {matching_result: {survey: {id: {_eq: $id}}}}) {
+    # matching_resultsを削除
+    delete_matching_results(where: {survey_id: {_eq: $id}}) {
       affected_rows
     }
     # 最後にアンケートを削除
@@ -34,13 +36,16 @@ const DELETE_SURVEY = `
 
 interface DeleteSurveyResponse {
   data: {
+    delete_teams: {
+      affected_rows: number
+    }
     delete_student_dislikes: {
       affected_rows: number
     }
     delete_student_preferences: {
       affected_rows: number
     }
-    delete_teams: {
+    delete_matching_results: {
       affected_rows: number
     }
     delete_surveys_by_pk: Survey | null
@@ -84,6 +89,14 @@ export async function deleteSurvey(id: string): Promise<Survey> {
       throw new Error(`アンケートの削除に失敗しました: ${response.data.errors[0].message}`)
     }
 
+    // teams の削除結果を確認
+    const deletedTeams = response.data.data.delete_teams
+    if (!deletedTeams) {
+      console.error('teams の削除結果が不明です')
+    } else {
+      console.log(`${deletedTeams.affected_rows} 件の teams を削除しました`)
+    }
+
     // student_dislikes の削除結果を確認
     const deletedDislikes = response.data.data.delete_student_dislikes
     if (!deletedDislikes) {
@@ -100,12 +113,12 @@ export async function deleteSurvey(id: string): Promise<Survey> {
       console.log(`${deletedPreferences.affected_rows} 件の student_preferences を削除しました`)
     }
 
-    // teams の削除結果を確認
-    const deletedTeams = response.data.data.delete_teams
-    if (!deletedTeams) {
-      console.error('teams の削除結果が不明です')
+    // matching_results の削除結果を確認
+    const deletedMatchingResults = response.data.data.delete_matching_results
+    if (!deletedMatchingResults) {
+      console.error('matching_results の削除結果が不明です')
     } else {
-      console.log(`${deletedTeams.affected_rows} 件の teams を削除しました`)
+      console.log(`${deletedMatchingResults.affected_rows} 件の matching_results を削除しました`)
     }
 
     const deletedSurvey = response.data.data.delete_surveys_by_pk

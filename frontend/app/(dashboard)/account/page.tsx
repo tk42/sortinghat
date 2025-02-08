@@ -43,6 +43,7 @@ async function handleDeleteAccount() {
 
 export default async function AccountPage() {
     return <AccountPageClient 
+        showPaymentColumn={false}
         onLogout={handleLogout}
         onDeleteAccount={handleDeleteAccount}
     />;

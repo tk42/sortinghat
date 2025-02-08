@@ -66,8 +66,14 @@ export const handleLogout = async (router: ReturnType<typeof useRouter>) => {
 // 退会（アカウント削除）処理
 export const handleDeleteAccount = async function(router: ReturnType<typeof useRouter>, user: any, teacher: Teacher, onDeleteAccount: () => Promise<void>) {
     try {
-        const password = prompt("現在のパスワードを入力してください");
+        const reply = confirm("アカウントを削除すると復元することはできません。本当に削除してもよろしいですか?");
+        if (!reply) return;
+
+        // 再認証のためのパスワード入力
+        const password = prompt("セキュリティのため、現在のパスワードを入力してください");
         if (!password) return;
+
+        // ユーザーを再認証
         const credential = EmailAuthProvider.credential(user.email, password);
         await reauthenticateWithCredential(user, credential);
 
