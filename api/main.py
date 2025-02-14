@@ -37,6 +37,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        "https://sm3.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
