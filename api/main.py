@@ -1,9 +1,8 @@
 import os
 import sys
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 
 from routers import (
     users_router,
@@ -13,7 +12,6 @@ from routers import (
     llm_router
 )
 from logging import getLogger, StreamHandler, INFO
-from starlette.types import Message
 
 
 is_prod = os.getenv("IS_PROD") == "True"
