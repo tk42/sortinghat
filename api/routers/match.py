@@ -15,6 +15,7 @@ from services.match import (
 router = APIRouter(prefix="/match", tags=["match"], include_in_schema=True)
 
 
+@router.post("")
 @router.post("/")
 async def match(req: MatchingRequest):
     teams, _, error = matching(req.student_constraints, req.constraint)
