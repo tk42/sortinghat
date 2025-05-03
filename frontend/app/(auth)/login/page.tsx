@@ -9,13 +9,14 @@ import SignupForm from "@/src/components/login/SignupForm";
 import LoginForm from "@/src/components/login/LoginForm";
 import { ResetPasswordModal } from "@/src/components/login/ResetPasswordModal";
 import { classNames } from "@/src/lib/utils";
+import {parse} from 'cookie';
 
 
 const LOGIN_TAB = { name: 'ログイン' }
 const SIGNUP_TAB = { name: '新規登録' }
 
-const tabs = (process.env.NODE_ENV === "production" && process.env.STRIPE_SECRET_KEY?.startsWith("pk_live_")) ? [LOGIN_TAB, SIGNUP_TAB] : [LOGIN_TAB]
-// const tabs = [LOGIN_TAB, SIGNUP_TAB]
+// const tabs = (process.env.NODE_ENV === "production") ? [LOGIN_TAB, SIGNUP_TAB] : [LOGIN_TAB]
+const tabs = (parse(document.cookie).iam === 'admin') ? [LOGIN_TAB, SIGNUP_TAB] : [LOGIN_TAB]
 
 
 export default function PageContent() {
