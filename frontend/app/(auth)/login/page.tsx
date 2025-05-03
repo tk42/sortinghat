@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Toaster } from 'react-hot-toast';
@@ -16,15 +16,21 @@ const LOGIN_TAB = { name: 'ログイン' }
 const SIGNUP_TAB = { name: '新規登録' }
 
 // const tabs = (process.env.NODE_ENV === "production") ? [LOGIN_TAB, SIGNUP_TAB] : [LOGIN_TAB]
-const tabs = (parse(document.cookie).iam === 'admin') ? [LOGIN_TAB, SIGNUP_TAB] : [LOGIN_TAB]
-
 
 export default function PageContent() {
   const [tabIndex, setTabIndex] = useState(0);
+  const [tabs, setTabs] = useState([LOGIN_TAB]);
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  useEffect(() => {
+    const cookies = parse(document.cookie);
+    if (cookies.iam === 'admin') {
+      setTabs([LOGIN_TAB, SIGNUP_TAB]);
+    }
+  }, []);
 
   return (
     <div className="hero min-h-screen bg-base-200">
