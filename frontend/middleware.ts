@@ -1,37 +1,27 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-/**
- * ミドルウェア関数
- * 
- * @param req NextRequest
- * @returns NextResponse
- */
-export function middleware(req: NextRequest) {
-    const token: RequestCookie | undefined = req.cookies.get('auth-token');
-    const isLoginPage = req.nextUrl.pathname === '/login';
+export async function middleware(req: NextRequest) {
+  const isLoginPage = req.nextUrl.pathname === '/login'
 
-    // ログインページでトークンが存在する場合は、dashboardへリダイレクト
-    if (isLoginPage && token?.value) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
+  // 認証検証 API へリクエスト
+  const res = await fetch(new URL('/api/auth/session/verify', req.url), {
+    headers: { cookie: req.headers.get('cookie') || '' },
+  })
+  const { valid: isValid } = await res.json()
 
-    // ログインページ以外でトークンが存在しない場合、ログインページへリダイレクト
-    if (!isLoginPage && !token?.value) {
-        return NextResponse.redirect(new URL('/login', req.url));
-    }
-
-    // それ以外の場合は、そのままリクエストを続行
-    return NextResponse.next();
+  // ログインページでトークン有効 → /dashboard へ
+  if (isLoginPage && isValid) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+  // それ以外のページでトークン無効 → /login へ
+  if (!isLoginPage && !isValid) {
+    return NextResponse.redirect(new URL('/login', req.url))
+  }
+  return NextResponse.next()
 }
 
 export const config = {
-    matcher: [
-        '/login',
-        '/class',
-        '/dashboard',
-        '/account',
-        '/matching',
-    ],
-};
+  matcher: ['/login', '/class', '/dashboard', '/account', '/matching'],
+}
