@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { IdentificationIcon, PencilSquareIcon, ChartPieIcon, AcademicCapIcon, HomeModernIcon } from '@heroicons/react/24/outline'; // @heroicons/react のアイコンを使用
+import { IdentificationIcon, PencilSquareIcon, ChartPieIcon, AcademicCapIcon, HomeModernIcon, CursorArrowRaysIcon } from '@heroicons/react/24/outline'; // @heroicons/react のアイコンを使用
 import { NavigationItem } from './NavigationItem';
 import { useDrawer } from '@/src/contexts/DrawerContext'
 
@@ -45,7 +45,8 @@ export const Sidebar = () => {
                         }}
                     />
                 </div>
-                <NavigationItem icon={AcademicCapIcon} href={'/dashboard'} name={'担任クラス'} handleClick={handleDoNothing} />
+                <NavigationItem icon={CursorArrowRaysIcon} href={'/dashboard'} name={'使い方'} handleClick={handleDoNothing} />
+                <NavigationItem icon={AcademicCapIcon} href={'/class'} name={'担任クラス'} handleClick={handleDoNothing} />
                 <NavigationItem icon={PencilSquareIcon} href={'/surveys'} name={'アンケート'} handleClick={handleSurveyClick} />
                 <NavigationItem icon={ChartPieIcon} href={'/matching'} name={'マッチング'} handleClick={handleMatchingClick} />
                 <NavigationItem icon={IdentificationIcon} href={'/account'} name={'アカウント'} handleClick={handleDoNothing} />
