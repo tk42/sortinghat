@@ -1,20 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Student } from '@/src/lib/interfaces'
+import { toast } from 'react-hot-toast'
+import { useDropzone } from 'react-dropzone'
+import { createStudents } from '@/src/utils/actions/format_class'
 
-
-// interface Student {
-//   id: string
-//   student_no: number
-//   name: string
-//   sex: number
-//   memo: string | null
-//   class_id: string
-//   created_at: string
-//   updated_at: string
-// }
 
 interface StudentListProps {
   classId: string
@@ -49,6 +41,8 @@ export default function StudentList({
     sex: 0,
     memo: ''
   })
+  const [isUploading, setIsUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const getSexLabel = (sex: number): string => {
     return sex === 1 ? '男性' : '女性'
@@ -116,11 +110,9 @@ export default function StudentList({
         setEditedSex(1)
         setEditedMemo('')
         
-        // 成功メッセージを表示（必要に応じてUIに追加）
-        // alert('生徒情報を更新しました')
+        alert('生徒情報を更新しました')
       } else {
-        // 更新が失敗した場合
-        // alert('生徒情報の更新に失敗しました')
+        alert('生徒情報の更新に失敗しました')
       }
     } catch (error) {
       console.error('Error updating student:', error)
@@ -138,8 +130,54 @@ export default function StudentList({
     }
   }
 
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return
+    const file = acceptedFiles[0]
+    if (file.type !== 'text/csv') {
+      setError('CSVファイルのみアップロード可能です')
+      return
+    }
+    setIsUploading(true)
+    setError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      // LLM→パース→一括登録→state 更新
+      const newStudents = await createStudents(formData, classId)
+      setStudents(newStudents)
+      
+      toast.success('クラスの学生を正常にアップロードしました')
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'アップロードに失敗しました'
+      setError(msg)
+      toast.error(msg)
+    } finally {
+      setIsUploading(false)
+    }
+  }, [classId, onCreateStudent])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'text/csv': ['.csv'] },
+    disabled: isUploading
+  })
+
   return (
     <div>
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-lg p-4 mb-4 text-center ${isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'}`}
+      >
+        <input {...getInputProps()} />
+        {isUploading ? (
+          <p>アップロード中...(十数秒かかります)</p>
+        ) : (
+          <p>CSVをドラッグ＆ドロップ、またはクリックしてアップロード</p>
+        )}
+      </div>
+      {error && <p className="text-red-500 mb-2">{error}</p>}
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">

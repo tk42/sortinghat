@@ -112,7 +112,7 @@ export async function createStudentPreferences(formData: FormData) {
     uploadFormData.append('survey_id', surveyId.toString())
 
     const backendResponse = await axios.post(
-      `${process.env.BACKEND_API_URL}/llm/upload_file`,
+      `${process.env.BACKEND_API_URL}/llm/format_survey`,
       uploadFormData,
       {
         headers: {

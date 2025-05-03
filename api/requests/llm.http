@@ -1,5 +1,5 @@
 ### Upload CSV file
-POST http://localhost:3001/llm/upload_file
+POST http://localhost:3001/llm/format_survey
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary

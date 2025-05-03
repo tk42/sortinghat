@@ -1,4 +1,17 @@
 from pydantic import BaseModel
+from typing import Optional
+from typing import List
+
+
+class Student(BaseModel):
+    student_no: int
+    name: Optional[str]
+    sex: int
+    memo: Optional[str]
+
+
+class Students(BaseModel):
+    students: List[Student]
 
 
 class StudentPreference(BaseModel):
@@ -15,17 +28,17 @@ class StudentPreference(BaseModel):
     mi_h: int
     leader: int
     eyesight: int
-    student_dislikes: list[int]
+    student_dislikes: List[int]
 
 
 class StudentPreferences(BaseModel):
-    preferences: list[StudentPreference]
+    preferences: List[StudentPreference]
 
 
 class StudentConstraint(BaseModel):
     # all fields are 0-indexed
     student_no: int | None
-    dislikes: list[int] = []
+    dislikes: List[int] = []
     previous: int | None
     mi_a: int
     mi_b: int
@@ -52,5 +65,5 @@ class Constraint(BaseModel):
 
 
 class MatchingRequest(BaseModel):
-    student_constraints: list[StudentConstraint]
+    student_constraints: List[StudentConstraint]
     constraint: Constraint
