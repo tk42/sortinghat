@@ -172,7 +172,7 @@ export default function StudentPreferences({
                                 </p>
                                 <p className="flex items-center gap-1">
                                     <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
-                                    <span>正しく読み込めないときは名簿番号,現在の班,MI-A~H,チームの役割,嫌いな生徒の名簿番号のみを含めてください</span>
+                                    <span>正しく読み込めないときは名簿番号,現在の班,MI-A~H,チームの役割,苦手な生徒の名簿番号のみを含めてください</span>
                                 </p>
                             </div>
                         </Fragment>
@@ -372,7 +372,7 @@ export default function StudentPreferences({
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">視力</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">リーダー</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-96">嫌いな学生（名簿番号をカンマ区切りで入力）</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-96">苦手な学生（名簿番号をカンマ区切りで入力）</th>
                                 <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                     <span className="sr-only">Actions</span>
                                 </th>
