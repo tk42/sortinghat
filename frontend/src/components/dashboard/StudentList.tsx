@@ -56,7 +56,7 @@ export default function StudentList({
 
   // バリデーション用の関数を追加
   const isValidStudentData = (studentNo: number, name: string, sex: number) => {
-    return studentNo > 0 && name.trim() !== '' && (sex === 1 || sex === 2);
+    return studentNo > 0 && (sex === 1 || sex === 2);
   };
 
   async function handleCreateStudent(e: React.FormEvent) {
@@ -327,7 +327,7 @@ export default function StudentList({
                   <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                     <button
                       onClick={handleCreateStudent}
-                      disabled={!newStudent.student_no || !newStudent.name || !newStudent.sex}
+                      disabled={!newStudent.student_no || !newStudent.sex}
                       className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
                     >
                       追加

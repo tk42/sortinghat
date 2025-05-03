@@ -1,5 +1,6 @@
 import { MatchingResult } from '@/src/lib/interfaces'
 import { RadarChart } from './RadarChart'
+import { useState } from 'react'
 
 // チームごとの表示色
 const colors = [
@@ -84,9 +85,22 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
   // オブジェクトから配列に変換
   const teamsArray = Object.values(teamsById);
 
+  const [showName, setShowName] = useState<boolean>(false);
+
   return (
     <div>
       <h2 className="text-xl font-semibold">マッチング結果</h2>
+      <div className="flex items-center mb-4">
+        表示名：
+        <span className="mr-2">学籍番号</span>
+        <input
+          type="checkbox"
+          checked={showName}
+          onChange={() => setShowName(!showName)}
+          className="toggle toggle-primary"
+        />
+        <span className="ml-2">名前</span>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {teamsArray.map((team, index) => {
           const colorIndex = index % colors.length;
@@ -109,7 +123,9 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                     // console.log("student_pref", JSON.stringify(teamStudentIds, null, 2), JSON.stringify(student_pref, null, 2))
                     return (
                         <tr key={student_pref.id}>
-                            <td className={`px-2 py-1 border font-bold ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{student_pref.name}</td>
+                            <td className={`px-2 py-1 border font-bold ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
+                              {showName ? student_pref.name : student_pref.student_no}
+                            </td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership}</td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
                                 {student_pref.student_dislikes && student_pref.student_dislikes.length > 0 

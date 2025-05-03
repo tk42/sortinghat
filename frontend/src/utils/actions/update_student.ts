@@ -32,7 +32,7 @@ const UPDATE_STUDENT = `
 const UpdateStudentSchema = z.object({
   id: z.string().min(1, '生徒IDは必須です'),
   student_no: z.string().min(1, '名簿番号は必須です'),
-  name: z.string().min(1, '生徒名は必須です'),
+  name: z.string(),
   sex: z.number().min(1).max(2),
   memo: z.string().nullable(),
 })
