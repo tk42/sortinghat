@@ -6,8 +6,9 @@ export async function middleware(req: NextRequest) {
   const isLoginPage = req.nextUrl.pathname === '/login'
 
   // 認証検証 API へリクエスト
-  const res = await fetch(new URL('/api/auth/session/verify', req.url), {
-    headers: { cookie: req.headers.get('cookie') || '' },
+  const origin = req.nextUrl.origin
+  const res = await fetch(new URL('/api/auth/session/verify', origin), {
+    headers: { cookie: req.headers.get('cookie')||'' }
   })
   const { valid: isValid } = await res.json()
 
