@@ -124,7 +124,7 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                     return (
                         <tr key={student_pref.id}>
                             <td className={`px-2 py-1 border font-bold ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
-                              {showName ? student_pref.name : student_pref.student_no}
+                              {showName ? student_pref.student_no + " " + student_pref.name : student_pref.student_no}
                             </td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership}</td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
