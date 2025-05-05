@@ -1,7 +1,7 @@
 import { MatchingResult } from '@/src/lib/interfaces'
 import { RadarChart } from './RadarChart'
 import { useState } from 'react'
-import { Student } from '@/src/lib/interfaces'
+
 
 // チームごとの表示色
 const colors = [
