@@ -61,6 +61,7 @@ export default function StudentPreferences({
             const formData = new FormData()
             formData.append('file', file)
             formData.append('survey_id', survey.id.toString())
+            formData.append('class_id', survey.class.id.toString())
 
             const newPreferences = await createStudentPreferences(formData)
             // console.log("newPreferences", newPreferences)
@@ -397,7 +398,7 @@ export default function StudentPreferences({
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">視力</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">リーダー</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-96">苦手な学生（名簿番号をカンマ区切りで入力）</th>
-                                <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                                <th scope="col" className="relative py-3.5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                     <span className="sr-only">Actions</span>
                                 </th>
                             </tr>

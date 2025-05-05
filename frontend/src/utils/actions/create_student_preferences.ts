@@ -55,8 +55,8 @@ const CREATE_STUDENT_DISLIKES = `
 `
 
 const GET_STUDENT_IDS = `
-  query GetStudentIds($student_nos: [Int!]!) {
-    students(where: {student_no: {_in: $student_nos}}) {
+  query GetStudentIds($student_nos: [Int!]!, $class_id: bigint!) {
+    students(where: {student_no: {_in: $student_nos}, class_id: {_eq: $class_id}}) {
       id
       student_no
     }
@@ -105,6 +105,7 @@ export async function createStudentPreferences(formData: FormData) {
   try {
     const fileContent = formData.get('file') as File
     const surveyId = Number(formData.get('survey_id'))
+    const classId = Number(formData.get('class_id'))
     
     // CSVファイルをバックエンドに送信
     const uploadFormData = new FormData()
@@ -147,7 +148,8 @@ export async function createStudentPreferences(formData: FormData) {
       {
         query: GET_STUDENT_IDS,
         variables: {
-          student_nos: studentNos
+          student_nos: studentNos,
+          class_id: classId
         },
       },
       {
