@@ -22,19 +22,19 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    return NextResponse.json({ status: 'success' });
+    return NextResponse.json({ status: 200 });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function DELETE() {
-  try {
-    // セッションクッキーを削除
-    cookies().delete('auth-token');
+// export async function DELETE() {
+//   try {
+//     // セッションクッキーを削除
+//     cookies().delete('auth-token');
     
-    return NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_BASE_URL));
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
+//     return NextResponse.json({ status: 200 });
+//   } catch (error) {
+//     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+//   }
+// }

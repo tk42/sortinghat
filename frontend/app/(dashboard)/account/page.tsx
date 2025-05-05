@@ -13,15 +13,8 @@ async function handleLogout() {
         // auth-tokenクッキーを削除 -> middleware が login ページに飛ばしてくれる
         const cookieStore = cookies();
         cookieStore.delete('auth-token');
-        
-        // セッションクッキーを削除
-        const res = await fetch('/api/auth/session', { method: 'DELETE' });
 
-        if (!res.ok) {
-            throw new Error('Failed to delete session cookie');
-        }
-
-        return { success: true };
+        redirect('/');
     } catch (error) {
         console.error('Logout failed:', error);
         throw error;
@@ -39,14 +32,7 @@ async function handleDeleteAccount() {
         const cookieStore = cookies();
         cookieStore.delete('auth-token');
 
-        // セッションクッキーを削除
-        const res = await fetch('/api/auth/session', { method: 'DELETE' });
-
-        if (!res.ok) {
-            throw new Error('Failed to delete session cookie');
-        }
-
-        return { success: true };
+        redirect('/');
     } catch (error) {
         console.error('Account deletion failed:', error);
         throw error;
