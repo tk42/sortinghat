@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from 'firebase/firestore'
-import { getAuth, Auth } from "firebase/auth";
+import { getAuth, setPersistence, inMemoryPersistence, Auth } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,6 +21,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(firebaseApp);
+setPersistence(auth, inMemoryPersistence).catch(err => console.error("inMemoryPersistence 設定失敗", err));
 const firestore = getFirestore();
 
 export { firebaseApp, auth, firestore };
