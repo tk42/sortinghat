@@ -6,6 +6,7 @@ from models.match import StudentConstraint, Constraint
 
 logger = logging.getLogger(__name__)
 
+
 class LpStatusType(Enum):
     # pulp.LpStatus
     UNDEFINED = -3
@@ -225,7 +226,7 @@ def matching(
         # 目的関数：チーム間のスコアの差を最小化
         objective = (
             lpSum(y[(1, t)] - y[(0, t)] for t in range(constraint.max_num_teams))
-            + (z[1] - z[0])
+            + constraint.group_diff_coeff * (z[1] - z[0])
         )
         
         # 視力が悪い学生をできるだけ一つのチームにまとめる「ソフト制約」
@@ -257,7 +258,7 @@ def matching(
         prob += objective
 
         # 最適化問題を解く
-        solver = PULP_CBC_CMD(msg=True, timeLimit=30)
+        solver = PULP_CBC_CMD(msg=True, timeLimit=60)
         status = prob.solve(solver)
         lp_status_type = LpStatusType(status)
 
