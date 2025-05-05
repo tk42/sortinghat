@@ -91,15 +91,13 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
     <div>
       <h2 className="text-xl font-semibold">マッチング結果</h2>
       <div className="flex items-center mb-4">
-        表示名：
-        <span className="mr-2">学籍番号</span>
+        名前表示：
         <input
           type="checkbox"
           checked={showName}
           onChange={() => setShowName(!showName)}
           className="toggle toggle-primary"
         />
-        <span className="ml-2">名前</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {teamsArray.map((team, index) => {
