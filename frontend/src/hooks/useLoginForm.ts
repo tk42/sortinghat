@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { auth } from "@/src/utils/firebase/firebase"
 
 import { signInWithEmailAndPassword } from "firebase/auth"
-
+import { useRouter } from "next/navigation";
 
 export const useLoginForm = () => {
   const {
@@ -19,9 +19,13 @@ export const useLoginForm = () => {
     resolver: zodResolver(LoginFormSchema),
   });
 
+  const router = useRouter();
+
   const isValid: SubmitHandler<LoginFormSchemaType> = async (data: LoginFormSchemaType) => {
     const { email, password } = data;
     try {
+      const loadingToastId = toast.loading("ログイン中...");
+
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -49,12 +53,12 @@ export const useLoginForm = () => {
         throw new Error('Failed to create session');
       }
       
-      toast.success("ログイン完了！");
+      toast.success("ログイン完了！", {
+        id: loadingToastId,
+      });
       
       // セッションが確立された後に画面遷移
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 500);
+      router.push("/dashboard");
 
     } catch (error: any) {
       if (error.toString().includes('auth/user-not-found')) {

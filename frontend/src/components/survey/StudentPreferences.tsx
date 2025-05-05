@@ -124,25 +124,31 @@ export default function StudentPreferences({
 
             // matching API call
 
-            toast.success('マッチングの探索を開始しました！（数十秒かかることがあります）', {
+            const loadingToastId = toast.loading('マッチングの探索を開始しました！（数十秒かかることがあります）', {
                 duration: 60000,
             })
             const result: MatchResult = await matchStudentPreferences(constraint, studentPreferences)
             // console.log('Matching result teams:', JSON.stringify(teams, null, 2))
 
             if (result.error) {
-                toast.error(result.error)
+                toast.error(result.error, {
+                    id: loadingToastId,
+                })
                 return
             }
 
             if (!result.data) {
-                toast.error('マッチングを見つけられませんでした')
+                toast.error('マッチングを見つけられませんでした', {
+                    id: loadingToastId,
+                })
                 return
             }
 
             await updateStudentTeams(result.data, survey.id)
 
-            toast.success('マッチングを見つけました')
+            toast.success('マッチングを見つけました', {
+                id: loadingToastId,
+            })
             setIsMatchingModalOpen(false)
         } catch (error) {
             console.error('Matching error:', error)
