@@ -28,7 +28,7 @@ interface DeleteStudentResponse {
 
 // バリデーションスキーマ
 const DeleteStudentSchema = z.object({
-  id: z.string().min(1, '生徒IDは必須です'),
+  id: z.string().min(1, '児童生徒IDは必須です'),
 })
 
 export async function deleteStudent(formData: FormData): Promise<{ data?: Student; error?: string }> {
@@ -69,12 +69,12 @@ export async function deleteStudent(formData: FormData): Promise<{ data?: Studen
     )
 
     if (response.data.errors) {
-      return { error: `生徒の削除に失敗しました: ${response.data.errors[0].message}` }
+      return { error: `児童生徒の削除に失敗しました: ${response.data.errors[0].message}` }
     }
 
     const deletedStudent = response.data.data.delete_students_by_pk
     if (!deletedStudent) {
-      return { error: '生徒の削除に失敗しました' }
+      return { error: '児童生徒の削除に失敗しました' }
     }
 
     return { data: deletedStudent }
@@ -91,7 +91,7 @@ export async function deleteStudent(formData: FormData): Promise<{ data?: Studen
       return { error: `APIエラー: ${error.response?.status} - ${JSON.stringify(error.response?.data)}` }
     }
     
-    console.error('生徒の削除中にエラーが発生しました:', error)
+    console.error('児童生徒の削除中にエラーが発生しました:', error)
     return { error: error instanceof Error ? error.message : '予期せぬエラーが発生しました' }
   }
 }

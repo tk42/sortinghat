@@ -65,7 +65,7 @@ export const Container = (props: ContainerProps) => {
                                 // aria-current={page.current ? 'page' : undefined}
                                 className="ml-4 text-md font-md items-center flex text-gray-500 hover:text-gray-700"
                             >
-                                生徒一覧
+                                児童生徒一覧
                             </a>
                         </>
                     ) : <></>

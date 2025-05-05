@@ -14,7 +14,7 @@ const features = [
   {
     name: '教員の主観を排除',
     description:
-      '児童の心理特性に基づいてスコアを算出し、客観的な席替えを実現します',
+      '児童生徒の特性に基づいてスコアを算出し、客観的な席替えを実現します',
     icon: AcademicCapIcon,
   },
   {
@@ -53,7 +53,7 @@ const HowToUse = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <NumberCircle number={1} />
-                <p className="text-lg">教員が児童の特性を考える</p>
+                <p className="text-lg">教員が児童生徒の特性を考える</p>
               </div>
               <div className="flex items-center gap-4">
                 <NumberCircle number={2} />
@@ -87,12 +87,12 @@ const HowToUse = () => {
               <div className="flex items-start gap-4">
                 <NumberCircle number={1} />
                 <div className="flex-1">
-                  <p className="text-lg">児童が心理テストに回答</p>
+                  <p className="text-lg">児童生徒が心理テストに回答</p>
                 </div>
                 <img
                   className="w-20 h-20 sm:w-32 sm:h-32"
                   src="/student-test.png"
-                  alt="テストを受ける生徒"
+                  alt="テストを受ける児童生徒"
                 />
               </div>
               <div className="flex items-start gap-4">
@@ -148,10 +148,10 @@ const MarkupHome = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
             <p className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              児童の心理特性に基づいて最適な班分けを数理最適化を用いて提案します
+              児童生徒の心理特性に基づいて最適な班分けを数理最適化を用いて提案します
             </p>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              <a href="https://ja.wikipedia.org/wiki/%E5%A4%9A%E9%87%8D%E7%9F%A5%E8%83%BD%E7%90%86%E8%AB%96">多重知能理論(Multiple intelligences)</a>を実施した児童たちのスコアに応じて，様々な制約下での最適な班分けを提案します
+              <a href="https://ja.wikipedia.org/wiki/%E5%A4%9A%E9%87%8D%E7%9F%A5%E8%83%BD%E7%90%86%E8%AB%96">多重知能理論(Multiple intelligences)</a>を実施した児童生徒たちのスコアに応じて，様々な制約下での最適な班分けを提案します
             </p>
           </div>
 

@@ -176,7 +176,7 @@ export default function StudentPreferences({
                                 </p>
                                 <p className="flex items-center gap-1">
                                     <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
-                                    <span>正しく読み込めないときは名簿番号,現在の班,MI-A~H,チームの役割,苦手な生徒の名簿番号のみを含めてください</span>
+                                    <span>正しく読み込めないときは名簿番号,現在の班,MI-A~H,チームの役割,苦手な児童生徒の名簿番号のみを含めてください</span>
                                 </p>
                             </div>
                         </Fragment>

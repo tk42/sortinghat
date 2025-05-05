@@ -30,7 +30,7 @@ const UPDATE_STUDENT = `
 
 // バリデーションスキーマ
 const UpdateStudentSchema = z.object({
-  id: z.string().min(1, '生徒IDは必須です'),
+  id: z.string().min(1, '児童生徒IDは必須です'),
   student_no: z.string().min(1, '名簿番号は必須です'),
   name: z.string(),
   sex: z.number().min(1).max(2),
@@ -86,7 +86,7 @@ export async function updateStudent(formData: FormData) {
 
     const updatedStudent = response.data.data?.update_students_by_pk
     if (!updatedStudent) {
-      throw new Error('生徒の更新に失敗しました')
+      throw new Error('児童生徒の更新に失敗しました')
     }
 
     // GraphQLのレスポンスを適切な型に変換
@@ -101,10 +101,10 @@ export async function updateStudent(formData: FormData) {
         data: error.response?.data,
       })
     }
-    console.error('Error updating student:', error)
+    console.error('児童生徒の更新中にエラーが発生しました:', error)
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message }
     }
-    return { error: error instanceof Error ? error.message : '生徒の更新に失敗しました' }
+    return { error: error instanceof Error ? error.message : '児童生徒の更新に失敗しました' }
   }
 }

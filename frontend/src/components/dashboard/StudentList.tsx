@@ -110,13 +110,13 @@ export default function StudentList({
         setEditedSex(1)
         setEditedMemo('')
         
-        alert('生徒情報を更新しました')
+        alert('児童生徒情報を更新しました')
       } else {
-        alert('生徒情報の更新に失敗しました')
+        alert('児童生徒情報の更新に失敗しました')
       }
     } catch (error) {
       console.error('Error updating student:', error)
-      alert('生徒情報の更新中にエラーが発生しました')
+      alert('児童生徒情報の更新中にエラーが発生しました')
     }
   }
 

@@ -14,7 +14,7 @@ export default function DashboardClient(props: DashboardClientProps) {
                     新しいクラスを作成する: 「担任クラス」ページで，新規クラスを作成します。
                 </li>
                 <li className="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
-                    クラスメンバーを追加する: クラス詳細ペインで生徒を追加します。
+                    クラスメンバーを追加する: クラス詳細ペインで児童生徒を追加します。
                 </li>
                 <li className="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
                     アンケート結果を追加する: 「アンケート」ページで，アンケート結果のCSVをアップロードします。

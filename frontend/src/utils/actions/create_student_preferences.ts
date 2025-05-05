@@ -174,7 +174,7 @@ export async function createStudentPreferences(formData: FormData) {
       const studentNo = Number(row.student_id)
       const studentId = studentIdMap.get(studentNo)
       if (!studentId) {
-        throw new Error(`名簿番号: ${studentNo} の生徒が担任クラスに見つかりませんでした`)
+        throw new Error(`名簿番号: ${studentNo} の児童生徒が担任クラスに見つかりませんでした`)
       }
 
       console.log('Row before validation:', row)  // バリデーション前のデータを確認
