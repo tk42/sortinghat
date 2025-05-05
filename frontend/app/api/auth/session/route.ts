@@ -7,8 +7,8 @@ export async function POST(req: NextRequest) {
   try {
     const { idToken } = await req.json();
     
-    // セッションクッキーの有効期限を設定（例：180日間）
-    const expiresIn = 60 * 60 * 24 * 180;
+    // セッションクッキーの有効期限を設定（例：5日間）
+    const expiresIn = 60 * 60 * 24 * 5;
     
     // IDトークンからFirebaseセッションクッキーを作成
     const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
