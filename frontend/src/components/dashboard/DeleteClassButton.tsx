@@ -39,15 +39,21 @@ export default function DeleteClassButton({ classId, onSuccess, children }: Prop
           onClick={() => setIsOpen(false)}
         >
           <div 
-            className="bg-white p-6 rounded-lg"
+            className="bg-white p-6 rounded-lg text-left"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-medium mb-4 text-left">クラスを削除</h3>
+            <h3 className="text-lg font-medium mb-4">クラスを削除</h3>
             {isLoading ? (
               <Loading />
             ) : (
               <>
-                <p className="mb-4">このクラスを削除してもよろしいですか？</p>
+                <p className="mb-4">このクラスを削除してもよろしいですか？<br />
+                このクラスを削除すると、以下のデータも削除されます。</p>
+                <ul className="mb-4 list-disc list-inside">
+                  <li>児童生徒</li>
+                  <li>アンケート</li>
+                  <li>マッチング結果</li>
+                </ul>
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={() => setIsOpen(false)}

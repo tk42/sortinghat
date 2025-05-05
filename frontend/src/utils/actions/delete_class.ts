@@ -8,12 +8,6 @@ import { Class } from '@/src/lib/interfaces'
 // GraphQLクエリ
 const DELETE_CLASS = `
   mutation DeleteClass($id: bigint!) {
-    delete_students(where: { class_id: { _eq: $id } }) {
-      affected_rows
-    }
-    delete_surveys(where: { class_id: { _eq: $id } }) {
-      affected_rows
-    }
     delete_classes_by_pk(id: $id) {
       id
       name
@@ -23,8 +17,6 @@ const DELETE_CLASS = `
 
 interface DeleteClassResponse {
   data: {
-    delete_students: { affected_rows: number }
-    delete_surveys: { affected_rows: number }
     delete_classes_by_pk: Class | null
   }
   errors?: Array<{ message: string }>
