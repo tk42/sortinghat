@@ -231,56 +231,22 @@ export default function StudentPreferences({
                                                 マッチング条件設定
                                             </Dialog.Title>
                                             <div className="mt-4 space-y-4">
-                                                {/* <div>
-                                                    <label htmlFor="max_num_teams" className="block text-sm font-medium text-gray-700">
-                                                        チーム数
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        id="max_num_teams"
-                                                        value={constraint.max_num_teams ?? ''}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (val === '' || /^[0-9]+$/.test(val)) {
-                                                                setConstraint({ ...constraint, max_num_teams: val === '' ? 0 : parseInt(val) });
-                                                            }
-                                                        }}
-                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="members_per_team" className="block text-sm font-medium text-gray-700">
-                                                        チームあたりの最大人数
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        id="members_per_team"
-                                                        value={constraint.members_per_team ?? ''}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (val === '' || /^[0-9]+$/.test(val)) {
-                                                                setConstraint({ ...constraint, members_per_team: val === '' ? 0 : parseInt(val) });
-                                                            }
-                                                        }}
-                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                    />
-                                                </div> */}
                                                 <div className="flex gap-6">
                                                     <div className="flex-1">
                                                         <label htmlFor="max_num_teams" className="block text-sm font-medium text-gray-700">
                                                         チーム数
                                                         </label>
                                                         <input
-                                                        type="text"
-                                                        id="max_num_teams"
-                                                        value={constraint.max_num_teams ?? ''}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (val === '' || /^[0-9]+$/.test(val)) {
-                                                                setConstraint({ ...constraint, max_num_teams: val === '' ? undefined : parseInt(val) });
-                                                            }
-                                                        }}
-                                                        className="mt-1 block w-40 h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-lg px-4"
+                                                            type="text"
+                                                            id="max_num_teams"
+                                                            value={constraint.max_num_teams ?? ''}
+                                                            onChange={(e) => {
+                                                                const val = e.target.value;
+                                                                if (val === '' || /^[0-9]+$/.test(val)) {
+                                                                    setConstraint({ ...constraint, max_num_teams: val === '' ? undefined : parseInt(val) });
+                                                                }
+                                                            }}
+                                                            className="mt-1 block w-40 h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-lg px-4"
                                                         />
                                                     </div>
                                                     <div className="flex-1">
@@ -356,9 +322,10 @@ export default function StudentPreferences({
                                                     <input
                                                         type="number"
                                                         id="unique_previous"
+                                                        min={0}
                                                         value={constraint.unique_previous}
                                                         onChange={(e) => setConstraint({ ...constraint, unique_previous: e.target.value ? parseInt(e.target.value) : undefined })}
-                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        className="mt-1 block w-40 h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-lg px-4"
                                                     />
                                                 </div>
                                                 {/* <div>
