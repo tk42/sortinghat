@@ -33,7 +33,7 @@ export async function DELETE() {
     // セッションクッキーを削除
     cookies().delete('auth-token');
     
-    return NextResponse.json({ status: 'success' });
+    return NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_BASE_URL));
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

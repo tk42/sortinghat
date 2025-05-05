@@ -9,10 +9,19 @@ async function handleLogout() {
     try {
         // Firebaseのセッションを終了
         await auth.signOut();
-        
+
         // auth-tokenクッキーを削除 -> middleware が login ページに飛ばしてくれる
         const cookieStore = cookies();
         cookieStore.delete('auth-token');
+        
+        // セッションクッキーを削除
+        const res = await fetch('/api/auth/session', { method: 'DELETE' });
+
+        if (!res.ok) {
+            throw new Error('Failed to delete session cookie');
+        }
+
+        return { success: true };
     } catch (error) {
         console.error('Logout failed:', error);
         throw error;
@@ -23,18 +32,21 @@ async function handleDeleteAccount() {
     'use server';
     
     try {
-        const cookieStore = cookies();
-        const authToken = cookieStore.get('auth-token')?.value;
-        
-        if (!authToken) {
-            throw new Error('認証トークンが見つかりません');
-        }
-        
+        // Firebaseのセッションを終了
+        await auth.signOut();
+
         // auth-tokenクッキーを削除
+        const cookieStore = cookies();
         cookieStore.delete('auth-token');
-        
-        // トップページへリダイレクト
-        redirect('/');
+
+        // セッションクッキーを削除
+        const res = await fetch('/api/auth/session', { method: 'DELETE' });
+
+        if (!res.ok) {
+            throw new Error('Failed to delete session cookie');
+        }
+
+        return { success: true };
     } catch (error) {
         console.error('Account deletion failed:', error);
         throw error;
