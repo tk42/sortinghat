@@ -27,7 +27,7 @@ async def format_class(
 ) -> Students:
     # CSVファイルの内容を読み込む
     contents = await file.read()
-    csv_text = contents.decode()
+    csv_text = contents.decode('cp932')
 
     # OpenAIのStructured Outputのプロンプトを作成
     system_prompt = """
@@ -78,7 +78,7 @@ async def format_survey(
 ) -> StudentPreferences:
     # CSVファイルの内容を読み込む
     contents = await file.read()
-    csv_text = contents.decode()
+    csv_text = contents.decode('cp932')
 
     # OpenAIのStructured Outputのプロンプトを作成
     system_prompt = """
