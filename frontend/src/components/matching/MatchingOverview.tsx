@@ -1,6 +1,7 @@
 import { MatchingResult } from '@/src/lib/interfaces'
 import { RadarChart } from './RadarChart'
 import { useState } from 'react'
+import { Student } from '@/src/lib/interfaces'
 
 // チームごとの表示色
 const colors = [
@@ -79,6 +80,7 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
     return {
         student_id: student.id,
         name: student.name,
+        student_no: student.student_no,
     }
   });
 
@@ -128,7 +130,15 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
                                 {student_pref.student_dislikes && student_pref.student_dislikes.length > 0 
                                     ? student_pref.student_dislikes
-                                        .map(dislikeId => studentsById.find(s => s.student_id === dislikeId)?.name || `ID:${dislikeId}`)
+                                        .map(dislikeId => {
+                                          const disliked_student = studentsById.find(s => s.student_id === dislikeId);
+                                          if (!disliked_student) {
+                                            return `ID:${dislikeId}`;
+                                          }
+                                          return showName
+                                            ? disliked_student.student_no + " " + disliked_student.name
+                                            : disliked_student.student_no;
+                                        })
                                         .join(', ')
                                     : 'なし'
                                 }
