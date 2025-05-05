@@ -361,7 +361,7 @@ export default function StudentPreferences({
                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
                                                 </div>
-                                                <div>
+                                                {/* <div>
                                                     <label htmlFor="group_diff_coeff" className="block text-sm font-medium text-gray-700">
                                                         グループ差異係数（任意）
                                                     </label>
@@ -373,7 +373,7 @@ export default function StudentPreferences({
                                                         onChange={(e) => setConstraint({ ...constraint, group_diff_coeff: e.target.value ? parseFloat(e.target.value) : undefined })}
                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
-                                                </div>
+                                                </div> */}
                                             </div>
                                         </div>
                                     </div>
