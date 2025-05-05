@@ -111,14 +111,14 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                 {team.students.map(student_pref => {
                     let leadership;
                     switch (student_pref.leader) {
-                    case 8:
-                        leadership = 'リーダー';
+                      case 8:
+                        leadership = '👑 リーダー';
                         break;
-                    case 3:
-                        leadership = 'サブリーダー';
+                      case 3:
+                        leadership = '🥈 サブリーダー';
                         break;
-                    default:
-                        leadership = 'メンバー';
+                      default:
+                        leadership = '👤 メンバー';
                     }
                     // console.log("student_pref", JSON.stringify(teamStudentIds, null, 2), JSON.stringify(student_pref, null, 2))
                     return (
