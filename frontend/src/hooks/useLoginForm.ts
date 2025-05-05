@@ -23,9 +23,9 @@ export const useLoginForm = () => {
 
   const isValid: SubmitHandler<LoginFormSchemaType> = async (data: LoginFormSchemaType) => {
     const { email, password } = data;
-    try {
-      const loadingToastId = toast.loading("ログイン中...");
+    const loadingToastId = toast.loading("ログイン中...");
 
+    try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -62,17 +62,24 @@ export const useLoginForm = () => {
 
     } catch (error: any) {
       if (error.toString().includes('auth/user-not-found')) {
-        toast.error("ユーザーが見つかりません。");
+        toast.error("ユーザーが見つかりません。", {
+          id: loadingToastId,
+        });
         return
       }
       if (error.toString().includes("wrong-password")) {
-        toast.error("パスワードが違います。");
+        toast.error("パスワードが違います。", {
+          id: loadingToastId,
+        });
         return
       }
       console.error("エラー:", error);
-      toast.error("エラーが発生しました。");
+      toast.error("エラーが発生しました。", {
+        id: loadingToastId,
+      });
     }
   };
+
   const isInValid: SubmitErrorHandler<LoginFormSchemaType> = async (errors: any) => {
     console.error("エラー:", errors);
     toast.error("エラーが発生しました。");
