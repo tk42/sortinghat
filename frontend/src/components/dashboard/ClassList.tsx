@@ -6,6 +6,7 @@ import DeleteClassButton from '@/src/components/dashboard/DeleteClassButton'
 import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { updateClass } from '@/src/utils/actions/update_class'
 import { Class } from '@/src/lib/interfaces'
+import { toast } from 'react-hot-toast'
 
 // interface Class {
 //   id: string
@@ -39,12 +40,15 @@ export default function ClassList({
   }
 
   const handleSave = async (id: string) => {
+    const toastId = toast.loading("追加中...")
     try {
       await updateClass(id, editedName)
       setEditingId(null)
       router.refresh()
+      toast.success("追加しました", { id: toastId })
     } catch (error) {
       console.error('Error updating class:', error)
+      toast.error("追加に失敗しました", { id: toastId })
     }
   }
 

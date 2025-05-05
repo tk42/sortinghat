@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Synergy Match Maker",
-  description: "児童の心理特性に基づいて最適な班分けを数理最適化を用いて提案する学校教員向けのアプリ",
+  description: "児童生徒の特性に基づいて最適な班分けを数理最適化を用いて提案する学校教員向けのアプリ",
 };
 
 export default function RootLayout({
