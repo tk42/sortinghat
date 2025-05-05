@@ -12,14 +12,15 @@ import { MatchingOverview } from './MatchingOverview'
 
 interface MatchingPageClientProps {
     initialMatchingResults: MatchingResultWithTeams[]
+    initialClasses: Class[]
 }
 
-export default function MatchingPageClient({ initialMatchingResults }: MatchingPageClientProps) {
+export default function MatchingPageClient({ initialMatchingResults, initialClasses }: MatchingPageClientProps) {
     const { state } = useAuthContext()
     const { isDrawerOpen, setIsDrawerOpen } = useDrawer()
     const [matchingResults, setMatchingResults] = useState<MatchingResultWithTeams[]>(initialMatchingResults)
     const [selectedMatching, setSelectedMatching] = useState<MatchingResult | null>(null)
-    const [classes, setClasses] = useState<Class[]>([])
+    const [classes, setClasses] = useState<Class[]>(initialClasses)
 
     useEffect(() => {
         const loadTeacherData = async () => {

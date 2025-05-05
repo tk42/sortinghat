@@ -120,7 +120,7 @@ export interface Subscription {
 }
 
 export interface Constraint {
-    max_num_teams: number;
+    max_num_teams?: number;
     members_per_team?: number;
     at_least_one_pair_sex: boolean;
     girl_geq_boy: boolean;

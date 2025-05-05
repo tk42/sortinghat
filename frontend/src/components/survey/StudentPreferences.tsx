@@ -35,8 +35,8 @@ export default function StudentPreferences({
     const [editingValues, setEditingValues] = useState<StudentPreference | null>(null)
     const [isMatchingModalOpen, setIsMatchingModalOpen] = useState(false)
     const [constraint, setConstraint] = useState<Constraint>({
-        max_num_teams: 8,
-        members_per_team: 4,
+        max_num_teams: undefined,
+        members_per_team: undefined,
         at_least_one_pair_sex: true,
         girl_geq_boy: true,
         boy_geq_girl: false,
@@ -123,6 +123,10 @@ export default function StudentPreferences({
             // console.log('Student preferences:', studentPreferences)
 
             // matching API call
+
+            toast.success('マッチングの探索を開始しました！（数十秒かかることがあります）', {
+                duration: 60000,
+            })
             const result: MatchResult = await matchStudentPreferences(constraint, studentPreferences)
             // console.log('Matching result teams:', JSON.stringify(teams, null, 2))
 
@@ -227,15 +231,20 @@ export default function StudentPreferences({
                                                 マッチング条件設定
                                             </Dialog.Title>
                                             <div className="mt-4 space-y-4">
-                                                <div>
+                                                {/* <div>
                                                     <label htmlFor="max_num_teams" className="block text-sm font-medium text-gray-700">
                                                         チーム数
                                                     </label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
                                                         id="max_num_teams"
-                                                        value={constraint.max_num_teams}
-                                                        onChange={(e) => setConstraint({ ...constraint, max_num_teams: parseInt(e.target.value) })}
+                                                        value={constraint.max_num_teams ?? ''}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val === '' || /^[0-9]+$/.test(val)) {
+                                                                setConstraint({ ...constraint, max_num_teams: val === '' ? 0 : parseInt(val) });
+                                                            }
+                                                        }}
                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
                                                 </div>
@@ -244,12 +253,53 @@ export default function StudentPreferences({
                                                         チームあたりの最大人数
                                                     </label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
                                                         id="members_per_team"
-                                                        value={constraint.members_per_team || ''}
-                                                        onChange={(e) => setConstraint({ ...constraint, members_per_team: e.target.value ? parseInt(e.target.value) : undefined })}
+                                                        value={constraint.members_per_team ?? ''}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val === '' || /^[0-9]+$/.test(val)) {
+                                                                setConstraint({ ...constraint, members_per_team: val === '' ? 0 : parseInt(val) });
+                                                            }
+                                                        }}
                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
+                                                </div> */}
+                                                <div className="flex gap-6">
+                                                    <div className="flex-1">
+                                                        <label htmlFor="max_num_teams" className="block text-sm font-medium text-gray-700">
+                                                        チーム数
+                                                        </label>
+                                                        <input
+                                                        type="text"
+                                                        id="max_num_teams"
+                                                        value={constraint.max_num_teams ?? ''}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val === '' || /^[0-9]+$/.test(val)) {
+                                                                setConstraint({ ...constraint, max_num_teams: val === '' ? undefined : parseInt(val) });
+                                                            }
+                                                        }}
+                                                        className="mt-1 block w-40 h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-lg px-4"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <label htmlFor="members_per_team" className="block text-sm font-medium text-gray-700">
+                                                        チームあたりの最大人数
+                                                        </label>
+                                                        <input
+                                                        type="text"
+                                                        id="members_per_team"
+                                                        value={constraint.members_per_team ?? ''}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val === '' || /^[0-9]+$/.test(val)) {
+                                                                setConstraint({ ...constraint, members_per_team: val === '' ? undefined : parseInt(val) });
+                                                            }
+                                                        }}
+                                                        className="mt-1 block w-40 h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-lg px-4"
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <div className="flex items-center">
                                                     <input
@@ -330,8 +380,9 @@ export default function StudentPreferences({
                                     <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
                                         <button
                                             type="button"
-                                            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
+                                            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2 disabled:opacity-50 disabled:grayscale"
                                             onClick={handleMatching}
+                                            disabled={constraint.max_num_teams === undefined || constraint.members_per_team === undefined}
                                         >
                                             マッチング
                                         </button>

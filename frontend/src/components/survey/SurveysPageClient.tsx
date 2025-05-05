@@ -19,16 +19,17 @@ import { useDrawer } from '@/src/contexts/DrawerContext'
 
 interface SurveysPageClientProps {
     initialSurveys: Survey[]
+    initialClasses: Class[]
 }
 
-export default function SurveysPageClient({ initialSurveys }: SurveysPageClientProps) {
+export default function SurveysPageClient({ initialSurveys, initialClasses }: SurveysPageClientProps) {
     const { state } = useAuthContext()
     const router = useRouter()
     const { isDrawerOpen, setIsDrawerOpen } = useDrawer()
     const [surveys, setSurveys] = useState<Survey[]>(initialSurveys)
     const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null)
     const [studentPreferences, setStudentPreferences] = useState<StudentPreference[]>([])
-    const [classes, setClasses] = useState<Class[]>([])
+    const [classes, setClasses] = useState<Class[]>(initialClasses)
 
     useEffect(() => {
         const loadTeacherData = async () => {

@@ -4,6 +4,7 @@ import SurveysPageClient from '@/src/components/survey/SurveysPageClient'
 import { fetchSurveys } from '@/src/utils/actions/fetch_surveys'
 import { Toaster } from 'react-hot-toast'
 import { Metadata } from 'next'
+import { fetchClasses } from '@/src/utils/actions/fetch_classes'
 
 export const metadata: Metadata = {
     title: 'Surveys - SynergyMatchMaker',
@@ -15,12 +16,13 @@ export default async function Page() {
     const sessionCookie = cookieStore.get('auth-token')?.value
     const decodedToken = await auth.verifySessionCookie(sessionCookie!)
     const surveys = await fetchSurveys(decodedToken.uid)
+    const classes = await fetchClasses(decodedToken.uid)
 
     return (
         <>
             <main className="py-10">
                 <div className="max-w-7xl mx-auto">
-                    <SurveysPageClient initialSurveys={surveys || []} />
+                    <SurveysPageClient initialSurveys={surveys || []} initialClasses={classes || []} />
                 </div>
                 <Toaster />
             </main>
