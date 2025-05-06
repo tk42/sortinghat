@@ -7,7 +7,7 @@ import {
     useReducer,
     Dispatch,
 } from 'react';
-import { onAuthStateChanged, User, getIdToken } from '@firebase/auth';
+import { onAuthStateChanged, User, getIdToken, signInWithCustomToken } from '@firebase/auth';
 import { auth } from './firebase';
 import { createTeacher } from '@/src/utils/actions/create_teacher';
 import { findTeacher } from '@/src/utils/actions/fetch_teacher';
@@ -58,6 +58,19 @@ export const AuthProvider = ({ children }: Props) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
     
     useEffect(() => {
+        // セッションCookieからカスタムトークンを取得してFirebase Authにサインイン
+        (async () => {
+            try {
+                const res = await fetch('/api/auth/session');
+                const data = await res.json();
+                if (data.customToken) {
+                    await signInWithCustomToken(auth, data.customToken);
+                }
+            } catch (error) {
+                console.error('Error restoring session:', error);
+            }
+        })();
+
         const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
             dispatch({ type: 'SET_USER', payload: user });
     

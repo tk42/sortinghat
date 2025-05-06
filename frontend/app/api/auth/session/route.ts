@@ -29,6 +29,24 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// クライアントのリロード時にセッションを復元する用のエンドポイント
+export async function GET() {
+  try {
+    const sessionCookie = cookies().get('auth-token')?.value;
+    if (!sessionCookie) {
+      return NextResponse.json({}, { status: 204 });
+    }
+    // セッションクッキーを検証
+    const decoded = await auth.verifySessionCookie(sessionCookie, true);
+    // カスタムトークンを生成
+    const customToken = await auth.createCustomToken(decoded.uid);
+    return NextResponse.json({ customToken }, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching session:', error);
+    return NextResponse.json({ error: 'Failed to fetch session' }, { status: 500 });
+  }
+}
+
 // export async function DELETE() {
 //   try {
 //     // セッションクッキーを削除
