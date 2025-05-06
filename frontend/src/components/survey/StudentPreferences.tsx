@@ -46,6 +46,9 @@ export default function StudentPreferences({
         group_diff_coeff: 1.5
     })
 
+    // 自分自身を dislikes に含む場合を判定
+    const hasSelfDislike = studentPreferences.some(pref => pref.student_dislikes.some(d => d.student_id === pref.student.id));
+
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         if (acceptedFiles.length === 0) return
 
@@ -209,7 +212,8 @@ export default function StudentPreferences({
                 <button
                     type="button"
                     onClick={() => setIsMatchingModalOpen(true)}
-                    className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    disabled={hasSelfDislike}
+                    className="rounded-md bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                     マッチング条件設定
                 </button>
@@ -406,7 +410,7 @@ export default function StudentPreferences({
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">視力</th>
                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">リーダー</th>
-                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-96">苦手な学生（名簿番号をカンマ区切りで入力）</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-96">苦手な学生</th>
                                 <th scope="col" className="relative py-3.5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                     <span className="sr-only">Actions</span>
                                 </th>
@@ -707,12 +711,21 @@ export default function StudentPreferences({
                                                 })()}
                                             </td>
                                             <td className="whitespace-wrap px-3 py-4 text-sm text-gray-500">
-                                                {preference.student_dislikes?.map((dislike, index) => (
-                                                    <span key={dislike.student_id}>
-                                                        {index > 0 && ", "}
-                                                        {studentPreferences.find(p => p.student.id === dislike.student_id)?.student.name || `学生ID: ${dislike.student_id}`}
-                                                    </span>
-                                                ))}
+                                                {preference.student_dislikes?.map((dislike, index) => {
+                                                    const isSelf = dislike.student_id === preference.student.id;
+                                                    return (
+                                                        <span key={dislike.student_id} className="inline-flex items-center">
+                                                            {index > 0 && ", "}
+                                                            {studentPreferences.find(p => p.student.id === dislike.student_id)?.student.name || `学生ID: ${dislike.student_id}`}
+                                                            {isSelf && (
+                                                                <ExclamationTriangleIcon
+                                                                    className="ml-1 h-5 w-5 text-yellow-500 cursor-pointer"
+                                                                    title="自分自身を指定しています"
+                                                                />
+                                                            )}
+                                                        </span>
+                                                    )
+                                                })}
                                             </td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                                 <div className="flex gap-2 justify-end">
