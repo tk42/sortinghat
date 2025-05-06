@@ -40,7 +40,8 @@ export async function GET() {
     const decoded = await auth.verifySessionCookie(sessionCookie, true);
     // カスタムトークンを生成
     const customToken = await auth.createCustomToken(decoded.uid);
-    return NextResponse.json({ customToken }, { status: 200 });
+    const res = NextResponse.json({ customToken }, { status: 200 });
+    return res;
   } catch (error) {
     console.error('Error fetching session:', error);
     return NextResponse.json({ error: 'Failed to fetch session' }, { status: 500 });
