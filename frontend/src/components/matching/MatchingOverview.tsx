@@ -93,6 +93,25 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
     <div>
       <h2 className="text-xl font-semibold">マッチング結果</h2>
       <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4 mr-2">
+          👑：リーダー
+        </div>
+        <div className="flex items-center mb-4 mr-2">
+          🎩：サブリーダー
+        </div>
+        <div className="flex items-center mb-4 mr-2">
+          👤：メンバー
+        </div>
+      </div>
+      <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4 mr-2">
+          👁️：前方希望
+        </div>
+        <div className="flex items-center mb-4 mr-2">
+          👀：どちらかというと前方
+        </div>
+      </div>
+      <div className="flex items-center mb-4">
         名前表示：
         <input
           type="checkbox"
@@ -112,13 +131,22 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                     let leadership;
                     switch (student_pref.leader) {
                       case 8:
-                        leadership = '👑 リーダー';
+                        leadership = '👑';
                         break;
                       case 3:
-                        leadership = '🎩 サブリーダー';
+                        leadership = '🎩';
                         break;
                       default:
-                        leadership = '👤 メンバー';
+                        leadership = '👤';
+                    }
+                    let front;
+                    switch (student_pref.front) {
+                      case 8:
+                        front = '👁️';
+                        break;
+                      case 3:
+                        front = '👀';
+                        break;
                     }
                     // console.log("student_pref", JSON.stringify(teamStudentIds, null, 2), JSON.stringify(student_pref, null, 2))
                     return (
