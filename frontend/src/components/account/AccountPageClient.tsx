@@ -55,6 +55,7 @@ export default function AccountPageClient({ showPaymentColumn, onLogout, onDelet
         try {
             await onLogout();
             toast.success('ログアウトしました');
+            router.push('/');
         } catch (error) {
             console.error('Failed to logout:', error);
             toast.error('ログアウトに失敗しました');

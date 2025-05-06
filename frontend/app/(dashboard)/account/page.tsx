@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import AccountPageClient from '@/src/components/account/AccountPageClient';
 import { auth } from "@/src/utils/firebase/firebase";
 
@@ -14,7 +13,7 @@ async function handleLogout() {
         const cookieStore = cookies();
         cookieStore.delete('auth-token');
 
-        redirect('/');
+        // クライアント側でリダイレクト
     } catch (error) {
         console.error('Logout failed:', error);
         throw error;
@@ -32,7 +31,7 @@ async function handleDeleteAccount() {
         const cookieStore = cookies();
         cookieStore.delete('auth-token');
 
-        redirect('/');
+        // クライアント側でリダイレクト
     } catch (error) {
         console.error('Account deletion failed:', error);
         throw error;
