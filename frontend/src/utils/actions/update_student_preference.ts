@@ -60,7 +60,7 @@ const UPDATE_STUDENT_PREFERENCE = `
 
 const DELETE_STUDENT_DISLIKES = `
   mutation DeleteStudentDislikes($preference_id: bigint!) {
-    delete_student_dislikes(where: {student_preference_id: {_eq: $preference_id}}) {
+    delete_student_dislikes(where: {preference_id: {_eq: $preference_id}}) {
       affected_rows
     }
   }
@@ -141,7 +141,7 @@ export async function updateStudentPreference(formData: FormData) {
       {
         query: DELETE_STUDENT_DISLIKES,
         variables: {
-          preference_id: String(validatedData.id)
+          preference_id: Number(validatedData.id)
         }
       },
       {
@@ -160,7 +160,7 @@ export async function updateStudentPreference(formData: FormData) {
           query: INSERT_STUDENT_DISLIKES,
           variables: {
             objects: preferences.student_dislikes.map((dislike: any) => ({
-              student_preference_id: String(validatedData.id),
+              preference_id: Number(validatedData.id),
               student_id: Number(dislike.student_id),
               updated_at: new Date().toISOString()
             }))

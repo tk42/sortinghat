@@ -1,6 +1,6 @@
 'use client'
 
-import { Survey, StudentPreference, Student, Constraint } from '@/src/lib/interfaces'
+import { Survey, StudentPreference, Student, Constraint, StudentDislike } from '@/src/lib/interfaces'
 import { useState, useCallback, Fragment } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { createStudentPreferences } from '@/src/utils/actions/create_student_preferences'
@@ -33,6 +33,7 @@ export default function StudentPreferences({
     const [error, setError] = useState<string | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingValues, setEditingValues] = useState<StudentPreference | null>(null)
+    const [dislikesInput, setDislikesInput] = useState<string>('');
     const [isMatchingModalOpen, setIsMatchingModalOpen] = useState(false)
     const [constraint, setConstraint] = useState<Constraint>({
         max_num_teams: undefined,
@@ -93,6 +94,14 @@ export default function StudentPreferences({
     const handleEdit = (preference: StudentPreference) => {
         setEditingId(preference.id.toString());
         setEditingValues(preference);
+        setDislikesInput(
+            preference.student_dislikes
+                .map(dislike =>
+                    studentPreferences.find(p => p.student.id === dislike.student_id)?.student.student_no
+                )
+                .filter(no => no !== undefined)
+                .join(', ')
+        );
     };
 
     const handleSave = async (id: string) => {
@@ -617,16 +626,21 @@ export default function StudentPreferences({
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
-                                                    value={editingValues?.student_dislikes?.map(dislike => studentPreferences.find(p => p.student.id === dislike.student_id)?.student.student_no).join(', ') || ''}
+                                                    value={dislikesInput}
                                                     onChange={(e) => {
+                                                        const input = e.target.value;
+                                                        setDislikesInput(input);
                                                         if (!editingValues) return;
-                                                        setEditingValues({
-                                                            ...editingValues,
-                                                            student_dislikes: e.target.value === '' ? [] : e.target.value.split(',').map(id => ({
-                                                                student_id: parseInt(id) || 0,
-                                                                updated_at: new Date().toISOString()
-                                                            }))
-                                                        } as StudentPreference);
+                                                        const ids = input
+                                                            .split(',')
+                                                            .map(tok => tok.trim())
+                                                            .filter(tok => tok !== '')
+                                                            .map(tok => {
+                                                                const num = parseInt(tok);
+                                                                const found = studentPreferences.find(p => p.student.student_no === num);
+                                                                return { student_id: found?.student.id || 0, updated_at: new Date().toISOString() } as StudentDislike;
+                                                            });
+                                                        setEditingValues({ ...editingValues, student_dislikes: ids } as StudentPreference);
                                                     }}
                                                     placeholder="例: 1, 2, 3"
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
