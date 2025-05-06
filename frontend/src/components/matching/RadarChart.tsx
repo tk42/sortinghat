@@ -28,7 +28,7 @@ export type RadarChartProps = {
 
 export function RadarChart(props: RadarChartProps) {
     return (
-        <div className='w-auto'>
+        <div className='w-full h-64'>
             <Radar
                 data={{
                     labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
@@ -43,6 +43,8 @@ export function RadarChart(props: RadarChartProps) {
                     ],
                 }}
                 options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         r: {
                             beginAtZero: true,

@@ -115,7 +115,7 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                         leadership = '👑 リーダー';
                         break;
                       case 3:
-                        leadership = '🥈 サブリーダー';
+                        leadership = '🎩 サブリーダー';
                         break;
                       default:
                         leadership = '👤 メンバー';
