@@ -2,7 +2,6 @@ import { MatchingResult } from '@/src/lib/interfaces'
 import { RadarChart } from './RadarChart'
 import { useState } from 'react'
 
-
 // チームごとの表示色
 const colors = [
   "54, 162, 235",   // blue
@@ -22,6 +21,7 @@ interface StudentData {
   eyesight: number;
   // student_dislike が存在する場合は、生徒IDの配列など（なければ undefined）
   student_dislikes?: number[]; // 数値の配列に変更
+  miScores: number[];  // 個人のMIスコアを格納
 }
 
 interface TeamAggregated {
@@ -34,7 +34,6 @@ interface TeamAggregated {
 interface MatchingOverviewProps {
   selectedMatching: MatchingResult;
 }
-
 
 export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
   // console.log(JSON.stringify(selectedMatching, null, 2))
@@ -72,6 +71,10 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
         leader: pref.leader,  // student_preference から leader を取得
         eyesight: pref.eyesight,
         student_dislikes: pref.student_dislikes.map((sd: { student_id: number }) => sd.student_id),  // student_preference から student_dislikes を取得
+        miScores: [
+          pref.mi_a || 0, pref.mi_b || 0, pref.mi_c || 0, pref.mi_d || 0,
+          pref.mi_e || 0, pref.mi_f || 0, pref.mi_g || 0, pref.mi_h || 0,
+        ],  // 個人のMIスコアを追加
       });
     }
     return acc;
@@ -90,6 +93,7 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
   const teamsArray = Object.values(teamsById);
 
   const [showName, setShowName] = useState<boolean>(false);
+  const [hoveredStudent, setHoveredStudent] = useState<StudentData | null>(null);
 
   return (
     <div>
@@ -156,7 +160,9 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                     return (
                         <tr key={student_pref.id}>
                             <td className={`px-2 py-1 border font-bold ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
-                              {showName ? student_pref.student_no + " " + student_pref.name : student_pref.student_no}
+                              <div onMouseEnter={() => setHoveredStudent(student_pref)} onMouseLeave={() => setHoveredStudent(null)}>
+                                {showName ? student_pref.student_no + " " + student_pref.name : student_pref.student_no}
+                              </div>
                             </td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership} {eyesight}</td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
@@ -185,12 +191,18 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
           return (
             <div key={team.team_id} className="bg-white rounded-lg shadow-md p-4">
               <h3 className="text-lg font-semibold mb-2">{team.name}</h3>
-              <div className="pt-4">
+              <div className="pt-4 relative">
                 <RadarChart
-                  label={`${team.name} の合計スコア`}
-                  label_students={team.students}
+                  label="チームのスコア"
                   data={team.aggregatedScores}
                   color={colors[colorIndex]}
+                  overlayData={
+                    hoveredStudent && team.students.some(s => s.id === hoveredStudent.id)
+                      ? hoveredStudent.miScores
+                      : undefined
+                  }
+                  overlayColor={colors[colorIndex]}
+                  overlayLabel="個人のスコア"
                 />
               </div>
               <div className="mt-4">

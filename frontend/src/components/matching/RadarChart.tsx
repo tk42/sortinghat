@@ -20,47 +20,37 @@ ChartJS.register(
 );
 
 export type RadarChartProps = {
-    label: string,
-    label_students: { name: string; sex: number }[],
-    data: number[],
-    color: string
+    /** メインデータのラベル */
+    label: string;
+    /** メインデータの数値配列 */
+    data: number[];
+    /** メインデータの色 */
+    color: string;
+    /** オーバーレイ用データ配列 */
+    overlayData?: number[];
+    /** オーバーレイ用色 */
+    overlayColor?: string;
+    /** オーバーレイ用ラベル */
+    overlayLabel?: string;
 }
 
-export function RadarChart(props: RadarChartProps) {
+export function RadarChart({ label, data, color, overlayData, overlayColor, overlayLabel }: RadarChartProps) {
+    // メインデータセット
+    const baseSet = { label, data, backgroundColor: `rgba(${color},0.2)`, borderColor: `rgba(${color},1)`, borderWidth: 1 };
+    // オーバーレイデータセット
+    const overlaySet = overlayData
+        ? { label: overlayLabel || '', data: overlayData, backgroundColor: 'transparent', borderColor: overlayColor ? `rgba(${overlayColor},1)` : 'rgba(0,0,0,0.5)', borderWidth: 2 }
+        : null;
+    const datasets = overlaySet ? [baseSet, overlaySet] : [baseSet];
     return (
         <div className='w-full h-64'>
             <Radar
-                data={{
-                    labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
-                    datasets: [
-                        {
-                            label: props.label,
-                            data: props.data,
-                            backgroundColor: `rgba(${props.color}, 0.2)`,
-                            borderColor: `rgba(${props.color}, 1)`,
-                            borderWidth: 1,
-                        },
-                    ],
-                }}
+                data={{ labels: ['A','B','C','D','E','F','G','H'], datasets }}
                 options={{
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 5
-                            },
-                            pointLabels: {
-                                display: false,
-                            },
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false,
-                        },
-                    }
+                    scales: { r: { beginAtZero: true, ticks: { stepSize: 5 }, pointLabels: { display: false } } },
+                    plugins: { legend: { display: false } },
                 }}
             />
         </div>
