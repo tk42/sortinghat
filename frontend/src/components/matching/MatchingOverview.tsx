@@ -19,6 +19,7 @@ interface StudentData {
   sex: number;
   student_no: number;
   leader: number;  // student_preference から取得
+  eyesight: number;
   // student_dislike が存在する場合は、生徒IDの配列など（なければ undefined）
   student_dislikes?: number[]; // 数値の配列に変更
 }
@@ -36,7 +37,7 @@ interface MatchingOverviewProps {
 
 
 export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
-//   console.log(JSON.stringify(selectedMatching, null, 2))
+  // console.log(JSON.stringify(selectedMatching, null, 2))
 
   // チームごとに生徒データを集計
   const teamsById = selectedMatching.teams.sort((a, b) => a.team_id - b.team_id).reduce((acc, teamData: any) => {
@@ -69,6 +70,7 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
         sex: pref.student.sex,
         student_no: pref.student.student_no,
         leader: pref.leader,  // student_preference から leader を取得
+        eyesight: pref.eyesight,
         student_dislikes: pref.student_dislikes.map((sd: { student_id: number }) => sd.student_id),  // student_preference から student_dislikes を取得
       });
     }
@@ -127,7 +129,9 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
           const studentDislikeTable = (
             <table className="w-full text-sm text-left border-collapse">
               <tbody>
-                {team.students.map(student_pref => {
+                {team.students.map((student_pref: StudentData) => {
+                    // console.log(student_pref)
+
                     let leadership;
                     switch (student_pref.leader) {
                       case 8:
@@ -139,13 +143,13 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                       default:
                         leadership = '👤';
                     }
-                    let front;
-                    switch (student_pref.front) {
+                    let eyesight;
+                    switch (student_pref.eyesight) {
                       case 8:
-                        front = '👁️';
+                        eyesight = '👁️';
                         break;
                       case 3:
-                        front = '👀';
+                        eyesight = '👀';
                         break;
                     }
                     // console.log("student_pref", JSON.stringify(teamStudentIds, null, 2), JSON.stringify(student_pref, null, 2))
@@ -154,7 +158,7 @@ export function MatchingOverview({ selectedMatching }: MatchingOverviewProps) {
                             <td className={`px-2 py-1 border font-bold ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
                               {showName ? student_pref.student_no + " " + student_pref.name : student_pref.student_no}
                             </td>
-                            <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership}</td>
+                            <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>{leadership} {eyesight}</td>
                             <td className={`px-2 py-1 border ${student_pref.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}>
                                 {student_pref.student_dislikes && student_pref.student_dislikes.length > 0 
                                     ? student_pref.student_dislikes
