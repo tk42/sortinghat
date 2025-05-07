@@ -45,11 +45,11 @@ export function RadarChart({ label, data, color, overlayData, overlayColor, over
     return (
         <div className='w-full h-64'>
             <Radar
-                data={{ labels: ['A','B','C','D','E','F','G','H'], datasets }}
+                data={{ labels: ['身体','空間','論理','言語','対人','内省','音楽','自然'], datasets }}
                 options={{
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { r: { beginAtZero: true, ticks: { stepSize: 5 }, pointLabels: { display: false } } },
+                    scales: { r: { beginAtZero: true, ticks: { stepSize: 5 }, pointLabels: { display: true } } },
                     plugins: { legend: { display: false } },
                 }}
             />
