@@ -171,13 +171,14 @@ export default function StudentPreferences({
 
     if (studentPreferences.length === 0) {
         return (
-            <div className="p-4">
-                <div
-                    {...getRootProps()}
-                    className={`border-2 border-dashed rounded-lg p-8 text-center ${
-                        isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
-                    }`}
-                >
+            <div className="flex flex-col items-center justify-center">
+                <div className="p-4">
+                    <div
+                        {...getRootProps()}
+                        className={`border-2 border-dashed rounded-lg p-8 text-center ${
+                            isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
+                        }`}
+                    >
                     <input {...getInputProps()} />
                     {isUploading ? (
                         <p>アップロード中...(十数秒かかります)</p>
@@ -189,20 +190,21 @@ export default function StudentPreferences({
                                 <p>
                                     CSVファイルをドラッグ＆ドロップ、またはクリックして選択してください
                                 </p>
-                                <p className="flex items-center gap-1">
-                                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
-                                    <span>ヘッダー行を含めてください</span>
-                                </p>
-                                <p className="flex items-center gap-1">
-                                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
-                                    <span>正しく読み込めないときは名簿番号,現在の班,MI-A~H,チームの役割,苦手な児童生徒の名簿番号のみを含めてください</span>
-                                </p>
                             </div>
                         </Fragment>
                     )}
                 </div>
                 {error && <p className="text-red-500 mt-2">{error}</p>}
             </div>
+            <p className="flex items-center gap-1">
+                <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
+                初めて利用する方へ：
+                <a href="/sample/survey.csv" download className="text-blue-600 hover:underline">
+                    サンプルのCSVファイル
+                </a>
+                をダウンロードして、形式を一度確認してから利用することをおすすめします。
+            </p>
+        </div>
         )
     }
 

@@ -74,6 +74,13 @@ export default function ClassList({
   return (
     <div className="mt-8 flow-root">
       <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <>
+          初めて利用する方へ：<br />
+          <a href="/sample/class.csv" download className="text-blue-600 hover:underline">
+            サンプルのCSVファイル
+          </a>
+          をダウンロードして、形式を一度確認してから利用することをおすすめします。
+        </>
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
           <table className="min-w-full divide-y divide-gray-300">
             <thead>
