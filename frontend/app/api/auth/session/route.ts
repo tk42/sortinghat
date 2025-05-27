@@ -34,7 +34,7 @@ export async function GET() {
   try {
     const sessionCookie = cookies().get('auth-token')?.value;
     if (!sessionCookie) {
-      return NextResponse.json({}, { status: 204 });
+      return new NextResponse(null, { status: 204 });
     }
     // セッションクッキーを検証
     const decoded = await auth.verifySessionCookie(sessionCookie, true);

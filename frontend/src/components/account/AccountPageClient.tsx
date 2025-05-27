@@ -70,9 +70,23 @@ export default function AccountPageClient({ showPaymentColumn, onLogout, onDelet
             }
 
             try {
-                const idToken = await getIdToken(state.user);
+                console.log('AccountPageClient: Getting ID token...');
+                const idToken = await getIdToken(state.user, true).catch(async (tokenError) => {
+                    console.error('AccountPageClient: Error getting ID token during forced refresh:', tokenError);
+                    toast.error('セッションの有効期限が切れました。再ログインしてください。');
+                    await handleSignOut(); 
+                    return null;
+                });
+
+                if (!idToken) {
+                    console.log('AccountPageClient: ID token could not be obtained. Initialization aborted.');
+                    setIsInitialLoading(false); 
+                    return; 
+                }
+                console.log('AccountPageClient: ID token obtained.');
 
                 // プラン一覧の取得
+                console.log('AccountPageClient: Fetching prices...');
                 const pricesResponse = await fetch('/api/stripe/get-prices', {
                     method: 'GET',
                     headers: {
@@ -150,11 +164,14 @@ export default function AccountPageClient({ showPaymentColumn, onLogout, onDelet
                         }
                     }
                 }
-            } catch (error) {
-                console.error('Failed to fetch data:', error);
-                setError(error instanceof Error ? error.message : 'データの取得に失敗しました');
+            } catch (error: any) {
+                console.error('Failed to initialize account page:', error);
+                setError(error.message || 'ページの読み込みに失敗しました');
             } finally {
-                setIsInitialLoading(false);
+                if (isInitialLoading) { // まだローディング中であれば解除
+                    console.log('AccountPageClient: initialize finished in finally, setting isInitialLoading to false');
+                    setIsInitialLoading(false);
+                }
             }
         };
 
