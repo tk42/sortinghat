@@ -1,7 +1,7 @@
 'use client'
 
 import { Survey, StudentPreference, Student, Constraint, StudentDislike } from '@/src/lib/interfaces'
-import { useState, useCallback, Fragment } from 'react'
+import { useState, useCallback, useEffect, Fragment } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { createStudentPreferences } from '@/src/utils/actions/create_student_preferences'
 import { updateStudentTeams } from '@/src/utils/actions/update_student_teams'
@@ -168,6 +168,11 @@ export default function StudentPreferences({
             toast.error('マッチング探索中にエラーが発生しました')
         }
     }
+
+    // クラス切り替え時にエラーメッセージをクリア
+    useEffect(() => {
+        setError(null);
+    }, [survey.id, survey.class.id]);
 
     if (studentPreferences.length === 0) {
         return (

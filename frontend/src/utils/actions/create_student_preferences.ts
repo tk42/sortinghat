@@ -171,6 +171,19 @@ export async function createStudentPreferences(formData: FormData) {
       )
     )
 
+    // --- クラス不一致チェック -------------------------------
+    // 取得できた学生IDが 0 件の場合は、CSV が選択クラスのデータではないと判断
+    if (studentIdMap.size === 0) {
+      throw new Error('アップロードしたCSVは選択されたクラスの児童生徒と一致しません。クラスを確認してください。')
+    }
+
+    // 一部の学籍番号が一致しない場合は、その一覧をユーザーに提示
+    const unmatchedStudentNos = studentNos.filter(no => !studentIdMap.has(no))
+    if (unmatchedStudentNos.length > 0) {
+      throw new Error(`名簿番号: ${unmatchedStudentNos.join(', ')} の児童生徒が担任クラスに見つかりませんでした。クラスを確認してください。`)
+    }
+    // -------------------------------------------------------
+
     // 各行をバリデーションして変換
     const validatedData = llm_processedData.map(row => {
       const studentNo = Number(row.student_id)
