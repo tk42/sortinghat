@@ -79,6 +79,11 @@ interface ProcessedPreference {
   student_dislikes: string[];
 }
 
+interface CreateStudentPreferencesResult {
+  data: StudentPreference[] | null
+  error: string | null
+}
+
 // バリデーションスキーマを修正
 const StudentPreferenceSchema = z.object({
   student_id: z.number().int().positive(),
@@ -97,9 +102,9 @@ const StudentPreferenceSchema = z.object({
   student_dislikes: z.array(z.number().int().positive()).default([])
 })
 
-export async function createStudentPreferences(formData: FormData) {
+export async function createStudentPreferences(formData: FormData): Promise<CreateStudentPreferencesResult> {
   if (!process.env.BACKEND_GQL_API) {
-    throw new Error('BACKEND_GQL_API is not configured')
+    return { data: null, error: 'BACKEND_GQL_API is not configured' }
   }
 
   try {
@@ -122,13 +127,13 @@ export async function createStudentPreferences(formData: FormData) {
       }
     ).catch(error => {
       console.error('Error uploading CSV file:', error)
-      throw new Error('CSVファイルのアップロード中にエラーが発生しました')
+      return { data: null, error: 'CSVファイルのアップロード中にエラーが発生しました' }
     })
 
     // console.log('Backend response:', backendResponse.data)
 
     if (!backendResponse.data.preferences) {
-      throw new Error('バックエンドからの応答が不正です')
+      return { data: null, error: 'バックエンドからの応答が不正です' }
     }
 
     const llm_processedData = backendResponse.data.preferences as ProcessedPreference[];
@@ -137,7 +142,7 @@ export async function createStudentPreferences(formData: FormData) {
     const studentNos = llm_processedData.map((row: ProcessedPreference) => {
       const studentNo = parseInt(row.student_id);
       if (isNaN(studentNo)) {
-        throw new Error(`Invalid student number: ${row.student_id}`);
+        return { data: null, error: `Invalid student number: ${row.student_id}` }
       }
       return studentNo;
     });
@@ -161,7 +166,7 @@ export async function createStudentPreferences(formData: FormData) {
     )
 
     if (studentResponse.data.errors) {
-      throw new Error(studentResponse.data.errors[0].message)
+      return { data: null, error: studentResponse.data.errors[0].message }
     }
 
     // 学籍番号とIDのマッピングを作成
@@ -174,13 +179,13 @@ export async function createStudentPreferences(formData: FormData) {
     // --- クラス不一致チェック -------------------------------
     // 取得できた学生IDが 0 件の場合は、CSV が選択クラスのデータではないと判断
     if (studentIdMap.size === 0) {
-      throw new Error('アップロードしたCSVは選択されたクラスの児童生徒と一致しません。クラスを確認してください。')
+      return { data: null, error: 'アップロードしたCSVは選択されたクラスの児童生徒と一致しません。クラスを確認してください。' }
     }
 
     // 一部の学籍番号が一致しない場合は、その一覧をユーザーに提示
     const unmatchedStudentNos = studentNos.filter(no => !studentIdMap.has(no))
     if (unmatchedStudentNos.length > 0) {
-      throw new Error(`名簿番号: ${unmatchedStudentNos.join(', ')} の児童生徒が担任クラスに見つかりませんでした。クラスを確認してください。`)
+      return { data: null, error: `名簿番号: ${unmatchedStudentNos.join(', ')} の児童生徒が担任クラスに見つかりませんでした。クラスを確認してください。` }
     }
     // -------------------------------------------------------
 
@@ -189,7 +194,7 @@ export async function createStudentPreferences(formData: FormData) {
       const studentNo = Number(row.student_id)
       const studentId = studentIdMap.get(studentNo)
       if (!studentId) {
-        throw new Error(`名簿番号: ${studentNo} の児童生徒が担任クラスに見つかりませんでした`)
+        return { data: null, error: `名簿番号: ${studentNo} の児童生徒が担任クラスに見つかりませんでした` }
       }
 
       console.log('Row before validation:', row)  // バリデーション前のデータを確認
@@ -255,15 +260,20 @@ export async function createStudentPreferences(formData: FormData) {
     )
 
     if (response.data.errors) {
-      throw new Error(response.data.errors[0].message)
+      return { data: null, error: response.data.errors[0].message }
     }
 
     const createdPreferences = response.data.data.insert_student_preferences.returning as StudentPreference[];
-    return createdPreferences;
+    return { data: createdPreferences, error: null }
   } catch (error) {
+    let message: string
     if (error instanceof z.ZodError) {
-      throw new Error(error.errors[0].message)
+      message = error.errors[0].message
+    } else if (error instanceof Error) {
+      message = error.message
+    } else {
+      message = '不明なエラーが発生しました'
     }
-    throw error
+    return { data: null, error: message }
   }
 }

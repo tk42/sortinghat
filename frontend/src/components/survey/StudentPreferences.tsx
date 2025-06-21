@@ -67,10 +67,12 @@ export default function StudentPreferences({
             formData.append('survey_id', survey.id.toString())
             formData.append('class_id', survey.class.id.toString())
 
-            const newPreferences = await createStudentPreferences(formData)
-            // console.log("newPreferences", newPreferences)
-            if (newPreferences) {
-                setStudentPreferences(newPreferences)
+            const result = await createStudentPreferences(formData)
+            if (result.error) {
+                toast.error(result.error)
+                setError(result.error)
+            } else if (result.data) {
+                setStudentPreferences(result.data)
                 toast.success('アンケートを正常にアップロードしました')
             }
         } catch (err) {
