@@ -127,13 +127,13 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
       }
     ).catch(error => {
       console.error('Error uploading CSV file:', error)
-      return { data: null, error: 'CSVファイルのアップロード中にエラーが発生しました' }
+      throw new Error('CSVファイルのアップロード中にエラーが発生しました')
     })
 
     // console.log('Backend response:', backendResponse.data)
 
     if (!backendResponse.data.preferences) {
-      return { data: null, error: 'バックエンドからの応答が不正です' }
+      throw new Error('バックエンドからの応答が不正です')
     }
 
     const llm_processedData = backendResponse.data.preferences as ProcessedPreference[];
@@ -142,7 +142,7 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
     const studentNos = llm_processedData.map((row: ProcessedPreference) => {
       const studentNo = parseInt(row.student_id);
       if (isNaN(studentNo)) {
-        return { data: null, error: `Invalid student number: ${row.student_id}` }
+        throw new Error(`Invalid student number: ${row.student_id}`)
       }
       return studentNo;
     });
@@ -166,7 +166,7 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
     )
 
     if (studentResponse.data.errors) {
-      return { data: null, error: studentResponse.data.errors[0].message }
+      throw new Error(studentResponse.data.errors[0].message)
     }
 
     // 学籍番号とIDのマッピングを作成
@@ -179,13 +179,13 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
     // --- クラス不一致チェック -------------------------------
     // 取得できた学生IDが 0 件の場合は、CSV が選択クラスのデータではないと判断
     if (studentIdMap.size === 0) {
-      return { data: null, error: 'アップロードしたCSVは選択されたクラスの児童生徒と一致しません。クラスを確認してください。' }
+      throw new Error('アップロードしたCSVは選択されたクラスの児童生徒と一致しません。クラスを確認してください。')
     }
 
     // 一部の学籍番号が一致しない場合は、その一覧をユーザーに提示
     const unmatchedStudentNos = studentNos.filter(no => !studentIdMap.has(no))
     if (unmatchedStudentNos.length > 0) {
-      return { data: null, error: `名簿番号: ${unmatchedStudentNos.join(', ')} の児童生徒が担任クラスに見つかりませんでした。クラスを確認してください。` }
+      throw new Error(`名簿番号: ${unmatchedStudentNos.join(', ')} の児童生徒が担任クラスに見つかりませんでした。クラスを確認してください。`)
     }
     // -------------------------------------------------------
 
@@ -194,7 +194,7 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
       const studentNo = Number(row.student_id)
       const studentId = studentIdMap.get(studentNo)
       if (!studentId) {
-        return { data: null, error: `名簿番号: ${studentNo} の児童生徒が担任クラスに見つかりませんでした` }
+        throw new Error(`名簿番号: ${studentNo} の児童生徒が担任クラスに見つかりませんでした`)
       }
 
       console.log('Row before validation:', row)  // バリデーション前のデータを確認
@@ -260,7 +260,7 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
     )
 
     if (response.data.errors) {
-      return { data: null, error: response.data.errors[0].message }
+      throw new Error(response.data.errors[0].message)
     }
 
     const createdPreferences = response.data.data.insert_student_preferences.returning as StudentPreference[];
