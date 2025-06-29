@@ -216,8 +216,8 @@ export interface StudentPreferencesResponse {
     errors?: Array<{ message: string }>
 }
 
-// Chat and Conversation Interfaces
-export type ConversationStep = 'initial' | 'class_setup' | 'survey_creation' | 'constraint_setting' | 'optimization' | 'results';
+// Chat and Conversation Interfaces - Updated for new UX flow
+export type ConversationStep = 'initial' | 'class_setup' | 'survey_creation' | 'constraint_setting' | 'optimization_execution' | 'result_confirmation';
 
 export interface Conversation {
     id: number;
@@ -333,7 +333,7 @@ export interface PromptVersion {
     updated_at: string;
 }
 
-export interface ConversationStep {
+export interface ConversationStepRecord {
     id: number;
     conversation_id: number;
     step_name: string;

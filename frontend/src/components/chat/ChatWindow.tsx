@@ -2,8 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useChatContext } from '@/src/contexts/ChatContext';
-import { ChatMessage as ChatMessageType, ConversationStep } from '@/src/lib/interfaces';
+import { ChatMessage as ChatMessageType, ConversationStep, Class, Survey } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
+import { Container as Logo } from "@/src/components/Common/Logo";
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import StepIndicator from './StepIndicator';
@@ -12,13 +13,25 @@ import OptimizationProgress from './OptimizationProgress';
 import FileConversionDiff from './FileConversionDiff';
 import UserAvatarButton from '@/src/components/navigation/UserAvatarButton';
 
+// Phase Components
+import StartPhase from './phases/StartPhase';
+import ClassSetupPhase from './phases/ClassSetupPhase';
+import SurveyCreationPhase from './phases/SurveyCreationPhase';
+import ConstraintSettingPhase from './phases/ConstraintSettingPhase';
+import OptimizationExecutionPhase from './phases/OptimizationExecutionPhase';
+import ResultConfirmationPhase from './phases/ResultConfirmationPhase';
+
 const ChatWindow: React.FC = () => {
-  const { state, sendMessage, uploadFile, clearError } = useChatContext();
+  const { state, sendMessage, uploadFile, clearError, resetChat, startConversation, moveToStep } = useChatContext();
   const toastHelpers = useToastHelpers();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [shouldPreserveScroll, setShouldPreserveScroll] = useState(false);
+  
+  // Phase-specific state
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
 
   // Auto-scroll to bottom when new messages arrive, but preserve scroll position when needed
   useEffect(() => {
@@ -126,6 +139,147 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const handleChatReset = async () => {
+    try {
+      resetChat();
+      sessionStorage.removeItem('dashboard-scroll-position');
+      setSelectedClass(null);
+      setSelectedSurvey(null);
+      await startConversation();
+      toastHelpers.success('チャットリセット', '新しい会話を開始しました');
+    } catch (error) {
+      console.error('Error resetting chat:', error);
+      toastHelpers.error('エラー', 'チャットのリセットに失敗しました');
+    }
+  };
+
+  const handleNextPhase = async () => {
+    const currentStep = state.currentStep;
+    let nextStep: ConversationStep;
+    
+    switch (currentStep) {
+      case 'initial':
+        nextStep = 'class_setup';
+        break;
+      case 'class_setup':
+        nextStep = 'survey_creation';
+        break;
+      case 'survey_creation':
+        nextStep = 'constraint_setting';
+        break;
+      case 'constraint_setting':
+        nextStep = 'optimization_execution';
+        break;
+      case 'optimization_execution':
+        nextStep = 'result_confirmation';
+        break;
+      default:
+        return;
+    }
+    
+    try {
+      // If no conversation exists, start one first
+      if (!state.conversation) {
+        await startConversation();
+      }
+      // Move to the next step
+      await moveToStep(nextStep);
+      toastHelpers.success('フェーズ移行', `${getStepLabel(nextStep)}に移行しました`);
+    } catch (error) {
+      console.error('Error moving to next phase:', error);
+      toastHelpers.error('エラー', 'フェーズの移行に失敗しました');
+    }
+  };
+
+  const getStepLabel = (step: ConversationStep): string => {
+    switch (step) {
+      case 'initial': return '開始';
+      case 'class_setup': return 'クラス設定';
+      case 'survey_creation': return 'アンケート作成';
+      case 'constraint_setting': return '制約設定';
+      case 'optimization_execution': return '最適化実行';
+      case 'result_confirmation': return '結果確認';
+      default: return step;
+    }
+  };
+
+  const handleBackPhase = async () => {
+    if (state.currentStep === 'result_confirmation') {
+      try {
+        await moveToStep('constraint_setting');
+        toastHelpers.success('フェーズ移行', '制約設定に戻りました');
+      } catch (error) {
+        console.error('Error moving back to constraint setting:', error);
+        toastHelpers.error('エラー', 'フェーズの移行に失敗しました');
+      }
+    }
+  };
+
+  const renderPhaseContent = () => {
+    switch (state.currentStep) {
+      case 'initial':
+        return (
+          <StartPhase
+            onClassSelect={setSelectedClass}
+            onNext={handleNextPhase}
+            selectedClass={selectedClass}
+          />
+        );
+      case 'class_setup':
+        return (
+          <ClassSetupPhase
+            selectedClass={selectedClass}
+            onNext={handleNextPhase}
+          />
+        );
+      case 'survey_creation':
+        return (
+          <SurveyCreationPhase
+            selectedClass={selectedClass}
+            onSurveySelect={setSelectedSurvey}
+            onNext={handleNextPhase}
+            selectedSurvey={selectedSurvey}
+          />
+        );
+      case 'constraint_setting':
+        return (
+          <ConstraintSettingPhase
+            selectedClass={selectedClass}
+            selectedSurvey={selectedSurvey}
+            onNext={handleNextPhase}
+            messages={state.messages}
+            onSendMessage={handleSendMessage}
+            inputValue={inputValue}
+            onInputChange={setInputValue}
+            isLoading={state.isLoading}
+            isTyping={state.isTyping}
+            messagesEndRef={messagesEndRef}
+          />
+        );
+      case 'optimization_execution':
+        return (
+          <OptimizationExecutionPhase
+            selectedClass={selectedClass}
+            selectedSurvey={selectedSurvey}
+            onNext={handleNextPhase}
+            optimizationJob={state.optimizationJob}
+          />
+        );
+      case 'result_confirmation':
+        return (
+          <ResultConfirmationPhase
+            optimizationJob={state.optimizationJob}
+            onBack={handleBackPhase}
+          />
+        );
+      default:
+        return <div>Unknown phase {state.currentStep}</div>;
+    }
+  };
+
+  // Only show chat interface for constraint setting phase
+  const shouldShowChatInterface = state.currentStep === 'constraint_setting';
+
   return (
     <div className="min-h-screen flex">
       {/* Side margins for future expansion */}
@@ -137,13 +291,11 @@ const ChatWindow: React.FC = () => {
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
+              <div className="w-10 h-10 bg-transparent rounded-full flex items-center justify-center">
+                <Logo brand={false} />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">班分けアシスタント</h1>
+                <h1 className="text-xl font-semibold text-gray-900">SYNERGY MATCH MAKER</h1>
                 <p className="text-sm text-gray-500">
                   {state.conversation ? `会話 #${state.conversation.id}` : 'AIがお手伝いします'}
                 </p>
@@ -153,9 +305,10 @@ const ChatWindow: React.FC = () => {
             {/* Optional: Action buttons */}
             <div className="flex items-center space-x-3">
               <button
-                onClick={() => window.location.reload()}
+                onClick={handleChatReset}
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors"
-                title="チャットをリフレッシュ"
+                title="チャットをリセット"
+                disabled={state.isLoading}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -166,23 +319,17 @@ const ChatWindow: React.FC = () => {
         </div>
 
         {/* Step Indicator */}
-        {state.conversation && (
-          <div className="border-b border-gray-200">
-            <StepIndicator 
-              currentStep={state.currentStep}
-              completedSteps={[]} // TODO: Track completed steps
-            />
-          </div>
-        )}
+        <div className="border-b border-gray-200">
+          <StepIndicator 
+            currentStep={state.currentStep}
+            completedSteps={[]} // TODO: Track completed steps
+          />
+        </div>
 
-        {/* Messages Area */}
-        <div 
-          ref={messagesContainerRef}
-          data-chat-container // For scroll position saving
-          className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0"
-        >
+        {/* Phase Content Area */}
+        <div className="flex-1 overflow-y-auto">
           {state.error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mx-6 mt-4">
               <div className="flex items-center">
                 <svg className="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -200,53 +347,7 @@ const ChatWindow: React.FC = () => {
             </div>
           )}
 
-          {state.messages.length === 0 && !state.isLoading && (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                班分け最適化を始めましょう
-              </h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                AIアシスタントがクラスの班分けを最適化するお手伝いをします。
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  onClick={() => setInputValue('班分けを始めたいです。手順を教えてください。')}
-                  className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  班分けを開始
-                </button>
-              </div>
-            </div>
-          )}
-
-          {state.messages.map((message) => (
-            <ChatMessage 
-              key={message.id} 
-              message={message}
-              onActionClick={(action, data) => {
-                console.log('Action clicked:', action, data);
-                // Handle action clicks
-              }}
-            />
-          ))}
-
-          {state.isTyping && (
-            <div className="flex items-center space-x-3 text-sm text-gray-500">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-              <span>アシスタントが入力中...</span>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
+          {renderPhaseContent()}
         </div>
 
         {/* File Processing Progress */}
@@ -279,17 +380,19 @@ const ChatWindow: React.FC = () => {
           </div>
         )}
 
-        {/* Input Area */}
-        <div className="border-t border-gray-200 px-6 py-4 bg-white">
-          <ChatInput
-            value={inputValue}
-            onChange={setInputValue}
-            onSendMessage={handleSendMessage}
-            onFileUpload={handleFileUpload}
-            disabled={state.isLoading}
-            placeholder="メッセージを入力してください..."
-          />
-        </div>
+        {/* Chat Input - Only shown in constraint setting phase */}
+        {shouldShowChatInterface && (
+          <div className="border-t border-gray-200 px-6 py-4 bg-white">
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSendMessage={handleSendMessage}
+              onFileUpload={handleFileUpload}
+              disabled={state.isLoading}
+              placeholder="制約条件を自然言語で入力してください..."
+            />
+          </div>
+        )}
       </div>
 
       {/* Side margins for future expansion */}
