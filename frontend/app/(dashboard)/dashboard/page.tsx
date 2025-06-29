@@ -1,17 +1,11 @@
-import DashboardClient from '@/src/components/dashboard/DashboardClient'
+import ChatWindow from '@/src/components/chat/ChatWindow'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Dashboard - SynergyMatchMaker',
-  description: 'Your class management dashboard',
+  description: 'AI-powered class grouping assistant',
 }
 
 export default async function Page() {
-  return (
-    <main className="py-10 px-4">
-      <div className="max-w-7xl mx-auto">
-        <DashboardClient />
-      </div>
-    </main>
-  )
+  return <ChatWindow />
 }

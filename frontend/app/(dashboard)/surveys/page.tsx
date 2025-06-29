@@ -20,12 +20,8 @@ export default async function Page() {
 
     return (
         <>
-            <main className="py-10">
-                <div className="max-w-7xl mx-auto">
-                    <SurveysPageClient initialSurveys={surveys || []} initialClasses={classes || []} />
-                </div>
-                <Toaster />
-            </main>
+            <SurveysPageClient initialSurveys={surveys || []} initialClasses={classes || []} />
+            <Toaster />
         </>
     )
 }

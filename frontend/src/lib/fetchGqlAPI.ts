@@ -25,10 +25,22 @@ export async function fetchGqlAPI(query: string, variables: any) {
 
         if (json.errors) {
             console.error("GraphQL Error - Query:", query, "Errors:", json.errors);
-            throw new Error('GraphQL query failed');
+            // ここではエラーを投げず、呼び出し元に GraphQL の errors を返します
         }
 
-        return json.data;
+        // data プロパティを保持したままトップレベルに展開し、errors も付与する
+        // これにより以下の両方の呼び出しコードに互換:
+        //   1. result.data.conversations[0]
+        //   2. result.insert_conversations_one
+        // GraphQL の errors が存在する場合でも throw せずに返却
+        const merged: any = { data: json.data };
+        if (json.data && typeof json.data === 'object') {
+            Object.assign(merged, json.data);
+        }
+        if (json.errors) {
+            merged.errors = json.errors;
+        }
+        return merged;
     } catch (error) {
         console.error("API Request Failed:", {
             endpoint: process.env.BACKEND_GQL_API,

@@ -1,0 +1,304 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Menu, Transition, Dialog } from '@headlessui/react';
+import { useRouter } from 'next/navigation';
+import { useAuthContext } from '@/src/utils/firebase/authprovider';
+import { useChatContext } from '@/src/contexts/ChatContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/src/utils/firebase/firebase';
+import { Fragment } from 'react';
+
+const UserAvatarButton: React.FC = () => {
+  const router = useRouter();
+  const { state: authState } = useAuthContext();
+  const { resetChat } = useChatContext();
+  const [isMobile, setIsMobile] = useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 600);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      // Clear chat session before logout
+      resetChat();
+      
+      // Clear all session storage related to chat
+      Object.keys(sessionStorage).forEach(key => {
+        if (key.startsWith('chat-scroll-') || key.startsWith('conversation-')) {
+          sessionStorage.removeItem(key);
+        }
+      });
+
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const handleAccountSettings = () => {
+    // Save current scroll position before navigation
+    if (window.location.pathname === '/dashboard') {
+      const chatContainer = document.querySelector('[data-chat-container]');
+      if (chatContainer) {
+        sessionStorage.setItem('dashboard-scroll-position', chatContainer.scrollTop.toString());
+      }
+    }
+    router.push('/settings');
+  };
+
+  const handleSurveyHistory = () => {
+    // Save current scroll position before navigation
+    if (window.location.pathname === '/dashboard') {
+      const chatContainer = document.querySelector('[data-chat-container]');
+      if (chatContainer) {
+        sessionStorage.setItem('dashboard-scroll-position', chatContainer.scrollTop.toString());
+      }
+    }
+    router.push('/surveys');
+  };
+
+  const menuItems = [
+    {
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
+      label: 'アカウント設定',
+      onClick: handleAccountSettings
+    },
+    {
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      label: '過去のアンケート結果',
+      onClick: handleSurveyHistory
+    }
+  ];
+
+  const avatarContent = (
+    <div className="relative">
+      <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:ring-4 hover:ring-blue-200 hover:ring-opacity-50 cursor-pointer group">
+        <span className="text-white font-medium text-lg group-hover:scale-110 transition-transform">
+          {authState.teacher?.name?.charAt(0) || 'U'}
+        </span>
+      </div>
+      
+      {/* Notification badge placeholder */}
+      {/* {hasNotifications && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-bounce">
+          !
+        </span>
+      )} */}
+    </div>
+  );
+
+  // Desktop Menu (Headless UI Menu)
+  const DesktopMenu = () => (
+    <Menu as="div" className="relative">
+      <Menu.Button className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full">
+        {avatarContent}
+      </Menu.Button>
+
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Menu.Items className="absolute bottom-full left-0 mb-2 w-64 origin-bottom-left bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          {/* User Info Header */}
+          <div className="px-4 py-3 border-b border-gray-100">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">
+                  {authState.teacher?.name?.charAt(0) || 'U'}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {authState.teacher?.name || 'ユーザー'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {authState.teacher?.email}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <div className="py-1">
+            {menuItems.map((item, index) => (
+              <Menu.Item key={index}>
+                {({ active }) => (
+                  <button
+                    onClick={item.onClick}
+                    className={`${
+                      active ? 'bg-gray-50' : ''
+                    } w-full px-4 py-2 text-left text-sm text-gray-700 flex items-center space-x-3 transition-colors`}
+                  >
+                    <div className="text-gray-500">{item.icon}</div>
+                    <span>{item.label}</span>
+                  </button>
+                )}
+              </Menu.Item>
+            ))}
+
+            <div className="border-t border-gray-100 my-1" />
+
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  onClick={handleLogout}
+                  className={`${
+                    active ? 'bg-red-50' : ''
+                  } w-full px-4 py-2 text-left text-sm text-red-600 flex items-center space-x-3 transition-colors`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span>ログアウト</span>
+                </button>
+              )}
+            </Menu.Item>
+          </div>
+        </Menu.Items>
+      </Transition>
+    </Menu>
+  );
+
+  // Mobile Bottom Sheet
+  const MobileBottomSheet = () => (
+    <>
+      <button
+        onClick={() => setIsBottomSheetOpen(true)}
+        className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full"
+      >
+        {avatarContent}
+      </button>
+
+      <Transition appear show={isBottomSheetOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={setIsBottomSheetOpen}>
+          {/* Backdrop */}
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          {/* Bottom Sheet */}
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 translate-y-full"
+                enterTo="opacity-100 translate-y-0"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0"
+                leaveTo="opacity-0 translate-y-full"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-t-2xl bg-white shadow-xl transition-all">
+                  {/* Handle bar */}
+                  <div className="flex justify-center pt-4 pb-2">
+                    <div className="w-10 h-1 bg-gray-300 rounded-full" />
+                  </div>
+
+                  {/* User Info */}
+                  <div className="px-6 py-4 border-b border-gray-100">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-medium text-lg">
+                          {authState.teacher?.name?.charAt(0) || 'U'}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-lg font-medium text-gray-900 truncate">
+                          {authState.teacher?.name || 'ユーザー'}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">
+                          {authState.teacher?.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="px-0 py-2">
+                    {menuItems.map((item, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          item.onClick();
+                          setIsBottomSheetOpen(false);
+                        }}
+                        className="w-full px-6 py-4 text-left flex items-center space-x-4 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="text-gray-500">{item.icon}</div>
+                        <span className="text-gray-900 font-medium">{item.label}</span>
+                      </button>
+                    ))}
+
+                    <div className="border-t border-gray-100 my-2" />
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsBottomSheetOpen(false);
+                      }}
+                      className="w-full px-6 py-4 text-left flex items-center space-x-4 hover:bg-red-50 transition-colors"
+                    >
+                      <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span className="text-red-600 font-medium">ログアウト</span>
+                    </button>
+                  </div>
+
+                  {/* Safe area for mobile */}
+                  <div className="h-safe-area-inset-bottom" />
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  );
+
+  return (
+    <div 
+      className={`fixed z-40 ${
+        isMobile 
+          ? 'bottom-5 right-5' // Mobile: bottom-right for easier thumb access
+          : 'bottom-5 left-5'  // Desktop: bottom-left as requested
+      }`}
+    >
+      {isMobile ? <MobileBottomSheet /> : <DesktopMenu />}
+    </div>
+  );
+};
+
+export default UserAvatarButton;

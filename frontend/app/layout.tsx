@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/src/utils/firebase/authprovider";
 import { DrawerProvider } from '@/src/contexts/DrawerContext'
+import { ChatProvider } from '@/src/contexts/ChatContext'
+import { ToastProvider } from '@/src/components/notifications/ToastNotifications'
 import SessionSync from '@/src/components/Common/SessionSync'
 
 const inter = Inter({ subsets: ["latin"] });
@@ -30,8 +32,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <DrawerProvider>
-            <SessionSync />
-            {children}
+            <ChatProvider>
+              <ToastProvider>
+                <SessionSync />
+                {children}
+              </ToastProvider>
+            </ChatProvider>
           </DrawerProvider>
         </AuthProvider>
       </body>
