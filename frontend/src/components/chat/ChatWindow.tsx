@@ -33,6 +33,18 @@ const ChatWindow: React.FC = () => {
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
 
+  // Helper: Formats ISO timestamp to "YYYY/MM/DD HH:MM:SS"
+  const formatDateTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mi = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
+  };
+
   // Auto-scroll to bottom when new messages arrive, but preserve scroll position when needed
   useEffect(() => {
     if (!shouldPreserveScroll) {
@@ -297,7 +309,7 @@ const ChatWindow: React.FC = () => {
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">SYNERGY MATCH MAKER</h1>
                 <p className="text-sm text-gray-500">
-                  {state.conversation ? `会話 #${state.conversation.id}` : 'AIがお手伝いします'}
+                  {state.conversation ? `${formatDateTime(state.conversation.created_at)}` : 'AIがお手伝いします'}
                 </p>
               </div>
             </div>
