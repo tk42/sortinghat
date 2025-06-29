@@ -22,12 +22,8 @@ export default async function Page() {
 
     return (
         <>
-            <main className="py-10">
-                <div className="max-w-7xl mx-auto">
-                    <MatchingPageClient initialMatchingResults={matchingResults || []} initialClasses={classes || []} />
-                </div>
-                <Toaster />
-            </main>
+            <MatchingPageClient initialMatchingResults={matchingResults || []} initialClasses={classes || []} />
+            <Toaster />
         </>
     )
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/src/utils/firebase/authprovider";
-import { DrawerProvider } from '@/src/contexts/DrawerContext'
+// import { DrawerProvider } from '@/src/contexts/DrawerContext' // Removed with sidebar
 import { ChatProvider } from '@/src/contexts/ChatContext'
 import { ToastProvider } from '@/src/components/notifications/ToastNotifications'
 import SessionSync from '@/src/components/Common/SessionSync'
@@ -31,14 +31,12 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <AuthProvider>
-          <DrawerProvider>
-            <ChatProvider>
-              <ToastProvider>
-                <SessionSync />
-                {children}
-              </ToastProvider>
-            </ChatProvider>
-          </DrawerProvider>
+          <ChatProvider>
+            <ToastProvider>
+              <SessionSync />
+              {children}
+            </ToastProvider>
+          </ChatProvider>
         </AuthProvider>
       </body>
     </html>

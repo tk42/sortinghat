@@ -13,7 +13,7 @@ import { matchStudentPreferences } from '@/src/utils/actions/match_student_prefe
 import { createSurvey } from '@/src/utils/actions/create_survey'
 import { deleteSurvey } from '@/src/utils/actions/delete_survey'
 import { Constraint, Class, Survey, StudentPreference } from '@/src/lib/interfaces'
-import SurveyList from './SurveyList'
+// import SurveyList from './SurveyList' // Removed - now inline
 import StudentPreferences from './StudentPreferences'
 import UserAvatarButton from '@/src/components/navigation/UserAvatarButton'
 // import { useDrawer } from '@/src/contexts/DrawerContext' // Removed with sidebar

@@ -212,7 +212,6 @@ const ChatWindow: React.FC = () => {
               </h3>
               <p className="text-gray-500 mb-6 max-w-md mx-auto">
                 AIアシスタントがクラスの班分けを最適化するお手伝いをします。
-                まずはメッセージを送信するか、CSVファイルをアップロードしてください。
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
