@@ -6,12 +6,10 @@ import { useToastHelpers } from '@/src/components/notifications/ToastNotificatio
 
 interface ClassSetupPhaseProps {
   selectedClass: Class | null;
-  onNext: () => void;
 }
 
 const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
-  selectedClass,
-  onNext
+  selectedClass
 }) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,29 +34,26 @@ const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
     
     setIsLoading(true);
     try {
-      // TODO: Load students from API
-      // For now, use mock data
-      const mockStudents: Student[] = [
-        {
-          id: 1,
-          student_no: 1,
-          name: '田中 太郎',
-          sex: 1,
-          memo: '',
+      // Load students from API
+      const response = await fetch(`/api/chat/classes/${selectedClass.id}/students`);
+      const result = await response.json();
+      
+      if (result.success && result.data?.students) {
+        // Map the API response to match our Student interface
+        const apiStudents = result.data.students.map((student: any) => ({
+          ...student,
           class: selectedClass
-        },
-        {
-          id: 2,
-          student_no: 2,
-          name: '佐藤 花子',
-          sex: 2,
-          memo: 'リーダー候補',
-          class: selectedClass
-        },
-      ];
-      setStudents(mockStudents);
+        }));
+        setStudents(apiStudents);
+      } else {
+        // Fallback to empty array if no students found
+        setStudents([]);
+        toastHelpers.info('情報', 'このクラスにはまだ生徒が登録されていません');
+      }
     } catch (error) {
       console.error('Error loading students:', error);
+      // Fallback to empty array on error
+      setStudents([]);
       toastHelpers.error('読み込みエラー', '生徒データの読み込みに失敗しました');
     } finally {
       setIsLoading(false);
@@ -72,20 +67,34 @@ const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
     }
 
     try {
-      // TODO: Add student via API
-      const student: Student = {
-        id: Date.now(),
-        student_no: parseInt(newStudent.student_no),
-        name: newStudent.name,
-        sex: newStudent.sex,
-        memo: newStudent.memo,
-        class: selectedClass!
-      };
+      // Add student via API
+      const response = await fetch('/api/chat/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          class_id: selectedClass!.id,
+          student_no: parseInt(newStudent.student_no),
+          name: newStudent.name,
+          sex: newStudent.sex,
+          memo: newStudent.memo
+        })
+      });
+
+      const result = await response.json();
       
-      setStudents([...students, student]);
-      setNewStudent({ student_no: '', name: '', sex: 1, memo: '' });
-      setShowAddForm(false);
-      toastHelpers.success('追加完了', '生徒を追加しました');
+      if (result.success && result.data?.student) {
+        // Add the new student to the local state
+        const newStudentData: Student = {
+          ...result.data.student,
+          class: selectedClass!
+        };
+        setStudents([...students, newStudentData]);
+        setNewStudent({ student_no: '', name: '', sex: 1, memo: '' });
+        setShowAddForm(false);
+        toastHelpers.success('追加完了', '生徒を追加しました');
+      } else {
+        toastHelpers.error('追加エラー', result.error || '生徒の追加に失敗しました');
+      }
     } catch (error) {
       console.error('Error adding student:', error);
       toastHelpers.error('追加エラー', '生徒の追加に失敗しました');
@@ -94,10 +103,27 @@ const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
 
   const handleUpdateStudent = async (student: Student) => {
     try {
-      // TODO: Update student via API
-      setStudents(students.map(s => s.id === student.id ? student : s));
-      setEditingStudent(null);
-      toastHelpers.success('更新完了', '生徒情報を更新しました');
+      // Update student via API
+      const response = await fetch(`/api/chat/students/${student.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_no: student.student_no,
+          name: student.name,
+          sex: student.sex,
+          memo: student.memo
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setStudents(students.map(s => s.id === student.id ? student : s));
+        setEditingStudent(null);
+        toastHelpers.success('更新完了', '生徒情報を更新しました');
+      } else {
+        toastHelpers.error('更新エラー', result.error || '生徒情報の更新に失敗しました');
+      }
     } catch (error) {
       console.error('Error updating student:', error);
       toastHelpers.error('更新エラー', '生徒情報の更新に失敗しました');
@@ -108,9 +134,19 @@ const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
     if (!confirm('この生徒を削除しますか？')) return;
 
     try {
-      // TODO: Delete student via API
-      setStudents(students.filter(s => s.id !== studentId));
-      toastHelpers.success('削除完了', '生徒を削除しました');
+      // Delete student via API
+      const response = await fetch(`/api/chat/students/${studentId}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setStudents(students.filter(s => s.id !== studentId));
+        toastHelpers.success('削除完了', '生徒を削除しました');
+      } else {
+        toastHelpers.error('削除エラー', result.error || '生徒の削除に失敗しました');
+      }
     } catch (error) {
       console.error('Error deleting student:', error);
       toastHelpers.error('削除エラー', '生徒の削除に失敗しました');
@@ -305,23 +341,6 @@ const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
         )}
       </div>
 
-      {/* Next Button */}
-      <div className="border-t border-gray-200 px-6 py-4 bg-white">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-gray-600">
-              登録生徒数: {students.length}名
-            </p>
-          </div>
-          <button
-            onClick={onNext}
-            disabled={students.length === 0}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            次へ（アンケート作成）
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

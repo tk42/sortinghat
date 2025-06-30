@@ -12,9 +12,11 @@ import { deleteStudentPreference } from '@/src/utils/actions/delete_student_pref
 import { matchStudentPreferences } from '@/src/utils/actions/match_student_preferences'
 import { createSurvey } from '@/src/utils/actions/create_survey'
 import { deleteSurvey } from '@/src/utils/actions/delete_survey'
-import { Constraint, Class, Survey, StudentPreference } from '@/src/lib/interfaces'
+import { Constraint, Class, Survey, StudentPreference, MatchingResultWithTeams } from '@/src/lib/interfaces'
 // import SurveyList from './SurveyList' // Removed - now inline
 import StudentPreferences from './StudentPreferences'
+import ResultConfirmationPhase from '@/src/components/chat/phases/ResultConfirmationPhase'
+import { fetchMatchingResult } from '@/src/utils/actions/fetch_matching_results'
 import UserAvatarButton from '@/src/components/navigation/UserAvatarButton'
 // import { useDrawer } from '@/src/contexts/DrawerContext' // Removed with sidebar
 
@@ -31,6 +33,8 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
     const [studentPreferences, setStudentPreferences] = useState<StudentPreference[]>([])
     const [classes, setClasses] = useState<Class[]>(initialClasses)
     const [showSurveyList, setShowSurveyList] = useState(true)
+    const [savedMatchingResult, setSavedMatchingResult] = useState<MatchingResultWithTeams | null>(null)
+    const [isLoadingResult, setIsLoadingResult] = useState(false)
 
     useEffect(() => {
         const loadTeacherData = async () => {
@@ -64,6 +68,25 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
 
             loadPreferences()
         }
+    }, [selectedSurvey])
+
+    // Fetch saved matching result for this survey (latest)
+    useEffect(() => {
+        if (!selectedSurvey) {
+            setSavedMatchingResult(null)
+            return
+        }
+        setIsLoadingResult(true)
+        fetchMatchingResult(selectedSurvey.id.toString())
+            .then(res => {
+                if (res.success && res.data?.matchingResult) {
+                    setSavedMatchingResult(res.data.matchingResult)
+                } else {
+                    setSavedMatchingResult(null)
+                }
+            })
+            .catch(() => setSavedMatchingResult(null))
+            .finally(() => setIsLoadingResult(false))
     }, [selectedSurvey])
 
     async function handleUpdatePreference(preferenceId: string, preferences: string[]) {
@@ -260,17 +283,23 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                                 </div>
                             </div>
                             
-                            {/* Student Preferences */}
-                            <div className="flex-1 overflow-y-auto">
-                                <StudentPreferences
-                                    survey={selectedSurvey}
-                                    studentPreferences={studentPreferences}
-                                    setStudentPreferences={setStudentPreferences}
-                                    onUpdatePreference={handleUpdatePreference}
-                                    onDeletePreference={handleDeletePreference}
-                                    matchStudentPreferences={handleMatching}
-                                />
-                            </div>
+                            {/* Past matching result or preferences editor */}
+                            {isLoadingResult ? (
+                                <div className="p-6 text-center text-gray-600">結果を読み込み中...</div>
+                            ) : savedMatchingResult ? (
+                                <ResultConfirmationPhase matchingResult={savedMatchingResult} />
+                            ) : (
+                                <div className="flex-1 overflow-y-auto">
+                                    <StudentPreferences
+                                        survey={selectedSurvey}
+                                        studentPreferences={studentPreferences}
+                                        setStudentPreferences={setStudentPreferences}
+                                        onUpdatePreference={handleUpdatePreference}
+                                        onDeletePreference={handleDeletePreference}
+                                        matchStudentPreferences={handleMatching}
+                                    />
+                                </div>
+                            )}
                         </>
                     ) : (
                         /* Empty State */

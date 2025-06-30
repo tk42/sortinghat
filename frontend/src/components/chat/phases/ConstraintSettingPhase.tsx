@@ -7,7 +7,6 @@ import ChatMessage from '../ChatMessage';
 interface ConstraintSettingPhaseProps {
   selectedClass: Class | null;
   selectedSurvey: Survey | null;
-  onNext: () => void;
   messages: ChatMessageType[];
   onSendMessage: (content: string) => void;
   inputValue: string;
@@ -20,7 +19,6 @@ interface ConstraintSettingPhaseProps {
 const ConstraintSettingPhase: React.FC<ConstraintSettingPhaseProps> = ({
   selectedClass,
   selectedSurvey,
-  onNext,
   messages,
   onSendMessage,
   inputValue,
@@ -285,31 +283,6 @@ const ConstraintSettingPhase: React.FC<ConstraintSettingPhaseProps> = ({
       </div>
 
       {/* Next Button */}
-      <div className="border-t border-gray-200 px-6 py-4 bg-white">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-gray-600">
-              制約条件の設定が完了したら次に進んでください
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {!showTemplate && (
-              <button
-                onClick={() => setShowTemplate(true)}
-                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                テンプレートを表示
-              </button>
-            )}
-            <button
-              onClick={onNext}
-              className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-            >
-              最適化実行
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

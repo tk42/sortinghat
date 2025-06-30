@@ -75,8 +75,9 @@ export interface StudentDislike {
 
 export interface StudentPreference {
     id: number;
-    student: Student;
-    survey: Survey;
+    student?: Student; // Optional for compatibility with both nested and flat structures
+    student_no?: number; // For backward compatibility
+    survey?: Survey;
     team?: Team;  // 未使用？
     previous_team: number;
     mi_a: number;
@@ -89,9 +90,9 @@ export interface StudentPreference {
     mi_h: number;
     leader: number;
     eyesight: number;
-    student_dislikes: StudentDislike[];
+    student_dislikes?: StudentDislike[] | string; // Support both formats
     created_at: string;
-    updated_at: string;
+    updated_at?: string;
 }
 
 export interface Price {
@@ -217,7 +218,7 @@ export interface StudentPreferencesResponse {
 }
 
 // Chat and Conversation Interfaces - Updated for new UX flow
-export type ConversationStep = 'initial' | 'class_setup' | 'survey_creation' | 'constraint_setting' | 'optimization_execution' | 'result_confirmation';
+export type ConversationStep = 'initial' | 'class_setup' | 'survey_creation' | 'survey_setup' | 'constraint_setting' | 'optimization_execution' | 'result_confirmation';
 
 export interface Conversation {
     id: number;

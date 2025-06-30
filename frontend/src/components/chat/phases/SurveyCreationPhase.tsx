@@ -1,85 +1,132 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Class, Survey } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
+import { useDropzone } from 'react-dropzone';
+import { createSurveyFromCSV } from '@/src/utils/actions/create_survey_from_csv';
+import { useAuthContext } from '@/src/utils/firebase/authprovider';
 
 interface SurveyCreationPhaseProps {
   selectedClass: Class | null;
   onSurveySelect: (survey: Survey) => void;
-  onNext: () => void;
   selectedSurvey: Survey | null;
 }
 
 const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
   selectedClass,
   onSurveySelect,
-  onNext,
   selectedSurvey
 }) => {
   const [mode, setMode] = useState<'welcome' | 'create' | 'select'>('welcome');
   const [isUploading, setIsUploading] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [isLoadingSurveys, setIsLoadingSurveys] = useState(false);
   const toastHelpers = useToastHelpers();
+  const { state: authState } = useAuthContext();
 
-  const handleFileUpload = useCallback(async (file: File) => {
-    if (!file.name.endsWith('.csv')) {
-      toastHelpers.error('ファイル形式エラー', 'CSVファイルを選択してください');
-      return;
-    }
-
-    setIsUploading(true);
-    try {
-      // TODO: Implement actual CSV upload and survey creation
-      const newSurvey: Survey = {
-        id: Date.now(),
-        name: file.name.replace('.csv', ''),
-        status: 1,
-        class: selectedClass!,
-        class_id: selectedClass!.id,
-        created_at: new Date().toISOString(),
+  // selectモードに切り替わった時にアンケートを読み込む
+  useEffect(() => {
+    if (mode === 'select' && selectedClass) {
+      const loadSurveys = async () => {
+        setIsLoadingSurveys(true);
+        setError(null);
+        try {
+          console.log('Loading surveys for class:', selectedClass.id);
+          console.log('Auth state:', { user: !!authState.user, teacher: !!authState.teacher });
+          console.log('Cookies:', document.cookie);
+          const response = await fetch(`/api/chat/classes/${selectedClass.id}/surveys`);
+          console.log('Survey fetch response status:', response.status);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          console.log('Survey fetch result:', result);
+          
+          if (result.success && result.data?.surveys) {
+            // Survey オブジェクトにクラス情報を追加
+            const surveysWithClass = result.data.surveys.map((survey: any) => ({
+              ...survey,
+              class: selectedClass,
+              class_id: selectedClass.id
+            }));
+            setSurveys(surveysWithClass);
+            console.log('Surveys loaded:', surveysWithClass.length);
+          } else {
+            setSurveys([]);
+            const errorMsg = result.error || 'アンケートの取得に失敗しました';
+            setError(errorMsg);
+            toastHelpers.warning('読み込み結果', errorMsg);
+          }
+        } catch (error) {
+          console.error('Error loading surveys:', error);
+          setSurveys([]);
+          const errorMsg = error instanceof Error ? error.message : 'アンケートの読み込みに失敗しました';
+          setError(errorMsg);
+          toastHelpers.error('読み込みエラー', errorMsg);
+        } finally {
+          setIsLoadingSurveys(false);
+        }
       };
+
+      loadSurveys();
+    }
+  // Only refetch when mode or selectedClass.id changes; exclude toastHelpers to prevent infinite loops
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, selectedClass?.id]);
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return
+    const file = acceptedFiles[0]
+    if (file.type !== 'text/csv') {
+      setError('CSVファイルのみアップロード可能です')
+      return
+    }
+    setIsUploading(true)
+    setError(null)
+
+    try {
+      if (!selectedClass) {
+        throw new Error('クラスが選択されていません')
+      }
+
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const surveyName = file.name.replace('.csv', '')
       
-      onSurveySelect(newSurvey);
-      toastHelpers.success('アンケート作成完了', `${newSurvey.name}が作成されました`);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      toastHelpers.error('アップロードエラー', 'ファイルの処理に失敗しました');
+      // LLM→パース→一括登録→state 更新
+      const newSurvey = await createSurveyFromCSV(formData, surveyName, selectedClass.id)
+      
+      // Survey オブジェクトにクラス情報を追加
+      const surveyWithClass: Survey = {
+        ...newSurvey,
+        class: selectedClass
+      }
+      
+      onSurveySelect(surveyWithClass)
+      
+      // 新しく作成されたアンケートをリストに追加
+      setSurveys(prevSurveys => [surveyWithClass, ...prevSurveys])
+      
+      toastHelpers.success('アンケート作成完了', `${newSurvey.name}が作成されました`)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'アップロードに失敗しました'
+      setError(msg)
+      toastHelpers.error('アップロードエラー', msg)
     } finally {
-      setIsUploading(false);
+      setIsUploading(false)
     }
-  }, [onSurveySelect, selectedClass, toastHelpers]);
+  }, [onSurveySelect, toastHelpers, selectedClass])
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    const files = e.dataTransfer.files;
-    if (files && files[0]) {
-      handleFileUpload(files[0]);
-    }
-  }, [handleFileUpload]);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  }, []);
-
-  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-  }, [handleFileUpload]);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'text/csv': ['.csv'] },
+    disabled: isUploading
+  })
 
   if (!selectedClass) {
     return (
@@ -145,19 +192,18 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
         </div>
 
         <div
+          {...getRootProps()}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            dragActive
+            isDragActive
               ? 'border-green-400 bg-green-50'
               : 'border-gray-300 hover:border-gray-400'
           }`}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
         >
+          <input {...getInputProps()} />
           {isUploading ? (
             <div className="flex flex-col items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mb-4"></div>
-              <p className="text-gray-600">ファイルを処理中...</p>
+              <p className="text-gray-600">ファイルを処理中...(十数秒かかります)</p>
             </div>
           ) : (
             <>
@@ -165,27 +211,16 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
               <p className="text-lg font-medium text-gray-900 mb-2">
-                CSVファイルをドラッグ&ドロップ
+                CSVファイルをドラッグ&ドロップ、またはクリックしてアップロード
               </p>
               <p className="text-gray-500 mb-4">
-                または下のボタンからファイルを選択
+                アンケート結果CSVファイルからアンケートと選好データを一括作成します
               </p>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileInputChange}
-                className="hidden"
-                id="survey-file-upload"
-              />
-              <label
-                htmlFor="survey-file-upload"
-                className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors cursor-pointer inline-block"
-              >
-                ファイルを選択
-              </label>
             </>
           )}
         </div>
+
+        {error && <p className="text-red-500 mt-4">{error}</p>}
 
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <h3 className="font-medium text-gray-900 mb-2">CSVファイル形式</h3>
@@ -225,7 +260,12 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
         </div>
 
         <div className="space-y-4">
-          {surveys.length > 0 ? (
+          {isLoadingSurveys ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">アンケートを読み込み中...</p>
+            </div>
+          ) : surveys.length > 0 ? (
             surveys.map((survey) => (
               <div
                 key={survey.id}
@@ -237,22 +277,53 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
                 }`}
               >
                 <h3 className="font-medium text-gray-900">{survey.name}</h3>
-                <p className="text-sm text-gray-500">作成日: {survey.created_at}</p>
+                <p className="text-sm text-gray-500">作成日: {new Date(survey.created_at || '').toLocaleDateString('ja-JP')}</p>
                 <p className="text-sm text-gray-500">ステータス: {survey.status === 1 ? 'アクティブ' : '非アクティブ'}</p>
+                {(survey as any).student_preferences_aggregate?.aggregate?.count !== undefined && (
+                  <p className="text-sm text-gray-500">
+                    回答数: {(survey as any).student_preferences_aggregate.aggregate.count}件
+                  </p>
+                )}
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p>アンケートが見つかりません</p>
-              <button
-                onClick={() => setMode('create')}
-                className="text-green-500 hover:text-green-600 mt-2"
-              >
-                新しいアンケートを作成
-              </button>
+            <div className="text-center py-8">
+              {error ? (
+                <div className="text-red-600">
+                  <p className="font-medium">エラー</p>
+                  <p className="text-sm mt-1">{error}</p>
+                  <button
+                    onClick={() => setMode('select')}
+                    className="text-green-500 hover:text-green-600 mt-4 text-sm"
+                  >
+                    再試行
+                  </button>
+                </div>
+              ) : (
+                <div className="text-gray-500">
+                  <p>このクラスにはまだアンケートがありません</p>
+                  <button
+                    onClick={() => setMode('create')}
+                    className="text-green-500 hover:text-green-600 mt-2"
+                  >
+                    新しいアンケートを作成
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
+
+        {/* 選択されたアンケートの確認 */}
+        {selectedSurvey && (
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="font-medium text-green-800 mb-2">選択されたアンケート</h3>
+            <p className="text-green-700">
+              <strong>{selectedSurvey.name}</strong> が選択されました。
+              「次へ」ボタンを押してアンケート設定に進んでください。
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -263,23 +334,6 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
       {mode === 'create' && renderCreateSurvey()}
       {mode === 'select' && renderSelectSurvey()}
       
-      {/* Next Button */}
-      {selectedSurvey && (
-        <div className="border-t border-gray-200 px-6 py-4 bg-white">
-          <div className="flex justify-between items-center max-w-2xl mx-auto">
-            <div>
-              <p className="text-sm text-gray-600">選択中のアンケート:</p>
-              <p className="font-medium text-gray-900">{selectedSurvey.name}</p>
-            </div>
-            <button
-              onClick={onNext}
-              className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
-            >
-              次へ（制約設定）
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,100 +1,76 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Class, Survey, OptimizationJob } from '@/src/lib/interfaces';
+import { Survey, StudentPreference, Constraint } from '@/src/lib/interfaces';
+import { matchStudentPreferences } from '@/src/utils/actions/match_student_preferences';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 
 interface OptimizationExecutionPhaseProps {
-  selectedClass: Class | null;
   selectedSurvey: Survey | null;
-  onNext: () => void;
-  optimizationJob: OptimizationJob | null;
+  studentPreferences: StudentPreference[];
+  onOptimizationComplete: (result: any) => void;
 }
 
 const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
-  selectedClass,
   selectedSurvey,
-  onNext,
-  optimizationJob
+  studentPreferences,
+  onOptimizationComplete
 }) => {
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState('');
-  const [executionLogs, setExecutionLogs] = useState<string[]>([]);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [constraint, setConstraint] = useState<Constraint>({
+    max_num_teams: 0,
+    members_per_team: 4,
+    at_least_one_pair_sex: true,
+    girl_geq_boy: false,
+    boy_geq_girl: false,
+    at_least_one_leader: true,
+    unique_previous: true,
+    group_diff_coeff: 1.0
+  });
   const toastHelpers = useToastHelpers();
 
+  // Calculate max teams based on class size and members per team
   useEffect(() => {
-    if (optimizationJob) {
-      setProgress(optimizationJob.progress);
-      setIsExecuting(optimizationJob.status === 'running');
-      
-      if (optimizationJob.status === 'completed') {
-        toastHelpers.success('最適化完了', '班分け最適化が完了しました');
-      } else if (optimizationJob.status === 'failed') {
-        toastHelpers.error('最適化失敗', optimizationJob.error_message || '最適化に失敗しました');
-      }
+    if (studentPreferences.length > 0) {
+      const maxTeams = Math.ceil(studentPreferences.length / constraint.members_per_team);
+      setConstraint(prev => ({ ...prev, max_num_teams: maxTeams }));
     }
-  }, [optimizationJob, toastHelpers]);
+  }, [studentPreferences.length, constraint.members_per_team]);
 
-  const handleStartOptimization = async () => {
-    if (!selectedClass || !selectedSurvey) {
-      toastHelpers.error('エラー', 'クラスまたはアンケートが選択されていません');
+  const handleOptimizationExecution = async () => {
+    if (!selectedSurvey || studentPreferences.length === 0) {
+      toastHelpers.error('エラー', 'アンケートまたは選好データが選択されていません');
       return;
     }
 
-    setIsExecuting(true);
-    setProgress(0);
-    setExecutionLogs(['最適化を開始しています...']);
+    setIsOptimizing(true);
     
     try {
-      // Simulate optimization steps
-      const steps = [
-        { message: 'データを準備中...', progress: 10 },
-        { message: '制約条件を解析中...', progress: 25 },
-        { message: '数理最適化を実行中...', progress: 50 },
-        { message: '解の妥当性を検証中...', progress: 75 },
-        { message: '結果を生成中...', progress: 90 },
-        { message: '最適化完了!', progress: 100 }
-      ];
-
-      for (const step of steps) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setCurrentStep(step.message);
-        setProgress(step.progress);
-        setExecutionLogs(prev => [...prev, step.message]);
-      }
-
-      // TODO: Call actual optimization API
-      // const response = await fetch('/api/optimization/execute', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     class_id: selectedClass.id,
-      //     survey_id: selectedSurvey.id,
-      //     constraints: constraintData
-      //   })
-      // });
-
-      toastHelpers.success('最適化完了', '班分け最適化が完了しました');
+      const result = await matchStudentPreferences(constraint, studentPreferences);
       
-      // Auto-advance to results
-      setTimeout(() => {
-        onNext();
-      }, 2000);
-
+      if (result.error) {
+        toastHelpers.error('最適化エラー', result.error);
+      } else if (result.data) {
+        toastHelpers.success('最適化完了', 'チーム編成が完了しました');
+        onOptimizationComplete({
+          teams: result.data,
+          constraint: constraint,
+          survey: selectedSurvey,
+          studentPreferences: studentPreferences,
+        });
+      }
     } catch (error) {
       console.error('Optimization error:', error);
-      toastHelpers.error('最適化エラー', '最適化の実行中にエラーが発生しました');
-      setExecutionLogs(prev => [...prev, `エラー: ${error}`]);
+      toastHelpers.error('最適化エラー', '最適化処理中にエラーが発生しました');
     } finally {
-      setIsExecuting(false);
+      setIsOptimizing(false);
     }
   };
 
-  if (!selectedClass || !selectedSurvey) {
+  if (!selectedSurvey) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">クラスまたはアンケートが選択されていません</p>
+        <p className="text-gray-500">アンケートが選択されていません</p>
       </div>
     );
   }
@@ -104,111 +80,174 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-900">最適化実行</h2>
         <p className="text-gray-600">
-          設定された制約条件に基づいて班分けを最適化します
+          {selectedSurvey.name} のチーム編成制約を設定して最適化を実行してください
         </p>
+        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+          <span>対象生徒数: {studentPreferences.length}人</span>
+          <span>予想チーム数: {constraint.max_num_teams}チーム</span>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Execution Summary */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">実行情報</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-500">クラス:</span>
-                <span className="ml-2 font-medium">{selectedClass.name}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">アンケート:</span>
-                <span className="ml-2 font-medium">{selectedSurvey.name}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">最適化アルゴリズム:</span>
-                <span className="ml-2 font-medium">線形計画法（PuLP）</span>
-              </div>
-              <div>
-                <span className="text-gray-500">目的関数:</span>
-                <span className="ml-2 font-medium">スコア差最小化</span>
-              </div>
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="bg-white rounded-lg shadow p-6 space-y-6">
+          <h3 className="text-lg font-medium text-gray-900">制約設定</h3>
+          
+          {/* Team Size Settings */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                1チームあたりの人数
+              </label>
+              <select
+                value={constraint.members_per_team}
+                onChange={(e) => setConstraint(prev => ({ 
+                  ...prev, 
+                  members_per_team: parseInt(e.target.value) 
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value={3}>3人</option>
+                <option value={4}>4人</option>
+                <option value={5}>5人</option>
+                <option value={6}>6人</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                最大チーム数
+              </label>
+              <input
+                type="number"
+                value={constraint.max_num_teams}
+                onChange={(e) => setConstraint(prev => ({ 
+                  ...prev, 
+                  max_num_teams: parseInt(e.target.value) || 0 
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                min={1}
+              />
             </div>
           </div>
 
-          {/* Progress Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">実行状況</h3>
-              <span className="text-sm font-medium text-gray-500">
-                {progress}%
-              </span>
+          {/* Gender Balance Settings */}
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-3">性別バランス</h4>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={constraint.at_least_one_pair_sex}
+                  onChange={(e) => setConstraint(prev => ({ 
+                    ...prev, 
+                    at_least_one_pair_sex: e.target.checked 
+                  }))}
+                  className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                />
+                <span className="text-sm text-gray-700">各チームに男女を含める</span>
+              </label>
+              
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={constraint.girl_geq_boy}
+                  onChange={(e) => setConstraint(prev => ({ 
+                    ...prev, 
+                    girl_geq_boy: e.target.checked 
+                  }))}
+                  className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                />
+                <span className="text-sm text-gray-700">女性の人数を男性以上にする</span>
+              </label>
+              
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={constraint.boy_geq_girl}
+                  onChange={(e) => setConstraint(prev => ({ 
+                    ...prev, 
+                    boy_geq_girl: e.target.checked 
+                  }))}
+                  className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                />
+                <span className="text-sm text-gray-700">男性の人数を女性以上にする</span>
+              </label>
             </div>
-            
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-              <div
-                className="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            
-            {currentStep && (
-              <p className="text-sm text-gray-600">{currentStep}</p>
-            )}
           </div>
 
-          {/* Execution Logs */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">実行ログ</h3>
-            <div className="bg-gray-50 rounded-md p-4 max-h-60 overflow-y-auto">
-              {executionLogs.length > 0 ? (
-                <div className="space-y-1">
-                  {executionLogs.map((log, index) => (
-                    <div key={index} className="text-sm text-gray-700 font-mono">
-                      <span className="text-gray-500">
-                        [{new Date().toLocaleTimeString()}]
-                      </span>{' '}
-                      {log}
-                    </div>
-                  ))}
+          {/* Leadership Settings */}
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-3">リーダーシップ</h4>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={constraint.at_least_one_leader}
+                onChange={(e) => setConstraint(prev => ({ 
+                  ...prev, 
+                  at_least_one_leader: e.target.checked 
+                }))}
+                className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+              />
+              <span className="text-sm text-gray-700">各チームに最低1人のリーダーを配置</span>
+            </label>
+          </div>
+
+          {/* Previous Team Settings */}
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-3">前回チーム考慮</h4>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={constraint.unique_previous}
+                onChange={(e) => setConstraint(prev => ({ 
+                  ...prev, 
+                  unique_previous: e.target.checked 
+                }))}
+                className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+              />
+              <span className="text-sm text-gray-700">前回と異なるチーム編成にする</span>
+            </label>
+          </div>
+
+          {/* Score Balance Coefficient */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              スコアバランス係数: {constraint.group_diff_coeff}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value={constraint.group_diff_coeff}
+              onChange={(e) => setConstraint(prev => ({ 
+                ...prev, 
+                group_diff_coeff: parseFloat(e.target.value) 
+              }))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>スコア差を重視しない</span>
+              <span>スコア差を重視する</span>
+            </div>
+          </div>
+
+          {/* Optimization Button */}
+          <div className="pt-4 border-t border-gray-200">
+            <button
+              onClick={handleOptimizationExecution}
+              disabled={isOptimizing || studentPreferences.length === 0}
+              className="w-full bg-orange-600 text-white py-3 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isOptimizing ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  最適化実行中...
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">まだ実行されていません</p>
+                '最適化を実行'
               )}
-            </div>
-          </div>
-
-          {/* Control Buttons */}
-          <div className="text-center">
-            {!isExecuting && progress === 0 && (
-              <button
-                onClick={handleStartOptimization}
-                className="bg-orange-500 text-white px-8 py-3 rounded-lg hover:bg-orange-600 transition-colors text-lg font-medium"
-              >
-                最適化を実行
-              </button>
-            )}
-            
-            {isExecuting && (
-              <div className="flex items-center justify-center space-x-3">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-                <span className="text-gray-600">最適化実行中...</span>
-              </div>
-            )}
-            
-            {progress === 100 && !isExecuting && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-center space-x-2 text-green-600">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="font-medium">最適化が完了しました</span>
-                </div>
-                <button
-                  onClick={onNext}
-                  className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600 transition-colors text-lg font-medium"
-                >
-                  結果を確認
-                </button>
-              </div>
-            )}
+            </button>
           </div>
         </div>
       </div>

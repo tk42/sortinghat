@@ -4,21 +4,22 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Class } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 import { Container as Logo } from "@/src/components/Common/Logo";
+import { useDropzone } from 'react-dropzone';
+import { createClassFromCSV } from '@/src/utils/actions/create_class_from_csv';
+import { getCurrentTeacher } from '@/src/utils/actions/get_current_teacher';
 
 interface StartPhaseProps {
   onClassSelect: (cls: Class) => void;
-  onNext: () => void;
   selectedClass: Class | null;
 }
 
 const StartPhase: React.FC<StartPhaseProps> = ({
   onClassSelect,
-  onNext,
   selectedClass
 }) => {
   const [mode, setMode] = useState<'welcome' | 'create' | 'select'>('welcome');
   const [isUploading, setIsUploading] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const toastHelpers = useToastHelpers();
 
   // クラス一覧取得用ステート
@@ -28,67 +29,49 @@ const StartPhase: React.FC<StartPhaseProps> = ({
   // 既存クラス選択後に呼び出す
   const handleClassSelect = (cls: Class) => {
     onClassSelect(cls);
-    onNext();
   };
 
-  const handleFileUpload = useCallback(async (file: File) => {
-    if (!file.name.endsWith('.csv')) {
-      toastHelpers.error('ファイル形式エラー', 'CSVファイルを選択してください');
-      return;
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return
+    const file = acceptedFiles[0]
+    if (file.type !== 'text/csv') {
+      setError('CSVファイルのみアップロード可能です')
+      return
     }
+    setIsUploading(true)
+    setError(null)
 
-    setIsUploading(true);
     try {
-      // TODO: Implement actual CSV upload and class creation
-      // This would involve calling an API to process the CSV and create a new class
+      // 現在の教師情報を取得
+      const teacher = await getCurrentTeacher()
+      if (!teacher) {
+        throw new Error('認証情報が見つかりません')
+      }
+
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const className = file.name.replace('.csv', '')
       
-      // For now, create a mock class
-      const newClass: Class = {
-        id: Date.now(),
-        name: file.name.replace('.csv', ''),
-        uuid: `class-${Date.now()}`,
-        created_at: new Date().toISOString(),
-      };
+      // LLM→パース→一括登録→state 更新
+      const newClass = await createClassFromCSV(formData, className, teacher.id)
+      onClassSelect(newClass)
       
-      onClassSelect(newClass);
-      toastHelpers.success('クラス作成完了', `${newClass.name}が作成されました`);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      toastHelpers.error('アップロードエラー', 'ファイルの処理に失敗しました');
+      toastHelpers.success('クラス作成完了', `${newClass.name}が作成されました`)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'アップロードに失敗しました'
+      setError(msg)
+      toastHelpers.error('アップロードエラー', msg)
     } finally {
-      setIsUploading(false);
+      setIsUploading(false)
     }
-  }, [onClassSelect, toastHelpers]);
+  }, [onClassSelect, toastHelpers])
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    const files = e.dataTransfer.files;
-    if (files && files[0]) {
-      handleFileUpload(files[0]);
-    }
-  }, [handleFileUpload]);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  }, []);
-
-  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-  }, [handleFileUpload]);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'text/csv': ['.csv'] },
+    disabled: isUploading
+  })
 
   // 初回マウント時にクラス一覧を取得
   useEffect(() => {
@@ -167,19 +150,18 @@ const StartPhase: React.FC<StartPhaseProps> = ({
         </div>
 
         <div
+          {...getRootProps()}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            dragActive
+            isDragActive
               ? 'border-blue-400 bg-blue-50'
               : 'border-gray-300 hover:border-gray-400'
           }`}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
         >
+          <input {...getInputProps()} />
           {isUploading ? (
             <div className="flex flex-col items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
-              <p className="text-gray-600">ファイルを処理中...</p>
+              <p className="text-gray-600">ファイルを処理中...(十数秒かかります)</p>
             </div>
           ) : (
             <>
@@ -187,27 +169,16 @@ const StartPhase: React.FC<StartPhaseProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
               <p className="text-lg font-medium text-gray-900 mb-2">
-                CSVファイルをドラッグ&ドロップ
+                CSVファイルをドラッグ&ドロップ、またはクリックしてアップロード
               </p>
               <p className="text-gray-500 mb-4">
-                または下のボタンからファイルを選択
+                CSVファイルからクラスと生徒情報を一括作成します
               </p>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileInputChange}
-                className="hidden"
-                id="file-upload"
-              />
-              <label
-                htmlFor="file-upload"
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer inline-block"
-              >
-                ファイルを選択
-              </label>
             </>
           )}
         </div>
+
+        {error && <p className="text-red-500 mt-4">{error}</p>}
 
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <h3 className="font-medium text-gray-900 mb-2">CSVファイル形式</h3>
@@ -215,11 +186,17 @@ const StartPhase: React.FC<StartPhaseProps> = ({
             以下の列を含むCSVファイルをアップロードしてください：
           </p>
           <ul className="text-sm text-gray-600 list-disc list-inside">
-            <li>student_no: 出席番号</li>
-            <li>name: 氏名</li>
-            <li>sex: 性別（1: 男子, 2: 女子）</li>
-            <li>memo: メモ（任意）</li>
+            <li>番号</li>
+            <li>名前</li>
+            <li>性別</li>
           </ul>
+          <a
+            href="/sample/class.csv"
+            download
+            className="text-sm text-blue-600 hover:text-blue-800 underline mt-2 inline-block"
+          >
+            サンプルCSVをダウンロード
+          </a>
         </div>
       </div>
     </div>
@@ -275,23 +252,6 @@ const StartPhase: React.FC<StartPhaseProps> = ({
       {mode === 'create' && renderCreateClass()}
       {mode === 'select' && renderSelectClass()}
       
-      {/* Next Button */}
-      {selectedClass && (
-        <div className="border-t border-gray-200 px-6 py-4 bg-white">
-          <div className="flex justify-between items-center max-w-2xl mx-auto">
-            <div>
-              <p className="text-sm text-gray-600">選択中のクラス:</p>
-              <p className="font-medium text-gray-900">{selectedClass.name}</p>
-            </div>
-            <button
-              onClick={onNext}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              次へ
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -12,11 +12,13 @@ import FileUploadProgress from './FileUploadProgress';
 import OptimizationProgress from './OptimizationProgress';
 import FileConversionDiff from './FileConversionDiff';
 import UserAvatarButton from '@/src/components/navigation/UserAvatarButton';
+import Footer from './Footer';
 
 // Phase Components
 import StartPhase from './phases/StartPhase';
 import ClassSetupPhase from './phases/ClassSetupPhase';
 import SurveyCreationPhase from './phases/SurveyCreationPhase';
+import SurveySetupPhase from './phases/SurveySetupPhase';
 import ConstraintSettingPhase from './phases/ConstraintSettingPhase';
 import OptimizationExecutionPhase from './phases/OptimizationExecutionPhase';
 import ResultConfirmationPhase from './phases/ResultConfirmationPhase';
@@ -32,6 +34,8 @@ const ChatWindow: React.FC = () => {
   // Phase-specific state
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
+  const [studentPreferences, setStudentPreferences] = useState<any[]>([]);
+  const [optimizationResult, setOptimizationResult] = useState<any>(null);
 
   // Helper: Formats ISO timestamp to "YYYY/MM/DD HH:MM:SS"
   const formatDateTime = (isoString: string): string => {
@@ -177,10 +181,17 @@ const ChatWindow: React.FC = () => {
         nextStep = 'survey_creation';
         break;
       case 'survey_creation':
+        nextStep = 'survey_setup';
+        break;
+      case 'survey_setup':
         nextStep = 'constraint_setting';
         break;
       case 'constraint_setting':
         nextStep = 'optimization_execution';
+        // Load student preferences before moving to optimization
+        if (selectedSurvey) {
+          await loadStudentPreferences();
+        }
         break;
       case 'optimization_execution':
         nextStep = 'result_confirmation';
@@ -203,11 +214,32 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const loadStudentPreferences = async () => {
+    if (!selectedSurvey) return;
+    
+    try {
+      const response = await fetch(`/api/chat/surveys/${selectedSurvey.id}/preferences`);
+      const result = await response.json();
+      
+      if (result.success && result.data?.student_preferences) {
+        setStudentPreferences(result.data.student_preferences);
+      } else {
+        setStudentPreferences([]);
+        toastHelpers.warning('注意', 'このアンケートには選好データが登録されていません');
+      }
+    } catch (error) {
+      console.error('Error loading student preferences:', error);
+      setStudentPreferences([]);
+      toastHelpers.error('読み込みエラー', '選好データの読み込みに失敗しました');
+    }
+  };
+
   const getStepLabel = (step: ConversationStep): string => {
     switch (step) {
       case 'initial': return '開始';
       case 'class_setup': return 'クラス設定';
       case 'survey_creation': return 'アンケート作成';
+      case 'survey_setup': return 'アンケート設定';
       case 'constraint_setting': return '制約設定';
       case 'optimization_execution': return '最適化実行';
       case 'result_confirmation': return '結果確認';
@@ -215,13 +247,83 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const getNextDisabled = (): boolean => {
+    switch (state.currentStep) {
+      case 'initial':
+        return !selectedClass;
+      case 'class_setup':
+        // Would need to check if students are loaded, but for now assume enabled
+        return false;
+      case 'survey_creation':
+        return !selectedSurvey;
+      case 'survey_setup':
+        return false;
+      case 'constraint_setting':
+        // Could check if constraints are set properly
+        return false;
+      case 'optimization_execution':
+        return !optimizationResult;
+      case 'result_confirmation':
+        return true; // No next button for final step
+      default:
+        return false;
+    }
+  };
+
+  const getFooterInfoText = (): string => {
+    switch (state.currentStep) {
+      case 'initial':
+        return selectedClass ? `選択中のクラス: ${selectedClass.name}` : '';
+      case 'class_setup':
+        return '生徒名簿を確認・編集してください';
+      case 'survey_creation':
+        return selectedSurvey ? `選択中のアンケート: ${selectedSurvey.name}` : '';
+      case 'survey_setup':
+        return 'アンケート結果データを確認・編集してください';
+      case 'constraint_setting':
+        return '制約条件の設定が完了したら次に進んでください';
+      case 'optimization_execution':
+        return '最適化の実行結果を確認してください';
+      case 'result_confirmation':
+        return '班分け結果を確認してください';
+      default:
+        return '';
+    }
+  };
+
   const handleBackPhase = async () => {
-    if (state.currentStep === 'result_confirmation') {
+    const currentStep = state.currentStep;
+    let previousStep: ConversationStep | null = null;
+    
+    switch (currentStep) {
+      case 'class_setup':
+        previousStep = 'initial';
+        break;
+      case 'survey_creation':
+        previousStep = 'class_setup';
+        break;
+      case 'survey_setup':
+        previousStep = 'survey_creation';
+        break;
+      case 'constraint_setting':
+        previousStep = 'survey_setup';
+        break;
+      case 'optimization_execution':
+        previousStep = 'constraint_setting';
+        break;
+      case 'result_confirmation':
+        previousStep = 'constraint_setting'; // Skip optimization execution when going back
+        break;
+      default:
+        return; // No back navigation for 'initial' or unknown steps
+    }
+    
+    if (previousStep) {
       try {
-        await moveToStep('constraint_setting');
-        toastHelpers.success('フェーズ移行', '制約設定に戻りました');
+        await moveToStep(previousStep);
+        toastHelpers.success('フェーズ移行', `${getStepLabel(previousStep)}に戻りました`);
       } catch (error) {
-        console.error('Error moving back to constraint setting:', error);
+        console.error('Error moving back:', error);
         toastHelpers.error('エラー', 'フェーズの移行に失敗しました');
       }
     }
@@ -233,7 +335,6 @@ const ChatWindow: React.FC = () => {
         return (
           <StartPhase
             onClassSelect={setSelectedClass}
-            onNext={handleNextPhase}
             selectedClass={selectedClass}
           />
         );
@@ -241,7 +342,6 @@ const ChatWindow: React.FC = () => {
         return (
           <ClassSetupPhase
             selectedClass={selectedClass}
-            onNext={handleNextPhase}
           />
         );
       case 'survey_creation':
@@ -249,7 +349,12 @@ const ChatWindow: React.FC = () => {
           <SurveyCreationPhase
             selectedClass={selectedClass}
             onSurveySelect={setSelectedSurvey}
-            onNext={handleNextPhase}
+            selectedSurvey={selectedSurvey}
+          />
+        );
+      case 'survey_setup':
+        return (
+          <SurveySetupPhase
             selectedSurvey={selectedSurvey}
           />
         );
@@ -258,7 +363,6 @@ const ChatWindow: React.FC = () => {
           <ConstraintSettingPhase
             selectedClass={selectedClass}
             selectedSurvey={selectedSurvey}
-            onNext={handleNextPhase}
             messages={state.messages}
             onSendMessage={handleSendMessage}
             inputValue={inputValue}
@@ -271,17 +375,15 @@ const ChatWindow: React.FC = () => {
       case 'optimization_execution':
         return (
           <OptimizationExecutionPhase
-            selectedClass={selectedClass}
             selectedSurvey={selectedSurvey}
-            onNext={handleNextPhase}
-            optimizationJob={state.optimizationJob}
+            studentPreferences={studentPreferences}
+            onOptimizationComplete={setOptimizationResult}
           />
         );
       case 'result_confirmation':
         return (
           <ResultConfirmationPhase
-            optimizationJob={state.optimizationJob}
-            onBack={handleBackPhase}
+            matchingResult={optimizationResult}
           />
         );
       default:
@@ -390,6 +492,19 @@ const ChatWindow: React.FC = () => {
           <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
             <OptimizationProgress job={state.optimizationJob} />
           </div>
+        )}
+
+        {/* Footer with Back and Next buttons - Show after class selection in StartPhase or in other phases */}
+        {(state.currentStep !== 'initial' || selectedClass) && (
+          <Footer
+            currentStep={state.currentStep}
+            onBack={handleBackPhase}
+            onNext={handleNextPhase}
+            isLoading={state.isLoading}
+            nextDisabled={getNextDisabled()}
+            showInfo={true}
+            infoText={getFooterInfoText()}
+          />
         )}
 
         {/* Chat Input - Only shown in constraint setting phase */}

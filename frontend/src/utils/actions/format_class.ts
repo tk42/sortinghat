@@ -28,7 +28,7 @@ const BulkStudentSchema = z.object({
       student_no: z.number().int().positive(),
       name: z.string(),
       sex: z.number().int().min(1).max(2),
-      memo: z.string().optional(),
+      memo: z.string().nullable().optional(),
     })
   )
 })
@@ -54,7 +54,7 @@ export async function createStudents(formData: FormData, classId: string): Promi
     student_no: s.student_no,
     name: s.name || '',
     sex: s.sex,
-    memo: s.memo || '',
+    memo: s.memo || null,
     class_id: classId
   }))
   BulkStudentSchema.parse({ objects })
