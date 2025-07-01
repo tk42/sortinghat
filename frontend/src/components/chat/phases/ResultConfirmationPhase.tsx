@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MatchingResult } from '@/src/lib/interfaces';
-import { RadarChart } from '@/src/components/matching/RadarChart';
+import { TeamRadarChart } from '@/src/components/matching/TeamRadarChart';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 
 interface ResultConfirmationPhaseProps {
@@ -222,51 +222,22 @@ const ResultConfirmationPhase: React.FC<ResultConfirmationPhaseProps> = ({
             );
 
             return (
-              <div key={team.team_id} className="bg-white rounded-lg shadow-md p-4">
-                <h3 className="text-lg font-semibold mb-2">{team.name}</h3>
-                <div className="pt-4 relative">
-                  <RadarChart
-                    label="チームのスコア"
-                    data={team.aggregatedScores}
-                    color={colors[colorIndex]}
-                    overlayData={
-                      hoveredStudent && team.students.some(s => s.id === hoveredStudent.id)
-                        ? hoveredStudent.miScores
-                        : undefined
-                    }
-                    overlayColor={colors[colorIndex]}
-                    overlayLabel="個人のスコア"
-                  />
-                </div>
-                <div className="mt-4">
-                  {studentDislikeTable}
-                </div>
-              </div>
+              <TeamRadarChart
+                key={team.team_id}
+                teamName={team.name}
+                aggregatedScores={team.aggregatedScores}
+                color={colors[colorIndex]}
+                overlayScores={
+                  hoveredStudent && team.students.some((s: StudentData) => s.id === hoveredStudent.id)
+                    ? hoveredStudent.miScores
+                    : undefined
+                }
+                overlayColor={colors[colorIndex]}
+                overlayLabel="個人のスコア"
+                studentDislikeTable={studentDislikeTable}
+              />
             );
           })}
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="border-t border-gray-200 px-6 py-4 bg-white">
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-600">
-            チーム編成結果: {teamsArray.length}チーム、計{studentsById.length}名
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleExportResults}
-              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              CSVエクスポート
-            </button>
-            <button
-              onClick={handleSaveResults}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              結果を保存
-            </button>
-          </div>
         </div>
       </div>
     </div>

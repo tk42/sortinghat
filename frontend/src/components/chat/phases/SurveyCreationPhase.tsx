@@ -176,15 +176,6 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
     <div className="px-6 py-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <button
-            onClick={() => setMode('welcome')}
-            className="flex items-center text-gray-500 hover:text-gray-700 mb-4"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            戻る
-          </button>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">新しいアンケートを作成</h2>
           <p className="text-gray-600">
             アンケート結果のCSVファイルをアップロードしてください。
@@ -244,15 +235,6 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
     <div className="px-6 py-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <button
-            onClick={() => setMode('welcome')}
-            className="flex items-center text-gray-500 hover:text-gray-700 mb-4"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            戻る
-          </button>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">既存のアンケートを選択</h2>
           <p className="text-gray-600">
             以前に作成したアンケートから選択してください。

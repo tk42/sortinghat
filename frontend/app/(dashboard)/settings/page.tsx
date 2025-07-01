@@ -5,7 +5,7 @@ import { useAuthContext } from '@/src/utils/firebase/authprovider';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/src/utils/firebase/firebase';
-import UserAvatarButton from '@/src/components/navigation/UserAvatarButton';
+import DashboardHeader from '@/src/components/common/DashboardHeader';
 
 const SettingsPage: React.FC = () => {
   const { state } = useAuthContext();
@@ -29,29 +29,16 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={handleBackToChat}
-                  className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <h1 className="text-xl font-semibold text-gray-900">アカウント設定</h1>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen flex">
+      {/* Side margins for consistency */}
+      <div className="hidden lg:block flex-1 max-w-xs" />
+
+      {/* Main area */}
+      <div className="w-full max-w-[80%] mx-auto flex flex-col bg-white shadow-lg">
+        <DashboardHeader subtitle="アカウント設定" />
 
         {/* Content */}
-        <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="py-8 px-4 sm:px-6 lg:px-8">
           <div className="space-y-6">
             {/* Profile Section */}
             <div className="bg-white rounded-lg shadow p-6">
@@ -195,9 +182,10 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* 固定表示のユーザーアバターメニュー */}
-      <UserAvatarButton />
-    </>
+
+      {/* Side margins */}
+      <div className="hidden lg:block flex-1 max-w-xs" />
+    </div>
   );
 };
 

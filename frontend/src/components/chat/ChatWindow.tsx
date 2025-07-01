@@ -4,15 +4,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useChatContext } from '@/src/contexts/ChatContext';
 import { ChatMessage as ChatMessageType, ConversationStep, Class, Survey } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
-import { Container as Logo } from "@/src/components/Common/Logo";
+import DashboardHeader from '@/src/components/Common/DashboardHeader';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import StepIndicator from './StepIndicator';
 import FileUploadProgress from './FileUploadProgress';
 import OptimizationProgress from './OptimizationProgress';
 import FileConversionDiff from './FileConversionDiff';
-import UserAvatarButton from '@/src/components/navigation/UserAvatarButton';
-import Footer from './Footer';
+import AccountMenuButton from '@/src/components/navigation/AccountMenuButton';
+import Navigator from './Navigator';
+import { updateStudentTeams } from '@/src/utils/actions/update_student_teams';
 
 // Phase Components
 import StartPhase from './phases/StartPhase';
@@ -31,11 +32,35 @@ const ChatWindow: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [shouldPreserveScroll, setShouldPreserveScroll] = useState(false);
   
-  // Phase-specific state
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
-  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
-  const [studentPreferences, setStudentPreferences] = useState<any[]>([]);
-  const [optimizationResult, setOptimizationResult] = useState<any>(null);
+  // Phase-specific state with persistence
+  const [selectedClass, setSelectedClass] = useState<Class | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('chat-selected-class');
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
+  });
+  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('chat-selected-survey');
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
+  });
+  const [studentPreferences, setStudentPreferences] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('chat-student-preferences');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  const [optimizationResult, setOptimizationResult] = useState<any>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('chat-optimization-result');
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
+  });
 
   // Helper: Formats ISO timestamp to "YYYY/MM/DD HH:MM:SS"
   const formatDateTime = (isoString: string): string => {
@@ -55,6 +80,39 @@ const ChatWindow: React.FC = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [state.messages, shouldPreserveScroll]);
+
+  // Save state to sessionStorage whenever it changes
+  useEffect(() => {
+    if (selectedClass) {
+      sessionStorage.setItem('chat-selected-class', JSON.stringify(selectedClass));
+    } else {
+      sessionStorage.removeItem('chat-selected-class');
+    }
+  }, [selectedClass]);
+
+  useEffect(() => {
+    if (selectedSurvey) {
+      sessionStorage.setItem('chat-selected-survey', JSON.stringify(selectedSurvey));
+    } else {
+      sessionStorage.removeItem('chat-selected-survey');
+    }
+  }, [selectedSurvey]);
+
+  useEffect(() => {
+    if (studentPreferences.length > 0) {
+      sessionStorage.setItem('chat-student-preferences', JSON.stringify(studentPreferences));
+    } else {
+      sessionStorage.removeItem('chat-student-preferences');
+    }
+  }, [studentPreferences]);
+
+  useEffect(() => {
+    if (optimizationResult) {
+      sessionStorage.setItem('chat-optimization-result', JSON.stringify(optimizationResult));
+    } else {
+      sessionStorage.removeItem('chat-optimization-result');
+    }
+  }, [optimizationResult]);
 
   // Restore scroll position on mount (for returning from other pages)
   useEffect(() => {
@@ -159,8 +217,14 @@ const ChatWindow: React.FC = () => {
     try {
       resetChat();
       sessionStorage.removeItem('dashboard-scroll-position');
+      sessionStorage.removeItem('chat-selected-class');
+      sessionStorage.removeItem('chat-selected-survey');
+      sessionStorage.removeItem('chat-student-preferences');
+      sessionStorage.removeItem('chat-optimization-result');
       setSelectedClass(null);
       setSelectedSurvey(null);
+      setStudentPreferences([]);
+      setOptimizationResult(null);
       await startConversation();
       toastHelpers.success('チャットリセット', '新しい会話を開始しました');
     } catch (error) {
@@ -394,6 +458,75 @@ const ChatWindow: React.FC = () => {
   // Only show chat interface for constraint setting phase
   const shouldShowChatInterface = state.currentStep === 'constraint_setting';
 
+  // ===== Result Confirmation utilities =====
+  // CSV エクスポート
+  const handleExportResults = () => {
+    toastHelpers.success('エクスポート', '結果をCSVファイルでダウンロードしました');
+  };
+
+  // 結果保存
+  const handleSaveResults = async () => {
+    if (!optimizationResult || !optimizationResult.teams || !optimizationResult.survey) {
+      toastHelpers.error('エラー', '保存する結果がありません');
+      return;
+    }
+
+    // teams が配列形式の場合は Record<string, number[]> に変換
+    let teamsMapping: Record<string, number[]> = {};
+    if (Array.isArray(optimizationResult.teams)) {
+      optimizationResult.teams.forEach((team: any, idx: number) => {
+        const teamId = team.team_id ?? idx;
+        const studentNos = team.students
+          ? team.students.map((s: any) =>
+              s.student_no !== undefined ? s.student_no : s
+            )
+          : [];
+        teamsMapping[teamId.toString()] = studentNos;
+      });
+    } else {
+      teamsMapping = optimizationResult.teams as Record<string, number[]>;
+    }
+
+    try {
+      toastHelpers.info('保存中', '班分け結果を保存しています...');
+      await updateStudentTeams(teamsMapping, optimizationResult.survey.id);
+      toastHelpers.success('保存完了', '班分け結果を保存しました');
+    } catch (error) {
+      console.error('Error saving matching results:', error);
+      toastHelpers.error('保存失敗', '班分け結果の保存に失敗しました');
+    }
+  };
+
+  // チーム数・生徒数の算出
+  const { teams: teamsCount, students: studentsCount } = React.useMemo(() => {
+    if (!optimizationResult || !optimizationResult.teams) {
+      return { teams: 0, students: 0 };
+    }
+
+    // teams が配列またはオブジェクトの場合を吸収
+    const teamsArray: any[] = Array.isArray(optimizationResult.teams)
+      ? optimizationResult.teams
+      : Object.values(optimizationResult.teams);
+
+    const studentSet = new Set<number>();
+    teamsArray.forEach((team: any) => {
+      if (team.students) {
+        team.students.forEach((s: any) => {
+          // id / student_id / student_no など可能性のあるキーを順に確認
+          if (s.id !== undefined) {
+            studentSet.add(s.id);
+          } else if (s.student_id !== undefined) {
+            studentSet.add(s.student_id);
+          } else if (s.student_no !== undefined) {
+            studentSet.add(s.student_no);
+          }
+        });
+      }
+    });
+
+    return { teams: teamsArray.length, students: studentSet.size };
+  }, [optimizationResult]);
+
   return (
     <div className="min-h-screen flex">
       {/* Side margins for future expansion */}
@@ -402,36 +535,8 @@ const ChatWindow: React.FC = () => {
       {/* Main chat area */}
       <div className="w-full max-w-[80%] mx-auto flex flex-col bg-white shadow-lg">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-transparent rounded-full flex items-center justify-center">
-                <Logo brand={false} />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">SYNERGY MATCH MAKER</h1>
-                <p className="text-sm text-gray-500">
-                  {state.conversation ? `${formatDateTime(state.conversation.created_at)}` : 'AIがお手伝いします'}
-                </p>
-              </div>
-            </div>
-            
-            {/* Optional: Action buttons */}
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleChatReset}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors"
-                title="チャットをリセット"
-                disabled={state.isLoading}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
+        <DashboardHeader subtitle={state.conversation ? formatDateTime(state.conversation.created_at) : 'AIがお手伝いします'} />
+        
         {/* Step Indicator */}
         <div className="border-b border-gray-200">
           <StepIndicator 
@@ -439,6 +544,23 @@ const ChatWindow: React.FC = () => {
             completedSteps={[]} // TODO: Track completed steps
           />
         </div>
+
+        {/* Navigator - positioned right after Step Indicator */}
+        {(state.currentStep !== 'initial' || selectedClass) && (
+          <Navigator
+            currentStep={state.currentStep}
+            onBack={handleBackPhase}
+            onNext={handleNextPhase}
+            isLoading={state.isLoading}
+            nextDisabled={getNextDisabled()}
+            showInfo={true}
+            infoText={getFooterInfoText()}
+            teamsCount={state.currentStep === 'result_confirmation' ? teamsCount : undefined}
+            studentsCount={state.currentStep === 'result_confirmation' ? studentsCount : undefined}
+            onExportResults={state.currentStep === 'result_confirmation' ? handleExportResults : undefined}
+            onSaveResults={state.currentStep === 'result_confirmation' ? handleSaveResults : undefined}
+          />
+        )}
 
         {/* Phase Content Area */}
         <div className="flex-1 overflow-y-auto">
@@ -494,18 +616,6 @@ const ChatWindow: React.FC = () => {
           </div>
         )}
 
-        {/* Footer with Back and Next buttons - Show after class selection in StartPhase or in other phases */}
-        {(state.currentStep !== 'initial' || selectedClass) && (
-          <Footer
-            currentStep={state.currentStep}
-            onBack={handleBackPhase}
-            onNext={handleNextPhase}
-            isLoading={state.isLoading}
-            nextDisabled={getNextDisabled()}
-            showInfo={true}
-            infoText={getFooterInfoText()}
-          />
-        )}
 
         {/* Chat Input - Only shown in constraint setting phase */}
         {shouldShowChatInterface && (
@@ -524,9 +634,6 @@ const ChatWindow: React.FC = () => {
 
       {/* Side margins for future expansion */}
       <div className="hidden lg:block flex-1 max-w-xs" />
-
-      {/* User Avatar Button */}
-      <UserAvatarButton />
     </div>
   );
 };

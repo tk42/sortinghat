@@ -9,7 +9,7 @@ import { Class, MatchingResult, MatchingResultWithTeams } from '@/src/lib/interf
 // import MatchingList from './MatchingList' // Removed - now inline
 // import { useDrawer } from '@/src/contexts/DrawerContext' // Removed with sidebar
 import { MatchingOverview } from './MatchingOverview'
-import UserAvatarButton from '@/src/components/navigation/UserAvatarButton'
+import AccountMenuButton from '@/src/components/navigation/AccountMenuButton'
 
 interface MatchingPageClientProps {
     initialMatchingResults: MatchingResultWithTeams[]
@@ -193,7 +193,7 @@ export default function MatchingPageClient({ initialMatchingResults, initialClas
             <div className="hidden lg:block flex-1 max-w-xs" />
 
             {/* User Avatar Button */}
-            <UserAvatarButton />
+            <AccountMenuButton />
         </div>
     )
 }

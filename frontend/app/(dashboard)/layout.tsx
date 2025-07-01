@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/src/utils/firebase/admin';
 // import Drawer from '@/src/components/Common/Drawer' // Commented out for new layout
 // import ChatInterface from '@/src/components/chat/ChatInterface' // Will be replaced with ChatWindow
-// import FloatingActionButton from '@/src/components/mobile/FloatingActionButton' // Will be moved to UserAvatarButton
 
 export default async function DashboardLayout({
   children,

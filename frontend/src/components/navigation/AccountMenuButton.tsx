@@ -10,7 +10,11 @@ import { auth } from '@/src/utils/firebase/firebase';
 import { Fragment } from 'react';
 import MenuItem from './MenuItem';
 
-const UserAvatarButton: React.FC = () => {
+interface AccountMenuButtonProps {
+  fixed?: boolean;
+}
+
+const AccountMenuButton: React.FC<AccountMenuButtonProps> = ({ fixed = true }) => {
   const router = useRouter();
   const { state: authState } = useAuthContext();
   const { resetChat } = useChatContext();
@@ -98,7 +102,7 @@ const UserAvatarButton: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
       ),
-      label: '過去のアンケート結果',
+      label: '班分け計算結果',
       onClick: handleSurveyHistory
     }
   ];
@@ -136,7 +140,7 @@ const UserAvatarButton: React.FC = () => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute bottom-full left-0 mb-2 w-64 origin-bottom-left bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute top-full right-0 mt-2 w-64 origin-top-right bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           {/* User Info Header */}
           <div className="px-4 py-3 border-b border-gray-100">
             <div className="flex items-center space-x-3">
@@ -300,16 +304,12 @@ const UserAvatarButton: React.FC = () => {
   );
 
   return (
-    <div 
-      className={`fixed z-40 ${
-        isMobile 
-          ? 'bottom-5 right-5' // Mobile: bottom-right for easier thumb access
-          : 'bottom-5 left-5'  // Desktop: bottom-left as requested
-      }`}
+    <div
+      className={`${fixed ? `fixed z-40 ${isMobile ? 'bottom-5 right-5' : 'top-5 right-5'}` : 'relative z-40'}`}
     >
       {isMobile ? <MobileBottomSheet /> : <DesktopMenu />}
     </div>
   );
 };
 
-export default UserAvatarButton;
+export default AccountMenuButton;
