@@ -229,11 +229,11 @@ const ChatWindow: React.FC = () => {
         nextStep = 'survey_setup';
         break;
       case 'survey_setup':
-        nextStep = 'constraint_setting';
+        nextStep = 'optimization_execution';
+        // nextStep = 'constraint_setting';
         break;
       case 'constraint_setting':
         nextStep = 'optimization_execution';
-        // Load student preferences before moving to optimization
         if (selectedSurvey) {
           await loadStudentPreferences();
         }
@@ -314,27 +314,6 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  const getFooterInfoText = (): string => {
-    switch (state.currentStep) {
-      case 'initial':
-        return selectedClass ? `選択中のクラス: ${selectedClass.name}` : '';
-      case 'class_setup':
-        return '生徒名簿を確認・編集してください';
-      case 'survey_creation':
-        return selectedSurvey ? `選択中のアンケート: ${selectedSurvey.name}` : '';
-      case 'survey_setup':
-        return 'アンケート結果データを確認・編集してください';
-      case 'constraint_setting':
-        return '制約条件の設定が完了したら次に進んでください';
-      case 'optimization_execution':
-        return '最適化の実行結果を確認してください';
-      case 'result_confirmation':
-        return '班分け結果を確認してください';
-      default:
-        return '';
-    }
-  };
-
   const handleBackPhase = async () => {
     const currentStep = state.currentStep;
     let previousStep: ConversationStep | null = null;
@@ -353,10 +332,11 @@ const ChatWindow: React.FC = () => {
         previousStep = 'survey_setup';
         break;
       case 'optimization_execution':
-        previousStep = 'constraint_setting';
+        // previousStep = 'constraint_setting';
+        previousStep = 'survey_setup';
         break;
       case 'result_confirmation':
-        previousStep = 'constraint_setting'; // Skip optimization execution when going back
+        previousStep = 'optimization_execution';
         break;
       default:
         return; // No back navigation for 'initial' or unknown steps
@@ -369,6 +349,27 @@ const ChatWindow: React.FC = () => {
         console.error('Error moving back:', error);
         toastHelpers.error('エラー', 'フェーズの移行に失敗しました');
       }
+    }
+  };
+  
+  const getFooterInfoText = (): string => {
+    switch (state.currentStep) {
+      case 'initial':
+        return selectedClass ? `選択中のクラス: ${selectedClass.name}` : '';
+      case 'class_setup':
+        return '生徒名簿を確認・編集してください';
+      case 'survey_creation':
+        return selectedSurvey ? `選択中のアンケート: ${selectedSurvey.name}` : '';
+      case 'survey_setup':
+        return 'アンケート結果データを確認・編集してください';
+      case 'constraint_setting':
+        return '制約条件の設定が完了したら次に進んでください';
+      case 'optimization_execution':
+        return '最適化の実行結果を確認してください';
+      case 'result_confirmation':
+        return '班分け結果を確認してください';
+      default:
+        return '';
     }
   };
 
