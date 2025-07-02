@@ -1,22 +1,27 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, MutableRefObject, Dispatch, SetStateAction } from 'react';
 import { Class, Survey } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 import { useDropzone } from 'react-dropzone';
 import { createSurveyFromCSV } from '@/src/utils/actions/create_survey_from_csv';
 import { useAuthContext } from '@/src/utils/firebase/authprovider';
+import type { BackHandler } from '../ChatWindow';
 
 interface SurveyCreationPhaseProps {
   selectedClass: Class | null;
   onSurveySelect: (survey: Survey) => void;
   selectedSurvey: Survey | null;
+  internalBackRef: MutableRefObject<BackHandler | undefined>;
+  setInternalBackActive: Dispatch<SetStateAction<boolean>>;
 }
 
 const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
   selectedClass,
   onSurveySelect,
-  selectedSurvey
+  selectedSurvey,
+  internalBackRef,
+  setInternalBackActive
 }) => {
   const [mode, setMode] = useState<'welcome' | 'create' | 'select'>('welcome');
   const [isUploading, setIsUploading] = useState(false);
@@ -25,6 +30,30 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
   const [isLoadingSurveys, setIsLoadingSurveys] = useState(false);
   const toastHelpers = useToastHelpers();
   const { state: authState } = useAuthContext();
+
+  // keep parent informed about back button necessity
+  useEffect(() => {
+    setInternalBackActive(mode !== 'welcome')
+  }, [mode, setInternalBackActive])
+
+  // Register internal back handler to reset mode
+  useEffect(() => {
+    if (!internalBackRef) return;
+
+    if (mode !== 'welcome') {
+      internalBackRef.current = () => {
+        setMode('welcome');
+        return true;
+      };
+    } else {
+      internalBackRef.current = undefined;
+    }
+
+    return () => {
+      if (internalBackRef) internalBackRef.current = undefined;
+      setInternalBackActive(false)
+    };
+  }, [mode, internalBackRef, setInternalBackActive]);
 
   // selectモードに切り替わった時にアンケートを読み込む
   useEffect(() => {
@@ -213,13 +242,20 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
             以下の列を含むCSVファイルをアップロードしてください：
           </p>
           <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
-            <li>student_no: 出席番号</li>
-            <li>previous_team: 前回の班番号</li>
-            <li>mi_a〜mi_h: 多重知能スコア（1-8）</li>
-            <li>leader: リーダー希望（0: なし, 1: あり）</li>
-            <li>eyesight: 視力（0: 普通, 1: 配慮必要）</li>
-            <li>student_dislikes: 苦手な生徒の出席番号（カンマ区切り）</li>
+            <li>出席番号</li>
+            <li>前回の班番号</li>
+            <li>多重知能スコア（0-8）</li>
+            <li>リーダー希望（リーダー希望, サブリーダー希望, お任せ）</li>
+            <li>視力（要配慮, 前方希望, お任せ）</li>
+            <li>苦手な生徒の出席番号（カンマ区切り）</li>
           </ul>
+          <a
+            href="/sample/survey.csv"
+            download
+            className="text-sm text-blue-600 hover:text-blue-800 underline mt-2 inline-block"
+          >
+            サンプルCSVをダウンロード
+          </a>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import React from 'react';
 import { ConversationStep } from '@/src/lib/interfaces';
 
-interface FooterProps {
+interface NavigatorProps {
   currentStep: ConversationStep;
   onBack: () => void;
   onNext: () => void;
@@ -15,11 +15,14 @@ interface FooterProps {
   infoText?: string;
   teamsCount?: number;
   studentsCount?: number;
-  onExportResults?: () => void;
   onSaveResults?: () => void;
+  /**
+   * If true, back button is shown even when currentStep is 'initial'.
+   */
+  showBackOverride?: boolean;
 }
 
-const Navigator: React.FC<FooterProps> = ({
+const Navigator: React.FC<NavigatorProps> = ({
   currentStep,
   onBack,
   onNext,
@@ -31,23 +34,16 @@ const Navigator: React.FC<FooterProps> = ({
   infoText,
   teamsCount,
   studentsCount,
-  onExportResults,
-  onSaveResults
+  onSaveResults,
+  showBackOverride = false
 }) => {
-  const shouldShowBackButton = currentStep !== 'initial';
+  const shouldShowBackButton = currentStep !== 'initial' || showBackOverride;
   const shouldShowNextButton = currentStep !== 'result_confirmation';
 
   const renderRightArea = () => {
     if (currentStep === 'result_confirmation') {
       return (
         <div className="flex gap-3">
-          <button
-            onClick={onExportResults}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-            disabled={isLoading}
-          >
-            CSVエクスポート
-          </button>
           <button
             onClick={onSaveResults}
             className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"

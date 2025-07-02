@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MatchingResult } from '@/src/lib/interfaces';
 import { TeamRadarChart } from '@/src/components/matching/TeamRadarChart';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
+import { updateStudentTeams } from '@/src/utils/actions/update_student_teams';
 
 interface ResultConfirmationPhaseProps {
   matchingResult: any | null;
@@ -117,12 +118,39 @@ const ResultConfirmationPhase: React.FC<ResultConfirmationPhaseProps> = ({
 
   const teamsArray = Object.values(teamsById);
 
-  const handleExportResults = () => {
-    toastHelpers.success('エクスポート', '結果をCSVファイルでダウンロードしました');
-  };
+  const handleSaveResults = async () => {
+    if (!matchingResult || !matchingResult.teams || !matchingResult.survey) {
+      toastHelpers.error('エラー', '保存する結果がありません');
+      return;
+    }
 
-  const handleSaveResults = () => {
-    toastHelpers.success('保存完了', '班分け結果を保存しました');
+    try {
+      // Convert optimization result to the expected teams mapping format
+      let teamsMapping: Record<string, number[]> = {};
+
+      if (Array.isArray(matchingResult.teams)) {
+        matchingResult.teams.forEach((team: any, idx: number) => {
+          const teamId = team.team_id ?? idx;
+          const studentNos = team.students
+            ? team.students.map((s: any) =>
+                s.student_no !== undefined ? s.student_no : s
+              )
+            : Array.isArray(team)
+              ? team.map((s: any) => s)
+              : [];
+          teamsMapping[teamId.toString()] = studentNos;
+        });
+      } else {
+        teamsMapping = matchingResult.teams as Record<string, number[]>;
+      }
+
+      toastHelpers.info('保存中', '班分け結果を保存しています...');
+      await updateStudentTeams(teamsMapping, matchingResult.survey.id);
+      toastHelpers.success('保存完了', '班分け結果を保存しました');
+    } catch (error) {
+      console.error('Error saving matching results:', error);
+      toastHelpers.error('保存失敗', '班分け結果の保存に失敗しました');
+    }
   };
 
   return (

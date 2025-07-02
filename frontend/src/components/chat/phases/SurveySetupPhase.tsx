@@ -482,28 +482,28 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
                             {preference && preference.previous_team > 0 ? preference.previous_team : '-'}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_a || '-'}
+                            {preference?.mi_a}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_b || '-'}
+                            {preference?.mi_b}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_c || '-'}
+                            {preference?.mi_c}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_d || '-'}
+                            {preference?.mi_d}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_e || '-'}
+                            {preference?.mi_e}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_f || '-'}
+                            {preference?.mi_f}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_g || '-'}
+                            {preference?.mi_g}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {preference?.mi_h || '-'}
+                            {preference?.mi_h}
                           </td>
                           <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                             {preference ? (preference.eyesight === 8 ? '要配慮' : preference.eyesight === 3 ? '前方' : '普通') : '-'}

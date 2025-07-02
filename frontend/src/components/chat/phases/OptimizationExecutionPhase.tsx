@@ -25,7 +25,7 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
     boy_geq_girl: false,
     at_least_one_leader: true,
     unique_previous: true,
-    group_diff_coeff: 1.0
+    group_diff_coeff: 1.5
   });
   const toastHelpers = useToastHelpers();
 
@@ -217,7 +217,7 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
             <input
               type="range"
               min="0"
-              max="2"
+              max="3"
               step="0.1"
               value={constraint.group_diff_coeff}
               onChange={(e) => setConstraint(prev => ({ 

@@ -1,26 +1,55 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, MutableRefObject, Dispatch, SetStateAction } from 'react';
 import { Class } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 import { Container as Logo } from "@/src/components/Common/Logo";
 import { useDropzone } from 'react-dropzone';
 import { createClassFromCSV } from '@/src/utils/actions/create_class_from_csv';
 import { getCurrentTeacher } from '@/src/utils/actions/get_current_teacher';
+import type { BackHandler } from '../ChatWindow';
 
 interface StartPhaseProps {
   onClassSelect: (cls: Class) => void;
   selectedClass: Class | null;
+  internalBackRef: MutableRefObject<BackHandler | undefined>;
+  setInternalBackActive: Dispatch<SetStateAction<boolean>>;
 }
 
 const StartPhase: React.FC<StartPhaseProps> = ({
   onClassSelect,
-  selectedClass
+  selectedClass,
+  internalBackRef,
+  setInternalBackActive
 }) => {
   const [mode, setMode] = useState<'welcome' | 'create' | 'select'>('welcome');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const toastHelpers = useToastHelpers();
+
+  // keep parent informed about whether back override should be active
+  useEffect(() => {
+    setInternalBackActive(mode !== 'welcome')
+  }, [mode, setInternalBackActive])
+
+  useEffect(() => {
+    if (!internalBackRef) return;
+
+    if (mode !== 'welcome') {
+      internalBackRef.current = () => {
+        setMode('welcome');
+        return true; // handled by StartPhase
+      };
+    } else {
+      internalBackRef.current = undefined;
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (internalBackRef) internalBackRef.current = undefined;
+      setInternalBackActive(false)
+    };
+  }, [mode, internalBackRef, setInternalBackActive]);
 
   // クラス一覧取得用ステート
   const [classes, setClasses] = useState<Class[]>([]);
