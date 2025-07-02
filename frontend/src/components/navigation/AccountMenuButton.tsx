@@ -114,20 +114,16 @@ const AccountMenuButton: React.FC<AccountMenuButtonProps> = ({ fixed = true }) =
           {authState.teacher?.name?.charAt(0) || 'U'}
         </span>
       </div>
-      
-      {/* Notification badge placeholder */}
-      {/* {hasNotifications && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-bounce">
-          !
-        </span>
-      )} */}
     </div>
   );
 
   // Desktop Menu (Headless UI Menu)
   const DesktopMenu = () => (
     <Menu as="div" className="relative">
-      <Menu.Button className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full">
+      <Menu.Button
+        data-tooltip="account-menu"
+        className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full"
+      >
         {avatarContent}
       </Menu.Button>
 
@@ -202,6 +198,7 @@ const AccountMenuButton: React.FC<AccountMenuButtonProps> = ({ fixed = true }) =
   const MobileBottomSheet = () => (
     <>
       <button
+        data-tooltip="account-menu"
         onClick={() => setIsBottomSheetOpen(true)}
         className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full"
       >

@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Survey, StudentPreference } from '@/src/lib/interfaces';
+import { Survey, StudentPreference, StudentDislike } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 
 interface SurveySetupPhaseProps {
   selectedSurvey: Survey | null;
+  onStatusChange?: (complete: boolean) => void;
 }
 
 const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
-  selectedSurvey
+  selectedSurvey,
+  onStatusChange
 }) => {
   const [studentPreferences, setStudentPreferences] = useState<StudentPreference[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +23,7 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
     preference?: StudentPreference;
     hasPreference: boolean;
   }>>([]);
+  const [dislikesInput, setDislikesInput] = useState<string>('');
   const toastHelpers = useToastHelpers();
 
   useEffect(() => {
@@ -42,20 +45,46 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
         };
       });
       setCombinedData(combined);
+
+      // 完了状態を計算して親に通知
+      const allSet = combined.every(d => d.hasPreference);
+      onStatusChange?.(allSet);
     }
   }, [classStudents, studentPreferences]);
 
-  // 苦手な生徒のIDから名前を取得するヘルパー関数
-  const getDislikedStudentNames = (studentDislikes: any[] | undefined): string => {
-    if (!studentDislikes || studentDislikes.length === 0) return '-';
-    
-    const names = studentDislikes
-      .map(dislike => {
-        const student = classStudents.find(s => s.id === dislike.student_id);
-        return student ? `${student.name}(${student.student_no})` : `ID:${dislike.student_id}`;
+  // 苦手な生徒のIDまたは出席番号から名前を取得するヘルパー関数
+  const getDislikedStudentNames = (
+    studentDislikes: StudentDislike[] | string | undefined
+  ): string => {
+    if (!studentDislikes) return '-';
+
+    let ids: number[] = [];
+
+    if (Array.isArray(studentDislikes)) {
+      // StudentDislike オブジェクト配列の場合: student_id を使用
+      ids = studentDislikes.map(d => d.student_id).filter(id => id > 0);
+    } else if (typeof studentDislikes === 'string') {
+      // "1,2,3" のような文字列の場合: 出席番号または生徒IDとして解釈
+      ids = studentDislikes
+        .split(',')
+        .map(tok => parseInt(tok.trim()))
+        .filter(num => !Number.isNaN(num));
+      // 各数値を student_no または id として検索し、生徒IDに変換
+      ids = ids.map(noOrId => {
+        const stu = classStudents.find(s => s.student_no === noOrId || s.id === noOrId);
+        return stu ? stu.id : 0;
+      });
+    }
+
+    if (ids.length === 0) return '-';
+
+    const names = ids
+      .map(id => {
+        const student = classStudents.find(s => s.id === id);
+        return student ? `${student.name}(${student.student_no})` : undefined;
       })
-      .filter(name => name);
-      
+      .filter((name): name is string => Boolean(name));
+
     return names.length > 0 ? names.join(', ') : '-';
   };
 
@@ -65,7 +94,8 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
     try {
       const response = await fetch(`/api/chat/classes/${selectedSurvey.class.id}/students`);
       const result = await response.json();
-      
+      console.log(result);
+
       if (result.success && result.data?.students) {
         setClassStudents(result.data.students);
       }
@@ -82,6 +112,7 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
       // Load student preferences from API
       const response = await fetch(`/api/chat/surveys/${selectedSurvey.id}/preferences`);
       const result = await response.json();
+      console.log(result);
       
       if (result.success && result.data?.student_preferences) {
         setStudentPreferences(result.data.student_preferences);
@@ -133,6 +164,20 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
   const handleEdit = (preference: StudentPreference) => {
     setEditingId(preference.id);
     setEditingPreference({ ...preference });
+    // 編集開始時に入力欄初期化
+    let initial = '';
+    if (Array.isArray(preference.student_dislikes)) {
+      const nums = (preference.student_dislikes as StudentDislike[])
+        .map(d => {
+          const stu = classStudents.find(s => s.id === d.student_id);
+          return stu?.student_no;
+        })
+        .filter(n => n !== undefined);
+      initial = nums.join(', ');
+    } else if (typeof preference.student_dislikes === 'string') {
+      initial = preference.student_dislikes as string;
+    }
+    setDislikesInput(initial);
   };
 
   const handleSave = async () => {
@@ -155,7 +200,8 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
           mi_g: editingPreference.mi_g,
           mi_h: editingPreference.mi_h,
           leader: editingPreference.leader,
-          eyesight: editingPreference.eyesight
+          eyesight: editingPreference.eyesight,
+          student_dislikes: editingPreference.student_dislikes
         })
       });
 
@@ -167,6 +213,7 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
         ));
         setEditingId(null);
         setEditingPreference(null);
+        setDislikesInput('');
         toastHelpers.success('更新完了', '選好データを更新しました');
       } else {
         toastHelpers.error('更新エラー', result.error || '選好データの更新に失敗しました');
@@ -180,6 +227,7 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
   const handleCancel = () => {
     setEditingId(null);
     setEditingPreference(null);
+    setDislikesInput('');
   };
 
   const handleDeletePreference = async (preferenceId: number) => {
@@ -225,8 +273,8 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
             <span>総数: {combinedData.length}人</span>
             <span className="text-blue-500">♂ 男性: {combinedData.filter(d => d.student.sex === 1).length}人</span>
             <span className="text-pink-500">♀ 女性: {combinedData.filter(d => d.student.sex === 2).length}人</span>
-            <span className="text-green-600">データ有: {combinedData.filter(d => d.hasPreference).length}人</span>
-            <span className="text-orange-600">データ無: {combinedData.filter(d => !d.hasPreference).length}人</span>
+            {/* <span className="text-green-600">データ有: {combinedData.filter(d => d.hasPreference).length}人</span>
+            <span className="text-orange-600">データ無: {combinedData.filter(d => !d.hasPreference).length}人</span> */}
           </div>
         )}
       </div>
@@ -355,7 +403,7 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
                               className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
                             >
                               <option value={1}>普通</option>
-                              <option value={3}>前方</option>
+                              <option value={3}>前方希望</option>
                               <option value={8}>要配慮</option>
                             </select>
                           </td>
@@ -373,26 +421,47 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
                               <option value={8}>リーダー</option>
                             </select>
                           </td>
-                          <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {editingPreference?.student_dislikes ? 
-                              getDislikedStudentNames(editingPreference.student_dislikes) : '-'
-                            }
-                            {/* TODO: 苦手な生徒の編集機能 - 将来実装予定 */}
+                          <td className="px-3 py-4 whitespace-nowrap text-sm">
+                            <input
+                              type="text"
+                              value={dislikesInput}
+                              onChange={(e) => {
+                                const input = e.target.value;
+                                setDislikesInput(input);
+                                if (!editingPreference) return;
+                                const ids = input
+                                  .split(',')
+                                  .map(tok => tok.trim())
+                                  .filter(tok => tok !== '')
+                                  .map(tok => {
+                                    const num = parseInt(tok);
+                                    const found = classStudents.find(s => s.student_no === num);
+                                    return { student_id: found?.id || 0 } as StudentDislike;
+                                  });
+                                setEditingPreference(prev => prev ? { ...prev, student_dislikes: ids } : null);
+                              }}
+                              placeholder="例: 1, 2, 3"
+                              className="block w-full rounded-md border-gray-300 px-2 py-1 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            />
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
                               onClick={handleSave}
                               className="text-green-600 hover:text-green-900 mr-2"
-                              title="保存"
+                              aria-label="保存"
                             >
-                              ✓
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
                             </button>
                             <button
                               onClick={handleCancel}
                               className="text-gray-600 hover:text-gray-900"
-                              title="キャンセル"
+                              aria-label="キャンセル"
                             >
-                              ✗
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
                             </button>
                           </td>
                         </>
@@ -410,7 +479,7 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
                             </div>
                           </td>
                           <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {preference?.previous_team || '-'}
+                            {preference && preference.previous_team > 0 ? preference.previous_team : '-'}
                           </td>
                           <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                             {preference?.mi_a || '-'}
@@ -452,23 +521,33 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
                               <>
                                 <button
                                   onClick={() => handleEdit(preference)}
-                                  className="text-orange-600 hover:text-orange-900 mr-2"
+                                  className="text-blue-600 hover:text-blue-900 mr-2"
+                                  aria-label="編集"
                                 >
-                                  編集
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.862 3.487a2.25 2.25 0 013.182 3.182l-8.94 8.94a.75.75 0 01-.327.196l-4.125 1.236a.25.25 0 01-.317-.317l1.236-4.125a.75.75 0 01.196-.327l8.94-8.94z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.5 12.75V19.5a1.5 1.5 0 01-1.5 1.5h-13.5a1.5 1.5 0 01-1.5-1.5v-13.5a1.5 1.5 0 011.5-1.5h6.75" />
+                                  </svg>
                                 </button>
                                 <button
                                   onClick={() => handleDeletePreference(preference.id)}
                                   className="text-red-600 hover:text-red-900"
+                                  aria-label="削除"
                                 >
-                                  削除
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a2 2 0 012 2v2H7V5a2 2 0 012-2z" />
+                                  </svg>
                                 </button>
                               </>
                             ) : (
                               <button
                                 onClick={() => handleCreatePreference(student.id)}
                                 className="text-green-600 hover:text-green-900"
+                                aria-label="作成"
                               >
-                                作成
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
                               </button>
                             )}
                           </td>

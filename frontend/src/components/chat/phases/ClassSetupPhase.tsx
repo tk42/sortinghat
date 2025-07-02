@@ -284,7 +284,10 @@ const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {students.map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50">
+                  <tr
+                    key={student.id}
+                    className={`hover:bg-gray-50 ${student.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}`}
+                  >
                     {editingStudent?.id === student.id ? (
                       <EditStudentRow
                         student={editingStudent}
@@ -309,14 +312,21 @@ const ClassSetupPhase: React.FC<ClassSetupPhaseProps> = ({
                           <button
                             onClick={() => setEditingStudent(student)}
                             className="text-blue-600 hover:text-blue-900 mr-2"
+                            aria-label="編集"
                           >
-                            編集
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.862 3.487a2.25 2.25 0 013.182 3.182l-8.94 8.94a.75.75 0 01-.327.196l-4.125 1.236a.25.25 0 01-.317-.317l1.236-4.125a.75.75 0 01.196-.327l8.94-8.94z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.5 12.75V19.5a1.5 1.5 0 01-1.5 1.5h-13.5a1.5 1.5 0 01-1.5-1.5v-13.5a1.5 1.5 0 011.5-1.5h6.75" />
+                            </svg>
                           </button>
                           <button
                             onClick={() => handleDeleteStudent(student.id)}
                             className="text-red-600 hover:text-red-900"
+                            aria-label="削除"
                           >
-                            削除
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a2 2 0 012 2v2H7V5a2 2 0 012-2z" />
+                            </svg>
                           </button>
                         </td>
                       </>
@@ -392,14 +402,20 @@ const EditStudentRow: React.FC<{
         <button
           onClick={() => onSave(editedStudent)}
           className="text-green-600 hover:text-green-900 mr-2"
+          aria-label="保存"
         >
-          保存
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
         </button>
         <button
           onClick={onCancel}
           className="text-gray-600 hover:text-gray-900"
+          aria-label="キャンセル"
         >
-          キャンセル
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </td>
     </>

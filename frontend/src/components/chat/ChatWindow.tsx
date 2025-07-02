@@ -11,7 +11,6 @@ import StepIndicator from './StepIndicator';
 import FileUploadProgress from './FileUploadProgress';
 import OptimizationProgress from './OptimizationProgress';
 import FileConversionDiff from './FileConversionDiff';
-import AccountMenuButton from '@/src/components/navigation/AccountMenuButton';
 import Navigator from './Navigator';
 import { updateStudentTeams } from '@/src/utils/actions/update_student_teams';
 
@@ -61,6 +60,8 @@ const ChatWindow: React.FC = () => {
     }
     return null;
   });
+  // アンケート設定が完了しているか
+  const [surveySetupComplete, setSurveySetupComplete] = useState(false);
 
   // Helper: Formats ISO timestamp to "YYYY/MM/DD HH:MM:SS"
   const formatDateTime = (isoString: string): string => {
@@ -213,26 +214,6 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  const handleChatReset = async () => {
-    try {
-      resetChat();
-      sessionStorage.removeItem('dashboard-scroll-position');
-      sessionStorage.removeItem('chat-selected-class');
-      sessionStorage.removeItem('chat-selected-survey');
-      sessionStorage.removeItem('chat-student-preferences');
-      sessionStorage.removeItem('chat-optimization-result');
-      setSelectedClass(null);
-      setSelectedSurvey(null);
-      setStudentPreferences([]);
-      setOptimizationResult(null);
-      await startConversation();
-      toastHelpers.success('チャットリセット', '新しい会話を開始しました');
-    } catch (error) {
-      console.error('Error resetting chat:', error);
-      toastHelpers.error('エラー', 'チャットのリセットに失敗しました');
-    }
-  };
-
   const handleNextPhase = async () => {
     const currentStep = state.currentStep;
     let nextStep: ConversationStep;
@@ -271,7 +252,6 @@ const ChatWindow: React.FC = () => {
       }
       // Move to the next step
       await moveToStep(nextStep);
-      toastHelpers.success('フェーズ移行', `${getStepLabel(nextStep)}に移行しました`);
     } catch (error) {
       console.error('Error moving to next phase:', error);
       toastHelpers.error('エラー', 'フェーズの移行に失敗しました');
@@ -321,7 +301,7 @@ const ChatWindow: React.FC = () => {
       case 'survey_creation':
         return !selectedSurvey;
       case 'survey_setup':
-        return false;
+        return !surveySetupComplete;
       case 'constraint_setting':
         // Could check if constraints are set properly
         return false;
@@ -385,7 +365,6 @@ const ChatWindow: React.FC = () => {
     if (previousStep) {
       try {
         await moveToStep(previousStep);
-        toastHelpers.success('フェーズ移行', `${getStepLabel(previousStep)}に戻りました`);
       } catch (error) {
         console.error('Error moving back:', error);
         toastHelpers.error('エラー', 'フェーズの移行に失敗しました');
@@ -420,6 +399,7 @@ const ChatWindow: React.FC = () => {
         return (
           <SurveySetupPhase
             selectedSurvey={selectedSurvey}
+            onStatusChange={setSurveySetupComplete}
           />
         );
       case 'constraint_setting':
@@ -553,6 +533,7 @@ const ChatWindow: React.FC = () => {
             onNext={handleNextPhase}
             isLoading={state.isLoading}
             nextDisabled={getNextDisabled()}
+            nextTooltip={state.currentStep === 'survey_setup' && !surveySetupComplete ? '未設定の生徒がいます' : undefined}
             showInfo={true}
             infoText={getFooterInfoText()}
             teamsCount={state.currentStep === 'result_confirmation' ? teamsCount : undefined}

@@ -26,6 +26,7 @@ const CreateSurveySchema = z.object({
   student_preferences: z.array(
     z.object({
       student_id: z.number().int().positive(), // これは実際はstudent_no（出席番号）
+      previous_team: z.number().int().min(0).max(8),
       mi_a: z.number().int().min(0).max(8), // 0も許可
       mi_b: z.number().int().min(0).max(8),
       mi_c: z.number().int().min(0).max(8),
@@ -36,7 +37,7 @@ const CreateSurveySchema = z.object({
       mi_h: z.number().int().min(0).max(8),
       leader: z.number().int().min(1).max(8),
       eyesight: z.number().int().min(1).max(8),
-      // student_dislikesフィールドを削除（データベーススキーマに存在しないため）
+      student_dislikes: z.array(z.number().int().positive()).default([])
     })
   )
 })
@@ -159,10 +160,19 @@ export async function createSurveyFromCSV(
           return null
         }
         
+        const dislikeData = (p.student_dislikes || []).map((no: number) => {
+          const dislikedId = studentNoToIdMap.get(no)
+          if (!dislikedId) {
+            console.warn(`Disliked student not found for student_no: ${no}`)
+            return null
+          }
+          return { student_id: dislikedId }
+        }).filter(Boolean)
+
         return {
           survey_id: createdSurvey.id,
           student_id: studentId, // 実際のデータベースID
-          previous_team: 0, // デフォルト値
+          previous_team: p.previous_team ?? 0,
           mi_a: p.mi_a,
           mi_b: p.mi_b,
           mi_c: p.mi_c,
@@ -172,7 +182,10 @@ export async function createSurveyFromCSV(
           mi_g: p.mi_g,
           mi_h: p.mi_h,
           leader: p.leader,
-          eyesight: p.eyesight
+          eyesight: p.eyesight,
+          ...(dislikeData.length > 0 && {
+            student_dislikes: { data: dislikeData }
+          })
         }
       })
       .filter(p => p !== null) // 見つからなかった生徒を除外

@@ -24,10 +24,6 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleBackToChat = () => {
-    router.push('/dashboard');
-  };
-
   return (
     <div className="min-h-screen flex">
       {/* Side margins for consistency */}
@@ -80,24 +76,6 @@ const SettingsPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900">初回ガイド</h3>
-                    <p className="text-sm text-gray-500">ログイン時のチュートリアルを表示</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (state.teacher) {
-                        localStorage.removeItem(`tooltips-seen-${state.teacher.id}`);
-                        window.location.reload();
-                      }
-                    }}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 transition-colors"
-                  >
-                    リセット
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
                     <h3 className="text-sm font-medium text-gray-900">チャット履歴</h3>
                     <p className="text-sm text-gray-500">AIアシスタントとの会話履歴を管理</p>
                   </div>
@@ -143,7 +121,7 @@ const SettingsPage: React.FC = () => {
               <h2 className="text-lg font-medium text-gray-900 mb-4">サポート</h2>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900">ヘルプ・FAQ</h3>
                     <p className="text-sm text-gray-500">よくある質問と使い方ガイド</p>
@@ -151,14 +129,16 @@ const SettingsPage: React.FC = () => {
                   <button className="text-blue-500 text-sm hover:text-blue-600 transition-colors">
                     表示
                   </button>
-                </div>
+                </div> */}
 
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900">お問い合わせ</h3>
-                    <p className="text-sm text-gray-500">技術サポートへのお問い合わせ</p>
+                    <p className="text-sm text-gray-500">サポートへのお問い合わせ</p>
                   </div>
-                  <button className="text-blue-500 text-sm hover:text-blue-600 transition-colors">
+                  <button
+                    onClick={() => router.push('https://forms.gle/sRB2NbXyYaEB9FVE9')}
+                    className="text-blue-500 text-sm hover:text-blue-600 transition-colors">
                     連絡
                   </button>
                 </div>

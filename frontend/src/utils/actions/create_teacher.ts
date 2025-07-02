@@ -53,9 +53,9 @@ export async function createTeacher(
       stripe_id,
     }
     
-    console.log('Executing GraphQL mutation with variables:', variables)
+    // console.log('Executing GraphQL mutation with variables:', variables)
     const data = await fetchGqlAPI(query, variables)
-    console.log('GraphQL response:', data)
+    // console.log('GraphQL response:', data)
     
     if (!data || !data.insert_teachers_one) {
       console.error('GraphQL error:', data)

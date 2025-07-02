@@ -43,7 +43,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
   }
 
   try {
-    console.log('Received teams:', JSON.stringify(teams, null, 2))
+    // console.log('Received teams:', JSON.stringify(teams, null, 2))
 
     const validatedData = UpdateStudentTeamSchema.parse({
       teams,

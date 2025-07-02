@@ -10,6 +10,7 @@ interface FooterProps {
   isLoading?: boolean;
   nextDisabled?: boolean;
   nextLabel?: string;
+  nextTooltip?: string;
   showInfo?: boolean;
   infoText?: string;
   teamsCount?: number;
@@ -25,6 +26,7 @@ const Navigator: React.FC<FooterProps> = ({
   isLoading = false,
   nextDisabled = false,
   nextLabel,
+  nextTooltip,
   showInfo = false,
   infoText,
   teamsCount,
@@ -62,6 +64,7 @@ const Navigator: React.FC<FooterProps> = ({
           onClick={onNext}
           disabled={nextDisabled || isLoading}
           className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          title={nextDisabled ? nextTooltip : undefined}
         >
           {nextLabel || '次へ'}
         </button>

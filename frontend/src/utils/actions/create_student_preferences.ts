@@ -197,7 +197,7 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
         throw new Error(`名簿番号: ${studentNo} の児童生徒が担任クラスに見つかりませんでした`)
       }
 
-      console.log('Row before validation:', row)  // バリデーション前のデータを確認
+      // console.log('Row before validation:', row)  // バリデーション前のデータを確認
 
       const validated = StudentPreferenceSchema.parse({
         student_id: studentId,
@@ -221,7 +221,7 @@ export async function createStudentPreferences(formData: FormData): Promise<Crea
       return validated
     })
 
-    console.log('Final validated data:', validatedData)  // 最終的なデータを確認
+    // console.log('Final validated data:', validatedData)  // 最終的なデータを確認
 
     // student_preferencesを作成
     const response = await axios.post(

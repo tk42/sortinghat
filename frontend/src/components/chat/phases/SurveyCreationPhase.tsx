@@ -33,18 +33,13 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
         setIsLoadingSurveys(true);
         setError(null);
         try {
-          console.log('Loading surveys for class:', selectedClass.id);
-          console.log('Auth state:', { user: !!authState.user, teacher: !!authState.teacher });
-          console.log('Cookies:', document.cookie);
           const response = await fetch(`/api/chat/classes/${selectedClass.id}/surveys`);
-          console.log('Survey fetch response status:', response.status);
           
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           
           const result = await response.json();
-          console.log('Survey fetch result:', result);
           
           if (result.success && result.data?.surveys) {
             // Survey オブジェクトにクラス情報を追加
@@ -54,7 +49,6 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
               class_id: selectedClass.id
             }));
             setSurveys(surveysWithClass);
-            console.log('Surveys loaded:', surveysWithClass.length);
           } else {
             setSurveys([]);
             const errorMsg = result.error || 'アンケートの取得に失敗しました';
