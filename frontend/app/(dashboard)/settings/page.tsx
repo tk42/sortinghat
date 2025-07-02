@@ -1,16 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthContext } from '@/src/utils/firebase/authprovider';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/src/utils/firebase/firebase';
+import { getIdToken } from '@firebase/auth';
+import toast, { Toaster } from 'react-hot-toast';
+import { updateTeacher } from '@/src/utils/actions/update_teacher';
+import { handleEmailUpdate, handleResetPassword } from '@/src/services/authservice';
 import DashboardHeader from '@/src/components/common/DashboardHeader';
 
 const SettingsPage: React.FC = () => {
   const { state } = useAuthContext();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState(state.teacher?.name || '');
+  const [email, setEmail] = useState(state.teacher?.email || '');
+
+  useEffect(() => {
+    setName(state.teacher?.name || '');
+    setEmail(state.teacher?.email || '');
+  }, [state.teacher]);
 
   const handleLogout = async () => {
     setIsLoading(true);
@@ -22,6 +33,37 @@ const SettingsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!state.user) return;
+    try {
+      // 名前変更
+      if (name !== state.teacher?.name) {
+        const idToken = await getIdToken(state.user);
+        const res = await updateTeacher(idToken, name, state.teacher?.email || '');
+        if (res.success) {
+          toast.success('名前を更新しました');
+        } else {
+          toast.error(res.error || '更新に失敗しました');
+        }
+      }
+      // メールアドレス変更
+      if (email !== state.teacher?.email) {
+        await handleEmailUpdate(state.user, email, state.teacher);
+      }
+    } catch (error) {
+      console.error('プロフィール更新エラー:', error);
+      toast.error('プロフィールの更新に失敗しました');
+    }
+  };
+
+  const handlePasswordResetClick = async () => {
+    if (!state.user?.email) {
+      toast.error('メールアドレスが見つかりません');
+      return;
+    }
+    await handleResetPassword(state.user.email);
   };
 
   return (
@@ -67,50 +109,39 @@ const SettingsPage: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Preferences Section */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">環境設定</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900">チャット履歴</h3>
-                    <p className="text-sm text-gray-500">AIアシスタントとの会話履歴を管理</p>
-                  </div>
+              {/* 編集フォーム */}
+              <div className="mt-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">名前</label>
+                  <input
+                    type="text"
+                    className="w-full border rounded-md p-2"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+                  <input
+                    type="email"
+                    className="w-full border rounded-md p-2"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="flex space-x-4">
                   <button
-                    onClick={() => router.push('/chat/history')}
-                    className="text-blue-500 text-sm hover:text-blue-600 transition-colors"
+                    onClick={handleSaveProfile}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
                   >
-                    管理
+                    変更を保存
                   </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Data Management Section */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">データ管理</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900">データエクスポート</h3>
-                    <p className="text-sm text-gray-500">アンケート結果や班分け履歴をダウンロード</p>
-                  </div>
-                  <button className="text-blue-500 text-sm hover:text-blue-600 transition-colors">
-                    エクスポート
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900">バックアップ作成</h3>
-                    <p className="text-sm text-gray-500">すべてのデータのバックアップを作成</p>
-                  </div>
-                  <button className="text-blue-500 text-sm hover:text-blue-600 transition-colors">
-                    作成
+                  <button
+                    onClick={handlePasswordResetClick}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+                  >
+                    パスワードをリセット
                   </button>
                 </div>
               </div>
@@ -165,6 +196,7 @@ const SettingsPage: React.FC = () => {
 
       {/* Side margins */}
       <div className="hidden lg:block flex-1 max-w-xs" />
+      <Toaster />
     </div>
   );
 };
