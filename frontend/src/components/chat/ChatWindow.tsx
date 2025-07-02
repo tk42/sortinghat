@@ -5,6 +5,7 @@ import { useChatContext } from '@/src/contexts/ChatContext';
 import { ChatMessage as ChatMessageType, ConversationStep, Class, Survey } from '@/src/lib/interfaces';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 import DashboardHeader from '@/src/components/Common/DashboardHeader';
+import { useMounted } from '@/src/utils/hooks';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import StepIndicator from './StepIndicator';
@@ -24,6 +25,7 @@ import OptimizationExecutionPhase from './phases/OptimizationExecutionPhase';
 import ResultConfirmationPhase from './phases/ResultConfirmationPhase';
 
 const ChatWindow: React.FC = () => {
+  const mounted = useMounted(); 
   const { state, sendMessage, uploadFile, clearError, resetChat, startConversation, moveToStep } = useChatContext();
   const toastHelpers = useToastHelpers();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -32,20 +34,23 @@ const ChatWindow: React.FC = () => {
   const [shouldPreserveScroll, setShouldPreserveScroll] = useState(false);
   
   // Phase-specific state with persistence
-  const [selectedClass, setSelectedClass] = useState<Class | null>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('chat-selected-class');
-      return saved ? JSON.parse(saved) : null;
-    }
-    return null;
-  });
-  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('chat-selected-survey');
-      return saved ? JSON.parse(saved) : null;
-    }
-    return null;
-  });
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
+
+  // const [selectedClass, setSelectedClass] = useState<Class | null>(() => {
+  //   if (typeof window !== 'undefined') {
+  //     const saved = sessionStorage.getItem('chat-selected-class');
+  //     return saved ? JSON.parse(saved) : null;
+  //   }
+  //   return null;
+  // });
+  // const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(() => {
+  //   if (typeof window !== 'undefined') {
+  //     const saved = sessionStorage.getItem('chat-selected-survey');
+  //     return saved ? JSON.parse(saved) : null;
+  //   }
+  //   return null;
+  // });
   const [studentPreferences, setStudentPreferences] = useState<any[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('chat-student-preferences');
@@ -74,6 +79,14 @@ const ChatWindow: React.FC = () => {
     const ss = String(date.getSeconds()).padStart(2, '0');
     return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
   };
+
+  useEffect(() => {
+    if (!mounted) return;
+    const cls = sessionStorage.getItem('chat-selected-class');
+    const srv = sessionStorage.getItem('chat-selected-survey');
+    setSelectedClass(cls ? JSON.parse(cls) : null);
+    setSelectedSurvey(srv ? JSON.parse(srv) : null);
+  }, [mounted]);
 
   // Auto-scroll to bottom when new messages arrive, but preserve scroll position when needed
   useEffect(() => {
@@ -491,7 +504,13 @@ const ChatWindow: React.FC = () => {
 
     const studentSet = new Set<number>();
     teamsArray.forEach((team: any) => {
-      if (team.students) {
+      if (team && Array.isArray(team)) {
+        // team が数値の配列の場合（最適化結果の形式）
+        team.forEach((studentId: any) => {
+          studentSet.add(Number(studentId));
+        });
+      } else if (team && team.students) {
+        // GraphQL 結果など team.students が存在する場合
         team.students.forEach((s: any) => {
           // id / student_id / student_no など可能性のあるキーを順に確認
           if (s.id !== undefined) {
@@ -527,7 +546,7 @@ const ChatWindow: React.FC = () => {
         </div>
 
         {/* Navigator - positioned right after Step Indicator */}
-        {(state.currentStep !== 'initial' || selectedClass) && (
+        {(mounted && (state.currentStep !== 'initial' || selectedClass)) && (
           <Navigator
             currentStep={state.currentStep}
             onBack={handleBackPhase}
