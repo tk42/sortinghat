@@ -100,7 +100,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, completedSte
           const isLast = index === steps.length - 1;
 
           return (
-            <div key={step.key} className="flex items-center flex-1">
+            <div key={step.key} className={`flex items-center ${!isLast ? 'flex-1' : ''}`}>
               {/* Step Circle */}
               <div className="relative flex items-center justify-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${styles.circle}`}>
@@ -118,7 +118,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, completedSte
               </div>
 
               {/* Step Label */}
-              <div className="ml-2 flex-1">
+              <div className="ml-1 flex-1">
                 <div className={`text-xs transition-colors duration-200 ${styles.text}`}>
                   {step.label}
                 </div>
@@ -126,8 +126,8 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, completedSte
 
               {/* Connector Line */}
               {!isLast && (
-                <div className="flex-1 ml-2">
-                  <div className={`h-0.5 transition-colors duration-200 ${styles.line}`} />
+                <div className="ml-1 flex-1">
+                  <div className={`h-0.5 w-full transition-colors duration-200 ${styles.line}`} />
                 </div>
               )}
             </div>
