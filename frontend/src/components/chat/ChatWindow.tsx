@@ -7,9 +7,7 @@ import DashboardHeader from '@/src/components/Common/DashboardHeader'
 import { useMounted } from '@/src/utils/hooks'
 import ChatInput from './ChatInput'
 import StepIndicator from './StepIndicator'
-import FileUploadProgress from './FileUploadProgress'
 import OptimizationProgress from './OptimizationProgress'
-import FileConversionDiff from './FileConversionDiff'
 import Navigator from './Navigator'
 import PhaseRenderer from './PhaseRenderer'
 
@@ -63,16 +61,9 @@ const ChatWindow: React.FC = () => {
     handleSaveResults,
     hasResults,
     
-    // File processing
-    handleFileUpload,
-    handleConversionConfirm,
-    handleConversionReject,
-    handleConversionModify,
-    
     // Chat actions
     handleSendMessage,
     handleChatReset,
-    loadStudentPreferences,
     
     // Utilities
     formatDateTime,
@@ -170,29 +161,6 @@ const ChatWindow: React.FC = () => {
           />
         </div>
 
-        {/* File Processing Progress */}
-        {state.fileProcessingJobs.length > 0 && (
-          <div className="border-t border-gray-200 px-6 py-4 space-y-4 bg-gray-50">
-            {state.fileProcessingJobs.map((job) => (
-              <div key={job.id} className="space-y-3">
-                <FileUploadProgress job={job} />
-                
-                {/* Show conversion diff if available */}
-                {job.status === 'completed' && 
-                 job.processing_type === 'llm_conversion' && 
-                 job.result_data.conversion_diff && (
-                  <FileConversionDiff
-                    job={job}
-                    onConfirm={handleConversionConfirm}
-                    onReject={handleConversionReject}
-                    onModify={handleConversionModify}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Optimization Progress */}
         {state.optimizationJob && (
           <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
@@ -207,7 +175,6 @@ const ChatWindow: React.FC = () => {
               value={inputValue}
               onChange={setInputValue}
               onSendMessage={handleSendMessage}
-              onFileUpload={handleFileUpload}
               disabled={state.isLoading}
               placeholder="制約条件を自然言語で入力してください..."
             />

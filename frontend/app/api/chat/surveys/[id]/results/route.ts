@@ -47,7 +47,6 @@ export async function GET(
         matching_results(
           where: { survey_id: { _eq: $survey_id } }
           order_by: { created_at: desc }
-          limit: 1
         ) {
           id
           survey_id
@@ -93,10 +92,7 @@ export async function GET(
     }
 
     const list = resultsResult.data.matching_results || []
-    if (list.length === 0) {
-      return NextResponse.json({ success: true, data: { matchingResult: null } })
-    }
-    return NextResponse.json({ success: true, data: { matchingResult: list[0] } })
+    return NextResponse.json({ success: true, data: { matchingResults: list } })
   } catch (error) {
     console.error('Error fetching matching results:', error)
     return NextResponse.json(

@@ -4,7 +4,6 @@ import { useToastHelpers } from '@/src/components/notifications/ToastNotificatio
 import { useSessionPersistence } from './useSessionPersistence'
 import { usePhaseNavigation } from './usePhaseNavigation'
 import { useResultHandling } from './useResultHandling'
-import { useFileProcessing } from './useFileProcessing'
 
 export function useChatLogic() {
   const { state, sendMessage, clearError, resetChat, startConversation } = useChatContext()
@@ -29,9 +28,6 @@ export function useChatLogic() {
     selectedSurvey: sessionState.selectedSurvey,
   })
   
-  // File processing
-  const fileProcessing = useFileProcessing()
-
   // Load student preferences for optimization
   const loadStudentPreferences = useCallback(async () => {
     if (!sessionState.selectedSurvey) return
@@ -124,9 +120,6 @@ export function useChatLogic() {
     
     // Result handling
     ...resultHandling,
-    
-    // File processing
-    ...fileProcessing,
     
     // Chat actions
     handleSendMessage,

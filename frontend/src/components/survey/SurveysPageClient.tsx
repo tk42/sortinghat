@@ -11,7 +11,6 @@ import { deleteStudentPreference } from '@/src/utils/actions/delete_student_pref
 import { matchStudentPreferences } from '@/src/utils/actions/match_student_preferences'
 import { fetchMatchingResult } from '@/src/utils/actions/fetch_matching_results'
 import { Constraint, Class, Survey, StudentPreference, MatchingResultWithTeams } from '@/src/lib/interfaces'
-import StudentPreferences from './StudentPreferences'
 import MatchingResultPanel from './MatchingResultPanel'
 import DashboardHeader from '@/src/components/common/DashboardHeader'
 
@@ -32,6 +31,8 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
     const [savedMatchingResult, setSavedMatchingResult] = useState<MatchingResultWithTeams | null>(null)
     const [isLoadingResult, setIsLoadingResult] = useState(false)
     const [isLoadingSurveys, setIsLoadingSurveys] = useState(false)
+    // クラスフィルタ（"all" は全クラス）
+    const [classFilter, setClassFilter] = useState<number | 'all'>('all')
 
     // Filter surveys that have team matching results
     const loadSurveysWithResults = async (allSurveys: Survey[]) => {
@@ -168,9 +169,31 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                     {/* Survey List - Left Panel */}
                     {showSurveyList && (
                         <div className="w-96 border-r border-gray-200 flex flex-col">
-                            <div className="p-6 border-b border-gray-200">
-                                <h1 className="text-2xl font-semibold text-gray-900">過去の班分け結果</h1>
-                                <p className="mt-1 text-sm text-gray-600">班分けを実施したアンケートの結果を確認できます</p>
+                            {/* サイドバー ヘッダー */}
+                            <div className="p-6 border-b border-gray-200 space-y-4">
+                                <div>
+                                    <h1 className="text-2xl font-semibold text-gray-900">過去の班分け結果</h1>
+                                    <p className="mt-1 text-sm text-gray-600">班分けを実施したアンケートの結果を確認できます</p>
+                                </div>
+
+                                {/* クラスフィルタ */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="classFilter">クラスで絞り込み</label>
+                                    <select
+                                        id="classFilter"
+                                        value={classFilter}
+                                        onChange={(e) => {
+                                            const val = e.target.value
+                                            setClassFilter(val === 'all' ? 'all' : Number(val))
+                                        }}
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                    >
+                                        <option value="all">すべてのクラス</option>
+                                        {classes.map((cls) => (
+                                            <option key={cls.id} value={cls.id}>{cls.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                             
                             <div className="flex-1 overflow-y-auto p-4">
@@ -194,7 +217,8 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                                             <p className="text-gray-500">チャット画面で班分けを実施すると、ここに結果が表示されます。</p>
                                         </div>
                                     ) : (
-                                        surveysWithResults.map((survey) => (
+                                        // クラスフィルタ適用
+                                        (classFilter === 'all' ? surveysWithResults : surveysWithResults.filter((s) => s.class.id === classFilter)).map((survey) => (
                                             <div
                                                 key={survey.id}
                                                 className={`p-4 rounded-lg border cursor-pointer transition-colors relative group ${

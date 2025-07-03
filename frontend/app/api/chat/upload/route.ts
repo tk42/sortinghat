@@ -177,17 +177,17 @@ async function processFileAsync(jobId: number) {
 
   } catch (error) {
     console.error('Error processing file:', error);
-    await updateJobStatus(jobId, 'failed', 0, {}, error.message);
+    await updateJobStatus(jobId, 'failed', 0, {}, error instanceof Error ? error.message : 'Unknown error');
     
     // Add error message to conversation
     const job = await getJobById(jobId);
     if (job) {
       await addSystemMessage(job.conversation_id, {
-        content: `ファイル「${job.original_name}」の処理中にエラーが発生しました：${error.message}`,
+        content: `ファイル「${job.original_name}」の処理中にエラーが発生しました：${error instanceof Error ? error.message : 'Unknown error'}`,
         metadata: {
           file_processing_error: true,
           job_id: jobId,
-          error: error.message
+          error: error instanceof Error ? error.message : 'Unknown error'
         }
       });
     }
@@ -288,16 +288,16 @@ async function processCsvImport(job: any, progressCallback: (progress: number) =
   progressCallback(40);
   
   // Simple CSV parsing (in production, use a proper CSV library)
-  const lines = csvContent.split('\n').filter(line => line.trim());
-  const headers = lines[0].split(',').map(h => h.trim());
+  const lines = csvContent.split('\n').filter((line: string) => line.trim());
+  const headers = lines[0].split(',').map((h: string) => h.trim());
   
   progressCallback(60);
   
-  const data = lines.slice(1).map((line, index) => {
-    const values = line.split(',').map(v => v.trim());
+  const data = lines.slice(1).map((line: string, index: number) => {
+    const values = line.split(',').map((v: string) => v.trim());
     const row: any = { row_number: index + 2 }; // +2 because we skipped header and arrays are 0-indexed
     
-    headers.forEach((header, i) => {
+    headers.forEach((header: string, i: number) => {
       row[header] = values[i] || '';
     });
     
@@ -317,7 +317,7 @@ async function processCsvImport(job: any, progressCallback: (progress: number) =
   }
   
   // Check for empty critical fields
-  data.forEach((row, index) => {
+  data.forEach((row: any, index: number) => {
     if (!row.student_no) {
       validationErrors.push(`行 ${row.row_number}: 学籍番号が空です`);
     }

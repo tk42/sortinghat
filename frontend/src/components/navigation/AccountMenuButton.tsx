@@ -43,6 +43,9 @@ const AccountMenuButton: React.FC<AccountMenuButtonProps> = ({ fixed = true }) =
         }
       });
 
+      // セッションクッキーを削除してサーバー側セッションを終了
+      await fetch('/api/auth/session', { method: 'DELETE' });
+
       await signOut(auth);
       router.push('/login');
     } catch (error) {

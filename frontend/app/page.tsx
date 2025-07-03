@@ -1,8 +1,9 @@
 import { Container as Footer } from '@/src/components/Common/Footer';
 import { Container as Logo } from "@/src/components/Common/Logo";
 import { ArrowsRightLeftIcon, UserGroupIcon, AcademicCapIcon, CogIcon } from '@heroicons/react/24/outline'
-import { LoginComponent } from '@/src/components/Common/LoginComponent';
+import { LoginButton } from '@/src/components/Common/LoginButton';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { cookies } from 'next/headers';
 
 const features = [
   {
@@ -32,8 +33,10 @@ const features = [
 ]
 
 export type ContainerProps = {
+  initialAuthState?: boolean;
 }
 type Props = {
+  initialAuthState?: boolean;
 } & ContainerProps
 
 const HowToUse = () => {
@@ -136,12 +139,12 @@ const HowToUse = () => {
   )
 }
 
-const MarkupHome = () => {
+const MarkupHome = ({ initialAuthState }: { initialAuthState?: boolean }) => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24">
       <Logo brand={true} />
       <div className='text-center mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
-        <LoginComponent />
+        <LoginButton initialAuthState={initialAuthState} />
       </div>
 
       <div className="bg-white py-12 sm:py-24">
@@ -213,5 +216,9 @@ const MarkupHome = () => {
 
 
 export default async function Home() {
-  return <MarkupHome />
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get('auth-token')?.value;
+  const initialAuthState = !!sessionCookie;
+  
+  return <MarkupHome initialAuthState={initialAuthState} />
 }

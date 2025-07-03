@@ -24,7 +24,7 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
     girl_geq_boy: false,
     boy_geq_girl: false,
     at_least_one_leader: true,
-    unique_previous: true,
+    unique_previous: 0,
     group_diff_coeff: 1.5
   });
   const toastHelpers = useToastHelpers();
@@ -195,17 +195,22 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
           {/* Previous Team Settings */}
           <div>
             <h4 className="text-md font-medium text-gray-800 mb-3">前回チーム考慮</h4>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              チームのうち前回と同じ人を何人まで許容するか
+              <span className="text-sm text-gray-500">（0人で前回と同じ人を1人も許容しない）</span>
+            </label>
             <label className="flex items-center">
               <input
-                type="checkbox"
-                checked={constraint.unique_previous}
-                onChange={(e) => setConstraint(prev => ({ 
-                  ...prev, 
-                  unique_previous: e.target.checked 
-                }))}
-                className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-              />
-              <span className="text-sm text-gray-700">前回と異なるチーム編成にする</span>
+                  type="number"
+                  value={constraint.unique_previous}
+                  onChange={(e) => setConstraint(prev => ({ 
+                    ...prev, 
+                    unique_previous: parseInt(e.target.value) || 0 
+                  }))}
+                  className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  min={0}
+                />
+                人
             </label>
           </div>
 
