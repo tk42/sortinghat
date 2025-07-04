@@ -71,11 +71,13 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
           const result = await response.json();
           
           if (result.success && result.data?.surveys) {
-            // Survey オブジェクトにクラス情報を追加
+            // Survey オブジェクトの元のclass情報を保持する
             const surveysWithClass = result.data.surveys.map((survey: any) => ({
               ...survey,
-              class: selectedClass,
-              class_id: selectedClass.id
+              // API から取得した本来の class 情報がある場合はそれを使用、
+              // ない場合は selectedClass をフォールバックとして使用
+              class: survey.class || selectedClass,
+              class_id: survey.class?.id || selectedClass.id
             }));
             setSurveys(surveysWithClass);
           } else {

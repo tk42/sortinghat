@@ -26,7 +26,7 @@ export function useChatLogic() {
   const resultHandling = useResultHandling({
     optimizationResult: sessionState.optimizationResult,
     selectedSurvey: sessionState.selectedSurvey,
-  })
+  }, sessionState.selectedSurvey)
   
   // Load student preferences for optimization
   const loadStudentPreferences = useCallback(async () => {

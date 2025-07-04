@@ -9,10 +9,11 @@ import { fetchStudentPreferences } from '@/src/utils/actions/fetch_student_prefe
 import { updateStudentPreference } from '@/src/utils/actions/update_student_preference'
 import { deleteStudentPreference } from '@/src/utils/actions/delete_student_preference'
 import { matchStudentPreferences } from '@/src/utils/actions/match_student_preferences'
-import { fetchMatchingResult } from '@/src/utils/actions/fetch_matching_results'
+import { fetchMatchingResult, fetchMatchingResults } from '@/src/utils/actions/fetch_matching_results'
 import { Constraint, Class, Survey, StudentPreference, MatchingResultWithTeams } from '@/src/lib/interfaces'
-import MatchingResultPanel from './MatchingResultPanel'
-import DashboardHeader from '@/src/components/common/DashboardHeader'
+import SurveyList from './SurveyList'
+import SurveyResultsContent from './SurveyResultsContent'
+import DashboardHeader from '@/src/components/Common/DashboardHeader'
 
 interface SurveysPageClientProps {
     initialSurveys: Survey[]
@@ -29,6 +30,8 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
     const [classes, setClasses] = useState<Class[]>(initialClasses)
     const [showSurveyList, setShowSurveyList] = useState(true)
     const [savedMatchingResult, setSavedMatchingResult] = useState<MatchingResultWithTeams | null>(null)
+    const [matchingResults, setMatchingResults] = useState<MatchingResultWithTeams[]>([])
+    const [selectedMatchingResult, setSelectedMatchingResult] = useState<MatchingResultWithTeams | null>(null)
     const [isLoadingResult, setIsLoadingResult] = useState(false)
     const [isLoadingSurveys, setIsLoadingSurveys] = useState(false)
     // クラスフィルタ（"all" は全クラス）
@@ -44,8 +47,8 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
             await Promise.all(
                 allSurveys.map(async (survey) => {
                     try {
-                        const result = await fetchMatchingResult(survey.id.toString())
-                        if (result.success && result.data?.matchingResult) {
+                        const result = await fetchMatchingResults(survey.id.toString())
+                        if (result.success && result.data?.matchingResults && result.data.matchingResults.length > 0) {
                             surveysWithMatchingResults.push(survey)
                         }
                     } catch (error) {
@@ -99,22 +102,34 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
         }
     }, [selectedSurvey])
 
-    // Fetch saved matching result for this survey (latest)
+    // Fetch all matching results for this survey (history)
     useEffect(() => {
         if (!selectedSurvey) {
+            setMatchingResults([])
+            setSelectedMatchingResult(null)
             setSavedMatchingResult(null)
             return
         }
         setIsLoadingResult(true)
-        fetchMatchingResult(selectedSurvey.id.toString())
+        fetchMatchingResults(selectedSurvey.id.toString())
             .then(res => {
-                if (res.success && res.data?.matchingResult) {
-                    setSavedMatchingResult(res.data.matchingResult)
+                if (res.success && res.data?.matchingResults) {
+                    setMatchingResults(res.data.matchingResults)
+                    // Select the latest result by default
+                    const latest = res.data.matchingResults[0]
+                    setSelectedMatchingResult(latest)
+                    setSavedMatchingResult(latest)
                 } else {
+                    setMatchingResults([])
+                    setSelectedMatchingResult(null)
                     setSavedMatchingResult(null)
                 }
             })
-            .catch(() => setSavedMatchingResult(null))
+            .catch(() => {
+                setMatchingResults([])
+                setSelectedMatchingResult(null)
+                setSavedMatchingResult(null)
+            })
             .finally(() => setIsLoadingResult(false))
     }, [selectedSurvey])
 
@@ -154,6 +169,11 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
         return await matchStudentPreferences(constraint, preferences)
     }
 
+    function handleSelectMatchingResult(matchingResult: MatchingResultWithTeams) {
+        setSelectedMatchingResult(matchingResult)
+        setSavedMatchingResult(matchingResult)
+    }
+
     return (
         <div className="min-h-screen flex">
             {/* Side margins for consistency with ChatWindow */}
@@ -168,135 +188,30 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                     
                     {/* Survey List - Left Panel */}
                     {showSurveyList && (
-                        <div className="w-96 border-r border-gray-200 flex flex-col">
-                            {/* サイドバー ヘッダー */}
-                            <div className="p-6 border-b border-gray-200 space-y-4">
-                                <div>
-                                    <h1 className="text-2xl font-semibold text-gray-900">過去の班分け結果</h1>
-                                    <p className="mt-1 text-sm text-gray-600">班分けを実施したアンケートの結果を確認できます</p>
-                                </div>
-
-                                {/* クラスフィルタ */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="classFilter">クラスで絞り込み</label>
-                                    <select
-                                        id="classFilter"
-                                        value={classFilter}
-                                        onChange={(e) => {
-                                            const val = e.target.value
-                                            setClassFilter(val === 'all' ? 'all' : Number(val))
-                                        }}
-                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                                    >
-                                        <option value="all">すべてのクラス</option>
-                                        {classes.map((cls) => (
-                                            <option key={cls.id} value={cls.id}>{cls.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div className="flex-1 overflow-y-auto p-4">
-                                {/* Survey List Content */}
-                                <div className="space-y-4">
-
-                                    {/* Survey List with Team Results */}
-                                    {isLoadingSurveys ? (
-                                        <div className="text-center py-8">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                                            <p className="text-gray-600">班分け結果を読み込み中...</p>
-                                        </div>
-                                    ) : surveysWithResults.length === 0 ? (
-                                        <div className="text-center py-8">
-                                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                </svg>
-                                            </div>
-                                            <h3 className="text-lg font-medium text-gray-900 mb-2">班分け結果がありません</h3>
-                                            <p className="text-gray-500">チャット画面で班分けを実施すると、ここに結果が表示されます。</p>
-                                        </div>
-                                    ) : (
-                                        // クラスフィルタ適用
-                                        (classFilter === 'all' ? surveysWithResults : surveysWithResults.filter((s) => s.class.id === classFilter)).map((survey) => (
-                                            <div
-                                                key={survey.id}
-                                                className={`p-4 rounded-lg border cursor-pointer transition-colors relative group ${
-                                                    selectedSurvey?.id === survey.id
-                                                        ? 'bg-blue-50 border-blue-500'
-                                                        : 'border-gray-200 hover:bg-gray-50'
-                                                }`}
-                                                onClick={() => setSelectedSurvey(survey)}
-                                            >
-                                                <h3 className="font-medium">{survey.name}</h3>
-                                                <p className="text-sm text-gray-500">クラス: {survey.class.name}</p>
-                                                <p className="text-sm text-gray-500">
-                                                    班分け実施日: {survey.created_at ? new Date(survey.created_at).toLocaleDateString('ja-JP', {
-                                                        year: 'numeric',
-                                                        month: '2-digit',
-                                                        day: '2-digit'
-                                                    }) : '日付なし'}
-                                                </p>
-                                                <div className="flex items-center mt-2">
-                                                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                                    <span className="text-xs text-green-600 font-medium">班分け完了</span>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                        <SurveyList
+                            surveys={surveysWithResults}
+                            classes={classes}
+                            selectedSurvey={selectedSurvey}
+                            classFilter={classFilter}
+                            isLoadingSurveys={isLoadingSurveys}
+                            matchingResults={matchingResults}
+                            selectedMatchingResult={selectedMatchingResult}
+                            isLoadingResult={isLoadingResult}
+                            onSurveySelect={setSelectedSurvey}
+                            onClassFilterChange={setClassFilter}
+                            onSelectMatchingResult={handleSelectMatchingResult}
+                        />
                     )}
 
                     {/* Main Content Area */}
-                    <div className="flex-1 flex flex-col min-w-0">
-                        {selectedSurvey ? (
-                            <>
-                                {/* Header */}
-                                <div className="p-6 border-b border-gray-200 bg-white">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h1 className="text-2xl font-semibold text-gray-900">{selectedSurvey.name}</h1>
-                                            <p className="mt-1 text-sm text-gray-600">クラス: {selectedSurvey.class.name}</p>
-                                        </div>
-                                        {/* Mobile: Toggle survey list button */}
-                                        <button
-                                            onClick={() => setShowSurveyList(!showSurveyList)}
-                                            className="lg:hidden p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
-                                        >
-                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                {/* Matching result (always show) */}
-                                {isLoadingResult ? (
-                                    <div className="p-6 text-center text-gray-600">結果を読み込み中...</div>
-                                ) : (
-                                    <MatchingResultPanel matchingResult={savedMatchingResult} />
-                                )}
-                            </>
-                        ) : (
-                            /* Empty State */
-                            <div className="flex-1 flex items-center justify-center">
-                                <div className="text-center">
-                                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="text-xl font-medium text-gray-900 mb-2">班分け結果を選択してください</h3>
-                                    <p className="text-gray-500 max-w-md mx-auto">
-                                        左側のリストから班分け結果を選択すると、詳細を確認できます。
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div> {/* /flex 横並びコンテナ */}
+                    <SurveyResultsContent
+                        selectedSurvey={selectedSurvey}
+                        savedMatchingResult={savedMatchingResult}
+                        isLoadingResult={isLoadingResult}
+                        showSurveyList={showSurveyList}
+                        onToggleSurveyList={() => setShowSurveyList(!showSurveyList)}
+                    />
+                </div>
             </div>
 
             {/* Side margins for consistency with ChatWindow */}

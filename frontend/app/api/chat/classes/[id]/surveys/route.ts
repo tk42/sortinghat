@@ -67,6 +67,10 @@ export async function GET(
           class_id
           created_at
           updated_at
+          class {
+            id
+            name
+          }
           student_preferences_aggregate {
             aggregate {
               count

@@ -52,6 +52,7 @@ export async function GET(
           survey_id
           name
           status
+          constraints_json
           created_at
           updated_at
           teams {

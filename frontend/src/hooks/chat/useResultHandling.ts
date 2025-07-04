@@ -1,13 +1,14 @@
 import { useMemo, useCallback } from 'react'
 import { updateStudentTeams } from '@/src/utils/actions/update_student_teams'
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications'
+import { Constraint } from '@/src/lib/interfaces'
 
 interface ResultState {
   optimizationResult: any
   selectedSurvey: any
 }
 
-export function useResultHandling(state: ResultState) {
+export function useResultHandling(state: ResultState, currentSelectedSurvey?: any) {
   const toastHelpers = useToastHelpers()
 
   // Calculate team and student counts
@@ -64,8 +65,18 @@ export function useResultHandling(state: ResultState) {
 
   // Save results to database
   const handleSaveResults = useCallback(async () => {
-    if (!state.optimizationResult || !state.optimizationResult.teams || !state.optimizationResult.survey) {
+    // Use current session survey if available, fallback to embedded survey
+    const surveyToUse = currentSelectedSurvey || state.optimizationResult?.survey
+    
+    if (!state.optimizationResult || !state.optimizationResult.teams || !surveyToUse) {
       toastHelpers.error('エラー', '保存する結果がありません')
+      return
+    }
+
+    // Validate survey consistency if both are available
+    if (currentSelectedSurvey && state.optimizationResult.survey && 
+        currentSelectedSurvey.id !== state.optimizationResult.survey.id) {
+      toastHelpers.warning('警告', 'アンケート情報が一致しません。再度最適化を実行してください。')
       return
     }
 
@@ -88,13 +99,17 @@ export function useResultHandling(state: ResultState) {
       }
 
       toastHelpers.info('保存中', '班分け結果を保存しています...')
-      await updateStudentTeams(teamsMapping, state.optimizationResult.survey.id)
+      await updateStudentTeams(
+        teamsMapping,
+        surveyToUse.id, // Use current session survey instead of embedded one
+        state.optimizationResult.constraint as Constraint,
+      )
       toastHelpers.success('保存完了', '班分け結果を保存しました')
     } catch (error) {
       console.error('Error saving matching results:', error)
       toastHelpers.error('保存失敗', '班分け結果の保存に失敗しました')
     }
-  }, [state.optimizationResult, toastHelpers])
+  }, [state.optimizationResult, currentSelectedSurvey, toastHelpers])
 
   return {
     teamsCount,

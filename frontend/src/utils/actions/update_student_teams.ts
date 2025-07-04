@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { z } from 'zod'
-import { TeamResponse } from '@/src/lib/interfaces'
+import { TeamResponse, Constraint } from '@/src/lib/interfaces'
 import { createMatchingResult } from './create_matching_result'
 
 const CREATE_TEAMS = `
@@ -35,9 +35,14 @@ const GET_STUDENT_PREFERENCES = `
 const UpdateStudentTeamSchema = z.object({
   teams: z.record(z.string(), z.array(z.number())),
   surveyId: z.number(),
+  constraints: z.any(),
 })
 
-export async function updateStudentTeams(teams: Record<string, number[]>, surveyId: number) {
+export async function updateStudentTeams(
+  teams: Record<string, number[]>,
+  surveyId: number,
+  constraints: Constraint,
+) {
   if (!process.env.BACKEND_GQL_API) {
     throw new Error('BACKEND_GQL_API is not configured')
   }
@@ -48,6 +53,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
     const validatedData = UpdateStudentTeamSchema.parse({
       teams,
       surveyId,
+      constraints,
     })
 
     // Get all student preferences for this survey
@@ -91,7 +97,7 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
     })
 
     // Create new matching result
-    const matchingResultId = await createMatchingResult(validatedData.surveyId)
+    const matchingResultId = await createMatchingResult(validatedData.surveyId, validatedData.constraints)
 
     // Create team objects with references to both matching_result and student_preferences
     const teamObjects = Object.entries(validatedData.teams).flatMap(([teamId, studentNos]) =>

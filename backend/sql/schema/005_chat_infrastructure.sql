@@ -45,6 +45,9 @@ CREATE TABLE FILE_PROCESSING_JOBS (
     FOREIGN KEY (conversation_id) REFERENCES CONVERSATIONS(id) ON DELETE CASCADE
 );
 
+ALTER TABLE matching_results
+  ADD COLUMN constraints_json jsonb NOT NULL DEFAULT '{}'::jsonb;
+
 -- Indexes for performance
 CREATE INDEX idx_conversations_teacher_id ON CONVERSATIONS(teacher_id);
 CREATE INDEX idx_conversations_session_id ON CONVERSATIONS(session_id);
@@ -62,6 +65,8 @@ DROP INDEX IF EXISTS idx_chat_messages_conversation_id;
 DROP INDEX IF EXISTS idx_conversations_active;
 DROP INDEX IF EXISTS idx_conversations_session_id;
 DROP INDEX IF EXISTS idx_conversations_teacher_id;
+
+ALTER TABLE matching_results DROP COLUMN IF EXISTS constraints_json;
 
 DROP TABLE IF EXISTS FILE_PROCESSING_JOBS;
 DROP TABLE IF EXISTS CHAT_MESSAGES;

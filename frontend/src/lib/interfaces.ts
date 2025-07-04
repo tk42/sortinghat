@@ -140,6 +140,7 @@ export interface MatchingResult {
     name: string;
     status: number;
     teams: Team[];
+    constraints_json?: string;
     created_at: string;
     updated_at: string;
 }
