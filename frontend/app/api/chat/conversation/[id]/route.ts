@@ -31,7 +31,6 @@ export async function GET(
           id
           teacher_id
           session_id
-          current_step
           context_data
           is_active
           created_at

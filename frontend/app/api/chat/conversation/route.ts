@@ -28,13 +28,11 @@ export async function POST(request: NextRequest) {
         insert_conversations_one(object: {
           teacher_id: $teacher_id,
           session_id: $session_id,
-          current_step: "initial",
           is_active: true
         }) {
           id
           teacher_id
           session_id
-          current_step
           context_data
           is_active
           created_at

@@ -31,7 +31,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return {
         ...state,
         conversation: action.payload,
-        currentStep: action.payload.current_step,
+        currentStep: action.payload.current_step ?? 'initial',
       };
     
     case 'ADD_MESSAGE':

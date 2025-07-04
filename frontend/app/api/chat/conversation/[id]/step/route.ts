@@ -34,25 +34,20 @@ export async function PUT(
 
     // Update conversation step
     const mutation = `
-      mutation UpdateConversationStep($id: bigint!, $step: String!) {
+      mutation UpdateConversationStep($id: bigint!) {
         update_conversations_by_pk(
           pk_columns: { id: $id },
           _set: { 
-            current_step: $step,
             updated_at: "now()" 
           }
         ) {
           id
-          current_step
           updated_at
         }
       }
     `;
 
-    const result = await fetchGqlAPI(mutation, { 
-      id: conversationId, 
-      step 
-    });
+    const result = await fetchGqlAPI(mutation, { id: conversationId });
 
     if (result.errors) {
       console.error('GraphQL errors:', result.errors);
