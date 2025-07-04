@@ -11,30 +11,38 @@ interface MenuItemProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   danger?: boolean; // styles for destructive actions like Logout
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({
-  icon,
-  label,
-  onClick,
-  active = false,
-  danger = false,
-  className = '',
-  ...rest
-}) => {
-  const baseColor = danger
-    ? 'text-red-600 hover:bg-red-50'
-    : 'text-gray-700 hover:bg-gray-50';
-  const iconColor = danger ? 'text-red-500' : 'text-gray-500';
+const MenuItem = React.forwardRef<HTMLButtonElement, MenuItemProps>(
+  (
+    {
+      icon,
+      label,
+      onClick,
+      active = false,
+      danger = false,
+      className = '',
+      ...rest
+    },
+    ref
+  ) => {
+    const baseColor = danger
+      ? 'text-red-600 hover:bg-red-50'
+      : 'text-gray-700 hover:bg-gray-50';
+    const iconColor = danger ? 'text-red-500' : 'text-gray-500';
 
-  return (
-    <button
-      onClick={onClick}
-      className={`${active ? 'bg-gray-50' : ''} w-full px-4 py-2 text-left text-sm ${baseColor} flex items-center space-x-3 transition-colors ${className}`}
-      {...rest}
-    >
-      <div className={iconColor}>{icon}</div>
-      <span>{label}</span>
-    </button>
-  );
-};
+    return (
+      <button
+        ref={ref}
+        onClick={onClick}
+        className={`${active ? 'bg-gray-50' : ''} w-full px-4 py-2 text-left text-sm ${baseColor} flex items-center space-x-3 transition-colors ${className}`}
+        {...rest}
+      >
+        <div className={iconColor}>{icon}</div>
+        <span>{label}</span>
+      </button>
+    );
+  }
+);
+
+MenuItem.displayName = 'MenuItem';
 
 export default MenuItem;

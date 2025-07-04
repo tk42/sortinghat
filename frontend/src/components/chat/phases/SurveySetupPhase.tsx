@@ -94,7 +94,6 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
     try {
       const response = await fetch(`/api/chat/classes/${selectedSurvey.class.id}/students`);
       const result = await response.json();
-      console.log(result);
 
       if (result.success && result.data?.students) {
         setClassStudents(result.data.students);
@@ -112,7 +111,6 @@ const SurveySetupPhase: React.FC<SurveySetupPhaseProps> = ({
       // Load student preferences from API
       const response = await fetch(`/api/chat/surveys/${selectedSurvey.id}/preferences`);
       const result = await response.json();
-      console.log(result);
       
       if (result.success && result.data?.student_preferences) {
         setStudentPreferences(result.data.student_preferences);
