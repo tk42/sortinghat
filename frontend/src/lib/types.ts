@@ -203,20 +203,8 @@ export interface ChatState {
   isLoading: boolean
   isTyping: boolean
   currentStep: ConversationStep
-  fileProcessingJobs: FileProcessingJob[]
   optimizationJob: OptimizationJob | null
   error: string | null
-}
-
-export interface FileProcessingJob {
-  id: number
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  processing_type: 'csv_import' | 'llm_conversion'
-  file_name: string
-  result_data: Record<string, any>
-  error_message?: string
-  created_at: string
-  updated_at: string
 }
 
 export interface OptimizationJob {

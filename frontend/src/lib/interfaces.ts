@@ -260,39 +260,6 @@ export interface ChatMessage {
     created_at: string;
 }
 
-export type FileProcessingStatus = 'pending' | 'processing' | 'completed' | 'failed';
-export type ProcessingType = 'csv_import' | 'llm_conversion' | 'validation';
-
-export interface FileProcessingJob {
-    id: number;
-    conversation_id: number;
-    file_name: string;
-    file_path: string;
-    original_name: string;
-    file_size: number;
-    mime_type: string;
-    status: FileProcessingStatus;
-    processing_type: ProcessingType;
-    progress: number;
-    result_data: {
-        preview?: any[];
-        validation_errors?: string[];
-        conversion_diff?: {
-            original: any[];
-            converted: any[];
-            changes: Array<{
-                type: 'added' | 'removed' | 'modified';
-                field: string;
-                old_value?: any;
-                new_value?: any;
-            }>;
-        };
-    };
-    error_message?: string;
-    created_at: string;
-    updated_at: string;
-}
-
 export type OptimizationJobStatus = 'pending' | 'running' | 'completed' | 'failed';
 
 export interface OptimizationJob {
@@ -353,7 +320,6 @@ export interface ChatState {
     isLoading: boolean;
     isTyping: boolean;
     currentStep: ConversationStep;
-    fileProcessingJobs: FileProcessingJob[];
     optimizationJob: OptimizationJob | null;
     error: string | null;
 }
@@ -365,29 +331,9 @@ export type ChatAction =
     | { type: 'SET_LOADING'; payload: boolean }
     | { type: 'SET_TYPING'; payload: boolean }
     | { type: 'SET_CURRENT_STEP'; payload: ConversationStep }
-    | { type: 'UPDATE_FILE_JOB'; payload: FileProcessingJob }
     | { type: 'SET_OPTIMIZATION_JOB'; payload: OptimizationJob }
     | { type: 'SET_ERROR'; payload: string | null }
     | { type: 'RESET_CHAT' };
-
-// File Upload Progress Interface
-export interface FileUploadProgress {
-    fileId: string;
-    fileName: string;
-    stage: 'uploading' | 'parsing' | 'llm_processing' | 'validation' | 'completed' | 'error';
-    progress: number;
-    error?: string;
-    diffPreview?: {
-        original: any[];
-        converted: any[];
-        changes: Array<{
-            type: 'added' | 'removed' | 'modified';
-            field: string;
-            old_value?: any;
-            new_value?: any;
-        }>;
-    };
-}
 
 // Chat API Response Interfaces
 export interface ChatResponse {
@@ -395,7 +341,6 @@ export interface ChatResponse {
     data?: {
         conversation?: Conversation;
         messages?: ChatMessage[];
-        file_job?: FileProcessingJob;
         optimization_job?: OptimizationJob;
     };
     error?: string;

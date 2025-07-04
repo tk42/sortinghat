@@ -7,7 +7,6 @@ import {
   Conversation, 
   ChatMessage, 
   ConversationStep,
-  FileProcessingJob,
   OptimizationJob,
   SendMessageRequest,
   ChatResponse
@@ -21,7 +20,6 @@ const initialState: ChatState = {
   isLoading: false,
   isTyping: false,
   currentStep: 'initial',
-  fileProcessingJobs: [],
   optimizationJob: null,
   error: null,
 };
@@ -71,19 +69,6 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
         } : null,
       };
     
-    case 'UPDATE_FILE_JOB':
-      const existingJobIndex = state.fileProcessingJobs.findIndex(job => job.id === action.payload.id);
-      const updatedJobs = existingJobIndex >= 0 
-        ? state.fileProcessingJobs.map((job, index) => 
-            index === existingJobIndex ? action.payload : job
-          )
-        : [...state.fileProcessingJobs, action.payload];
-      
-      return {
-        ...state,
-        fileProcessingJobs: updatedJobs,
-      };
-    
     case 'SET_OPTIMIZATION_JOB':
       return {
         ...state,
@@ -120,9 +105,6 @@ interface ChatContextType {
   // Step management
   moveToStep: (step: ConversationStep) => Promise<void>;
   completeCurrentStep: (stepData?: Record<string, any>) => Promise<void>;
-  
-  // File processing
-  uploadFile: (file: File, processingType: string) => Promise<void>;
   
   // Optimization
   startOptimization: (constraints: any, surveyId?: number) => Promise<void>;
@@ -327,33 +309,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [state.conversation, state.currentStep]);
 
-  // Upload file for processing
-  const uploadFile = useCallback(async (file: File, processingType: string) => {
-    if (!state.conversation) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('conversation_id', state.conversation.id.toString());
-    formData.append('processing_type', processingType);
-
-    try {
-      const response = await fetch('/api/chat/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result: ChatResponse = await response.json();
-      
-      if (result.success && result.data?.file_job) {
-        dispatch({ type: 'UPDATE_FILE_JOB', payload: result.data.file_job });
-      } else {
-        dispatch({ type: 'SET_ERROR', payload: result.error || 'ファイルのアップロードに失敗しました' });
-      }
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'ファイルのアップロード中にエラーが発生しました' });
-    }
-  }, [state.conversation]);
-
   // Start optimization
   const startOptimization = useCallback(async (constraints: any, surveyId?: number) => {
     if (!state.conversation) return;
@@ -405,7 +360,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sendMessage,
     moveToStep,
     completeCurrentStep,
-    uploadFile,
     startOptimization,
     clearError,
     resetChat,
