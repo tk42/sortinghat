@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { z } from 'zod'
-import { TeamResponse } from '@/src/lib/interfaces'
+import { TeamResponse, Constraint } from '@/src/lib/interfaces'
 import { createMatchingResult } from './create_matching_result'
 
 const CREATE_TEAMS = `
@@ -35,19 +35,25 @@ const GET_STUDENT_PREFERENCES = `
 const UpdateStudentTeamSchema = z.object({
   teams: z.record(z.string(), z.array(z.number())),
   surveyId: z.number(),
+  constraints: z.any(),
 })
 
-export async function updateStudentTeams(teams: Record<string, number[]>, surveyId: number) {
+export async function updateStudentTeams(
+  teams: Record<string, number[]>,
+  surveyId: number,
+  constraints: Constraint,
+) {
   if (!process.env.BACKEND_GQL_API) {
     throw new Error('BACKEND_GQL_API is not configured')
   }
 
   try {
-    console.log('Received teams:', JSON.stringify(teams, null, 2))
+    // console.log('Received teams:', JSON.stringify(teams, null, 2))
 
     const validatedData = UpdateStudentTeamSchema.parse({
       teams,
       surveyId,
+      constraints,
     })
 
     // Get all student preferences for this survey
@@ -83,28 +89,33 @@ export async function updateStudentTeams(teams: Record<string, number[]>, survey
     }
 
     const studentPreferences = preferencesResponse.data.data.student_preferences
-    // Map student_no to preference_id
-    const studentNoToPreferenceId = new Map(
-      studentPreferences.map(pref => [pref.student.student_no, pref.id])
-    )
+    // Map both student_no and student_id to preference_id for robust lookup
+    const studentKeyToPreferenceId = new Map<number, number>()
+    studentPreferences.forEach(pref => {
+      studentKeyToPreferenceId.set(pref.student.student_no, pref.id)
+      studentKeyToPreferenceId.set(pref.student.id, pref.id)
+    })
 
     // Create new matching result
-    const matchingResultId = await createMatchingResult(validatedData.surveyId)
+    const matchingResultId = await createMatchingResult(validatedData.surveyId, validatedData.constraints)
 
     // Create team objects with references to both matching_result and student_preferences
     const teamObjects = Object.entries(validatedData.teams).flatMap(([teamId, studentNos]) =>
-      studentNos.map(studentNo => {
-        const preferenceId = studentNoToPreferenceId.get(studentNo)
+      studentNos.flatMap(rawNo => {
+        const studentKey = Number(rawNo) // ensure numeric comparison
+        const preferenceId = studentKeyToPreferenceId.get(studentKey)
+
         if (!preferenceId) {
-          throw new Error(`No preference found for student number ${studentNo}`)
+          console.warn(`No preference found for student number/id ${rawNo}. Skipping this student.`)
+          return [] // skip students without preference instead of throwing
         }
         
-        return {
+        return [{
           team_id: parseInt(teamId),
           name: `Team ${teamId}`,
           matching_result_id: matchingResultId,
-          student_preference_id: preferenceId
-        }
+          student_preference_id: preferenceId,
+        }]
       })
     )
 

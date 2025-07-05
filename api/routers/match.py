@@ -21,6 +21,7 @@ async def match(req: MatchingRequest):
     teams, _, error = matching(req.student_constraints, req.constraint)
 
     if teams is None:
+        print(f"Error: {error}\nConstraint: {req.constraint}")
         return JSONResponse(
             status_code=400,
             content={"error": error}

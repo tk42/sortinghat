@@ -28,6 +28,7 @@ export async function findTeacher(token: string): Promise<ActionResponse<Teacher
           name
           email
           stripe_id
+          last_conversation_id
           school {
               id
               name
@@ -45,7 +46,8 @@ export async function findTeacher(token: string): Promise<ActionResponse<Teacher
       return { success: false, error: 'Teacher not found' }
     }
 
-    return { success: true, data: data.teachers[0] as Teacher }
+    const teacher = data.teachers[0] as Teacher;
+    return { success: true, data: teacher }
   } catch (error) {
     console.error('Error finding teacher:', error)
     return { success: false, error: 'Failed to find teacher' }

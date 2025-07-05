@@ -48,13 +48,13 @@ export async function GET() {
   }
 }
 
-// export async function DELETE() {
-//   try {
-//     // セッションクッキーを削除
-//     cookies().delete('auth-token');
-    
-//     return NextResponse.json({ status: 200 });
-//   } catch (error) {
-//     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-//   }
-// }
+// セッション削除（ログアウト）
+export async function DELETE() {
+  try {
+    // セッションクッキーを削除
+    cookies().delete('auth-token');
+    return NextResponse.json({ status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

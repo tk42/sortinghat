@@ -15,6 +15,8 @@ export interface Teacher {
     name: string;
     email: string;
     stripe_id?: string;
+    // 最後に開いた会話ID。履歴再開用
+    last_conversation_id?: number | null;
     school?: School;
     created_at: string;
     updated_at: string;
@@ -73,8 +75,9 @@ export interface StudentDislike {
 
 export interface StudentPreference {
     id: number;
-    student: Student;
-    survey: Survey;
+    student?: Student; // Optional for compatibility with both nested and flat structures
+    student_no?: number; // For backward compatibility
+    survey?: Survey;
     team?: Team;  // 未使用？
     previous_team: number;
     mi_a: number;
@@ -87,9 +90,9 @@ export interface StudentPreference {
     mi_h: number;
     leader: number;
     eyesight: number;
-    student_dislikes: StudentDislike[];
+    student_dislikes?: StudentDislike[] | string; // Support both formats
     created_at: string;
-    updated_at: string;
+    updated_at?: string;
 }
 
 export interface Price {
@@ -137,6 +140,7 @@ export interface MatchingResult {
     name: string;
     status: number;
     teams: Team[];
+    constraints_json?: string;
     created_at: string;
     updated_at: string;
 }
@@ -212,4 +216,140 @@ export interface StudentPreferencesResponse {
         }[]
     }
     errors?: Array<{ message: string }>
+}
+
+// Chat and Conversation Interfaces - Updated for new UX flow
+export type ConversationStep = 'initial' | 'class_setup' | 'survey_creation' | 'survey_setup' | 'constraint_setting' | 'optimization_execution' | 'result_confirmation';
+
+export interface Conversation {
+    id: number;
+    teacher_id: number;
+    session_id: string;
+    current_step: ConversationStep;
+    context_data: Record<string, any>;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export type MessageType = 'user' | 'assistant' | 'system';
+
+export interface ChatMessage {
+    id: number;
+    conversation_id: number;
+    message_type: MessageType;
+    content: string;
+    metadata: {
+        step_indicator?: {
+            current: number;
+            total: number;
+            step_name: string;
+        };
+        file_references?: string[];
+        actions?: Array<{
+            label: string;
+            action: string;
+            data?: any;
+        }>;
+        progress?: {
+            current: number;
+            total: number;
+            status: string;
+        };
+    };
+    created_at: string;
+}
+
+export type OptimizationJobStatus = 'pending' | 'running' | 'completed' | 'failed';
+
+export interface OptimizationJob {
+    id: number;
+    conversation_id: number;
+    survey_id?: number;
+    status: OptimizationJobStatus;
+    progress: number;
+    constraints_data: Constraint;
+    result_data: {
+        teams?: Team[];
+        optimization_status?: string;
+        objective_value?: number;
+        computation_time?: number;
+        feasibility_score?: number;
+    };
+    error_message?: string;
+    started_at?: string;
+    completed_at?: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export type PromptType = 'csv_conversion' | 'constraint_generation' | 'optimization_explanation';
+
+export interface PromptVersion {
+    id: number;
+    prompt_type: PromptType;
+    version: string;
+    template: string;
+    variables: Record<string, any>;
+    metadata: {
+        success_rate?: number;
+        avg_processing_time?: number;
+        user_satisfaction?: number;
+        usage_count?: number;
+    };
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ConversationStepRecord {
+    id: number;
+    conversation_id: number;
+    step_name: string;
+    started_at: string;
+    completed_at?: string;
+    step_data: Record<string, any>;
+    success?: boolean;
+    error_message?: string;
+}
+
+// Chat UI State Interfaces
+export interface ChatState {
+    conversation: Conversation | null;
+    messages: ChatMessage[];
+    isLoading: boolean;
+    isTyping: boolean;
+    currentStep: ConversationStep;
+    optimizationJob: OptimizationJob | null;
+    error: string | null;
+}
+
+export type ChatAction = 
+    | { type: 'SET_CONVERSATION'; payload: Conversation }
+    | { type: 'ADD_MESSAGE'; payload: ChatMessage }
+    | { type: 'UPDATE_MESSAGES'; payload: ChatMessage[] }
+    | { type: 'SET_LOADING'; payload: boolean }
+    | { type: 'SET_TYPING'; payload: boolean }
+    | { type: 'SET_CURRENT_STEP'; payload: ConversationStep }
+    | { type: 'SET_OPTIMIZATION_JOB'; payload: OptimizationJob }
+    | { type: 'SET_ERROR'; payload: string | null }
+    | { type: 'RESET_CHAT' };
+
+// Chat API Response Interfaces
+export interface ChatResponse {
+    success: boolean;
+    data?: {
+        conversation?: Conversation;
+        messages?: ChatMessage[];
+        optimization_job?: OptimizationJob;
+    };
+    error?: string;
+}
+
+export interface SendMessageRequest {
+    conversation_id?: number;
+    content: string;
+    message_type?: MessageType;
+    file?: File;
+    metadata?: Record<string, any>;
 }

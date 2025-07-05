@@ -7,15 +7,14 @@ import { fetchSurveys } from '@/src/utils/actions/fetch_surveys'
 import { fetchClasses } from '@/src/utils/actions/fetch_classes'
 import { fetchStudentPreferences } from '@/src/utils/actions/fetch_student_preferences'
 import { updateStudentPreference } from '@/src/utils/actions/update_student_preference'
-import { duplicateSurvey } from '@/src/utils/actions/duplicate_survey'
 import { deleteStudentPreference } from '@/src/utils/actions/delete_student_preference'
 import { matchStudentPreferences } from '@/src/utils/actions/match_student_preferences'
-import { createSurvey } from '@/src/utils/actions/create_survey'
-import { deleteSurvey } from '@/src/utils/actions/delete_survey'
-import { Constraint, Class, Survey, StudentPreference } from '@/src/lib/interfaces'
+import { fetchMatchingResult, fetchMatchingResults } from '@/src/utils/actions/fetch_matching_results'
+import { Constraint, Class, Survey, StudentPreference, MatchingResultWithTeams } from '@/src/lib/interfaces'
 import SurveyList from './SurveyList'
-import StudentPreferences from './StudentPreferences'
-import { useDrawer } from '@/src/contexts/DrawerContext'
+import SurveyResultsContent from './SurveyResultsContent'
+import DashboardHeader from '@/src/components/Common/DashboardHeader'
+import { ChevronRightIcon } from '@heroicons/react/24/solid'
 
 interface SurveysPageClientProps {
     initialSurveys: Survey[]
@@ -25,11 +24,47 @@ interface SurveysPageClientProps {
 export default function SurveysPageClient({ initialSurveys, initialClasses }: SurveysPageClientProps) {
     const { state } = useAuthContext()
     const router = useRouter()
-    const { isDrawerOpen, setIsDrawerOpen } = useDrawer()
     const [surveys, setSurveys] = useState<Survey[]>(initialSurveys)
+    const [surveysWithResults, setSurveysWithResults] = useState<Survey[]>([]) // Only surveys with team results
     const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null)
     const [studentPreferences, setStudentPreferences] = useState<StudentPreference[]>([])
     const [classes, setClasses] = useState<Class[]>(initialClasses)
+    const [showSurveyList, setShowSurveyList] = useState(true)
+    const [savedMatchingResult, setSavedMatchingResult] = useState<MatchingResultWithTeams | null>(null)
+    const [matchingResults, setMatchingResults] = useState<MatchingResultWithTeams[]>([])
+    const [selectedMatchingResult, setSelectedMatchingResult] = useState<MatchingResultWithTeams | null>(null)
+    const [isLoadingResult, setIsLoadingResult] = useState(false)
+    const [isLoadingSurveys, setIsLoadingSurveys] = useState(false)
+    // クラスフィルタ（"all" は全クラス）
+    const [classFilter, setClassFilter] = useState<number | 'all'>('all')
+
+    // Filter surveys that have team matching results
+    const loadSurveysWithResults = async (allSurveys: Survey[]) => {
+        setIsLoadingSurveys(true)
+        try {
+            const surveysWithMatchingResults: Survey[] = []
+            
+            // Check each survey for matching results
+            await Promise.all(
+                allSurveys.map(async (survey) => {
+                    try {
+                        const result = await fetchMatchingResults(survey.id.toString())
+                        if (result.success && result.data?.matchingResults && result.data.matchingResults.length > 0) {
+                            surveysWithMatchingResults.push(survey)
+                        }
+                    } catch (error) {
+                        console.error(`Error checking results for survey ${survey.id}:`, error)
+                    }
+                })
+            )
+            
+            setSurveysWithResults(surveysWithMatchingResults)
+        } catch (error) {
+            console.error('Failed to filter surveys with results:', error)
+        } finally {
+            setIsLoadingSurveys(false)
+        }
+    }
 
     useEffect(() => {
         const loadTeacherData = async () => {
@@ -41,6 +76,9 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                     ])
                     setSurveys(teacherSurveys)
                     setClasses(teacherClasses)
+                    
+                    // Filter surveys that have team results
+                    await loadSurveysWithResults(teacherSurveys)
                 }
             } catch (error) {
                 console.error('Failed to fetch data:', error)
@@ -63,6 +101,37 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
 
             loadPreferences()
         }
+    }, [selectedSurvey])
+
+    // Fetch all matching results for this survey (history)
+    useEffect(() => {
+        if (!selectedSurvey) {
+            setMatchingResults([])
+            setSelectedMatchingResult(null)
+            setSavedMatchingResult(null)
+            return
+        }
+        setIsLoadingResult(true)
+        fetchMatchingResults(selectedSurvey.id.toString())
+            .then(res => {
+                if (res.success && res.data?.matchingResults) {
+                    setMatchingResults(res.data.matchingResults)
+                    // Select the latest result by default
+                    const latest = res.data.matchingResults[0]
+                    setSelectedMatchingResult(latest)
+                    setSavedMatchingResult(latest)
+                } else {
+                    setMatchingResults([])
+                    setSelectedMatchingResult(null)
+                    setSavedMatchingResult(null)
+                }
+            })
+            .catch(() => {
+                setMatchingResults([])
+                setSelectedMatchingResult(null)
+                setSavedMatchingResult(null)
+            })
+            .finally(() => setIsLoadingResult(false))
     }, [selectedSurvey])
 
     async function handleUpdatePreference(preferenceId: string, preferences: string[]) {
@@ -96,88 +165,70 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
         }
     }
 
-    async function handleCreateSurvey(formData: FormData) {
-        try {
-            const result = await createSurvey(formData)
-            if (result.error) {
-                console.error('Failed to create survey:', result.error)
-                return null
-            }
-            if (result.data && state.user?.uid) {
-                // アンケート作成後に surveys を再取得
-                const updatedSurveys = await fetchSurveys(state.user.uid)
-                setSurveys(updatedSurveys)
-                return result.data
-            }
-            return null
-        } catch (error) {
-            console.error('Failed to create survey:', error)
-            return null
-        }
-    }
-
-    async function handleDuplicateSurvey(surveyId: string) {
-        try {
-            await duplicateSurvey(surveyId)
-            if (state.user?.uid) {
-                // アンケート複製後に surveys を再取得
-                const updatedSurveys = await fetchSurveys(state.user.uid)
-                setSurveys(updatedSurveys)
-            }
-        } catch (error) {
-            console.error('Failed to duplicate survey:', error)
-        }
-    }
-
-    async function handleDeleteSurvey(surveyId: string) {
-        try {
-            await deleteSurvey(surveyId)
-            if (state.user?.uid) {
-                // アンケート削除後に surveys を再取得
-                const updatedSurveys = await fetchSurveys(state.user.uid)
-                setSurveys(updatedSurveys)
-                // 削除したアンケートが選択中だった場合、選択を解除
-                if (selectedSurvey?.id.toString() === surveyId) {
-                    setSelectedSurvey(null)
-                    setStudentPreferences([])
-                }
-            }
-        } catch (error) {
-            console.error('Failed to delete survey:', error)
-        }
-    }
 
     async function handleMatching(constraint: Constraint, preferences: StudentPreference[]) {
         return await matchStudentPreferences(constraint, preferences)
     }
 
-    return (
-        <div className="px-4 sm:px-6 lg:px-8">
-            <SurveyList
-                surveys={surveys}
-                classes={classes}
-                selectedSurvey={selectedSurvey}
-                onSelectSurvey={(survey) => {
-                    setSelectedSurvey(survey);
-                    setIsDrawerOpen(false);  
-                }}
-                onCreateSurvey={handleCreateSurvey}
-                onDuplicateSurvey={handleDuplicateSurvey}
-                onDeleteSurvey={handleDeleteSurvey}
-                isOpen={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
-            />
+    function handleSelectMatchingResult(matchingResult: MatchingResultWithTeams) {
+        setSelectedMatchingResult(matchingResult)
+        setSavedMatchingResult(matchingResult)
+    }
 
-            {selectedSurvey && (
-                <StudentPreferences
-                    survey={selectedSurvey}
-                    studentPreferences={studentPreferences}
-                    setStudentPreferences={setStudentPreferences}
-                    onUpdatePreference={handleUpdatePreference}
-                    onDeletePreference={handleDeletePreference}
-                    matchStudentPreferences={handleMatching}
-                />
-            )}
+    return (
+        <div className="min-h-screen flex">
+            {/* Side margins for consistency with ChatWindow */}
+            <div className="hidden lg:block flex-1 max-w-xs" />
+            
+            {/* Main content area */}
+            <div className="w-full max-w-[80%] mx-auto flex flex-col bg-white shadow-lg">
+                <DashboardHeader subtitle="アンケート管理" />
+                
+                {/* コンテンツ横並びコンテナ */}
+                <div className="flex flex-1 relative">
+                    
+                    {/* Survey List - Left Panel */}
+                    {showSurveyList && (
+                        <SurveyList
+                            surveys={surveysWithResults}
+                            classes={classes}
+                            selectedSurvey={selectedSurvey}
+                            classFilter={classFilter}
+                            isLoadingSurveys={isLoadingSurveys}
+                            matchingResults={matchingResults}
+                            selectedMatchingResult={selectedMatchingResult}
+                            isLoadingResult={isLoadingResult}
+                            onSurveySelect={setSelectedSurvey}
+                            onClassFilterChange={setClassFilter}
+                            onSelectMatchingResult={handleSelectMatchingResult}
+                            onToggleSurveyList={() => setShowSurveyList(false)}
+                        />
+                    )}
+
+                    {/* Sidebar reopen button (visible when sidebar hidden) */}
+                    {!showSurveyList && (
+                        <button
+                            onClick={() => setShowSurveyList(true)}
+                            className="absolute top-4 left-0 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+                            aria-label="メニューを開く"
+                        >
+                            <ChevronRightIcon className="w-5 h-5" />
+                        </button>
+                    )}
+                    
+                    {/* Main Content Area */}
+                    <SurveyResultsContent
+                        selectedSurvey={selectedSurvey}
+                        savedMatchingResult={savedMatchingResult}
+                        isLoadingResult={isLoadingResult}
+                        showSurveyList={showSurveyList}
+                        onToggleSurveyList={() => setShowSurveyList(!showSurveyList)}
+                    />
+                </div>
+            </div>
+
+            {/* Side margins for consistency with ChatWindow */}
+            <div className="hidden lg:block flex-1 max-w-xs" />
         </div>
     )
 }

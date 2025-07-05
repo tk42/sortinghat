@@ -1,8 +1,9 @@
-import { Sidebar } from "@/src/components/sidebar/Sidebar";
+// import { Sidebar } from "@/src/components/sidebar/Sidebar"; // Commented out for new layout
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from '@/src/utils/firebase/admin';
-import Drawer from '@/src/components/Common/Drawer'
+// import Drawer from '@/src/components/Common/Drawer' // Commented out for new layout
+// import ChatInterface from '@/src/components/chat/ChatInterface' // Will be replaced with ChatWindow
 
 export default async function DashboardLayout({
   children,
@@ -20,12 +21,9 @@ export default async function DashboardLayout({
     await auth.verifySessionCookie(sessionCookie);
     
     return (
-      <div className="flex">
-        <Sidebar />
-        <Drawer />
-        <div className="flex flex-col flex-grow ml-72">
-          {children}
-        </div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Full-width layout without sidebar */}
+        {children}
       </div>
     );
   } catch (error) {

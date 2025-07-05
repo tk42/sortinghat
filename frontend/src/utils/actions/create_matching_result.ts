@@ -1,7 +1,7 @@
 'use server'
 
 import axios from 'axios'
-import { MatchingResultResponse } from '@/src/lib/interfaces'
+import { MatchingResultResponse, Constraint } from '@/src/lib/interfaces'
 
 const GET_SURVEY_CLASS = `
   query GetSurveyClass($survey_id: bigint!) {
@@ -17,12 +17,13 @@ const GET_SURVEY_CLASS = `
 `
 
 const CREATE_MATCHING_RESULT = `
-  mutation CreateMatchingResult($survey_id: bigint!, $name: String!) {
+  mutation CreateMatchingResult($survey_id: bigint!, $name: String!, $constraints: jsonb!) {
     insert_matching_results_one(
       object: {
         survey_id: $survey_id,
         name: $name,
-        status: 0
+        status: 0,
+        constraints_json: $constraints
       }
     ) {
       id
@@ -30,7 +31,7 @@ const CREATE_MATCHING_RESULT = `
   }
 `
 
-export async function createMatchingResult(surveyId: number): Promise<number> {
+export async function createMatchingResult(surveyId: number, constraints: Constraint): Promise<number> {
   if (!process.env.BACKEND_GQL_API) {
     throw new Error('BACKEND_GQL_API is not configured')
   }
@@ -85,7 +86,8 @@ export async function createMatchingResult(surveyId: number): Promise<number> {
         query: CREATE_MATCHING_RESULT,
         variables: {
           survey_id: surveyId,
-          name: matchingName
+          name: matchingName,
+          constraints: constraints
         }
       },
       {

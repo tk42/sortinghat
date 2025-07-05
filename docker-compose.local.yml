@@ -5,9 +5,10 @@ services:
       dockerfile: Dockerfile
     platform: linux/x86_64
     ports:
-      - 3001:8000
+      - 3011:8000
     env_file:
       - api/.env
+      - .env.local
 
   frontend:
     build:
@@ -17,49 +18,54 @@ services:
     volumes:
       - ./frontend:/app
     ports:
-      - "3000:3000"
+      - "3010:3000"
     env_file:
       - .env
       - .env.local
 
-  # graphql-engine:
-  #   image: hasura/graphql-engine:v2.18.0
-  #   ports:
-  #     - 8080:8080
-  #   depends_on:
-  #     - "postgres"
-  #   restart: always
-  #   env_file:
-  #     - backend/.env.local
-  #   environment:
-  #     ## postgres database to store Hasura metadata
-  #     HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://user:passw0rd@postgres:5432/db
-  #     ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
-  #     PG_DATABASE_URL: postgres://user:passw0rd@postgres:5432/db
-  #     ## enable the console served by server
-  #     HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
-  #     ## enable debugging mode. It is recommended to disable this in production
-  #     HASURA_GRAPHQL_DEV_MODE: "true"
-  #     HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-  #     ## uncomment next line to run console offline (i.e load console assets from server instead of CDN)
-  #     # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
-  #     ## uncomment next line to set an admin secret
-  #     # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+  graphql-engine:
+    image: hasura/graphql-engine:v2.41.0
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+      - .env.local
+    ports:
+      - 8082:8080
 
-  # postgres:
-  #   image: postgres:latest
-  #   restart: always
-  #   env_file:
-  #     - backend/.env.local
-  #   ports:
-  #     - 5432:5432
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data/
+  postgres:
+    image: postgres:17
+    restart: always
+    env_file:
+      - .env
+      - .env.local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d db"]
+      interval: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
 
   pgweb:
     image: sosedoff/pgweb
     ports:
       - 8081:8081
+
+  migration:
+    image: ghcr.io/tk42/goose:latest
+    platform: linux/amd64
+    env_file:
+      - .env.local
+      # - ../.env.production
+      # - .env.qa
+    working_dir: "/src"
+    volumes:
+      - "./backend/sql/schema:/src"
+    depends_on:
+      - postgres
+    command: "up"
 
 volumes:
   postgres_data:

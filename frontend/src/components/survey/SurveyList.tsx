@@ -1,128 +1,100 @@
-"use client"
+'use client'
 
-import { Survey, Class } from '@/src/lib/interfaces'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { TrashIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { toast } from 'react-hot-toast';
+import { Survey, Class, MatchingResultWithTeams } from '@/src/lib/interfaces'
+import OptimizationHistory from './OptimizationHistory'
+import { ChevronLeftIcon } from '@heroicons/react/24/solid'
 
-export interface SurveyListProps {
-    surveys?: Survey[]
-    classes?: Class[]
-    onCreateSurvey?: (formData: FormData) => Promise<any>
-    selectedSurvey?: Survey | null
-    onSelectSurvey?: (survey: Survey) => void
-    onDeleteSurvey?: (surveyId: string) => Promise<void>
-    onDuplicateSurvey?: (surveyId: string) => Promise<void>
-    isOpen: boolean
-    onClose: () => void
+interface SurveyListProps {
+    surveys: Survey[]
+    classes: Class[]
+    selectedSurvey: Survey | null
+    classFilter: number | 'all'
+    isLoadingSurveys: boolean
+    matchingResults: MatchingResultWithTeams[]
+    selectedMatchingResult: MatchingResultWithTeams | null
+    isLoadingResult: boolean
+    onSurveySelect: (survey: Survey) => void
+    onClassFilterChange: (classFilter: number | 'all') => void
+    onSelectMatchingResult: (matchingResult: MatchingResultWithTeams) => void
+    /** サイドバーの表示/非表示切り替え */
+    onToggleSurveyList: () => void
 }
 
-export default function SurveyList({ 
-    surveys = [], 
-    classes = [], 
-    selectedSurvey = null, 
-    onSelectSurvey = () => {}, 
-    onCreateSurvey = async () => {},
-    onDeleteSurvey = async () => {},
-    onDuplicateSurvey = async () => {},
-    isOpen,
-    onClose
+export default function SurveyList({
+    surveys,
+    classes,
+    selectedSurvey,
+    classFilter,
+    isLoadingSurveys,
+    matchingResults,
+    selectedMatchingResult,
+    isLoadingResult,
+    onSurveySelect,
+    onClassFilterChange,
+    onSelectMatchingResult,
+    onToggleSurveyList
 }: SurveyListProps) {
-    const router = useRouter()
-    const [selectedClassId, setSelectedClassId] = useState('')
-
-    const handleCreateSurvey = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!selectedClassId) return
-
-        const formData = new FormData()
-        formData.append('classId', selectedClassId)
-
-        try {
-            const result = await onCreateSurvey(formData)
-            if (result) {
-                setSelectedClassId('')
-                router.refresh()
-            }
-        } catch (error) {
-            console.error('Failed to create survey:', error)
-        }
-    }
-
-    const handleDelete = async (surveyId: string) => {
-        try {
-            await onDeleteSurvey(surveyId)
-            toast.success('アンケートを削除しました')
-        } catch (error) {
-            console.error('Failed to delete survey:', error)
-        }
-    }
-
-    const handleDuplicate = async (surveyId: string) => {
-        try {
-            await onDuplicateSurvey(surveyId)
-            toast.success('アンケートを複製しました')
-        } catch (error) {
-            console.error('Failed to duplicate survey:', error)
-            toast.error('アンケートの複製に失敗しました')
-        }
-    }
-
     return (
-        <>
-            {/* Overlay */}
-            {isOpen && (
-                <div 
-                    className="fixed inset-0 bg-gray-600 bg-opacity-50 transition-opacity z-20"
-                    onClick={onClose}
-                />
-            )}
+        <div className="w-96 border-r border-gray-200 flex flex-col">
+            {/* サイドバー ヘッダー */}
+            <div className="p-6 border-b border-gray-200 space-y-4 relative">
+                <div>
+                    <h1 className="text-2xl font-semibold text-gray-900">過去の班分け結果</h1>
+                    <p className="mt-1 text-sm text-gray-600">班分けを実施したアンケートの結果を確認できます</p>
+                </div>
+
+                {/* サイドバー折りたたみボタン */}
+                <button
+                    onClick={onToggleSurveyList}
+                    className="absolute top-0 right-0 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+                    aria-label="メニューを折りたたむ"
+                >
+                    <ChevronLeftIcon className="w-5 h-5" />
+                </button>
+
+                {/* クラスフィルタ */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="classFilter">クラスで絞り込み</label>
+                    <select
+                        id="classFilter"
+                        value={classFilter}
+                        onChange={(e) => {
+                            const val = e.target.value
+                            onClassFilterChange(val === 'all' ? 'all' : Number(val))
+                        }}
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                    >
+                        <option value="all">すべてのクラス</option>
+                        {classes.map((cls) => (
+                            <option key={cls.id} value={cls.id}>{cls.name}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
             
-            {/* Drawer */}
-            <div className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} w-96 bg-white shadow-xl transition-transform duration-300 ease-in-out z-30`}>
-                <div className="h-full overflow-y-auto">
-                    <div className="p-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-semibold">アンケート一覧</h2>
-                            <button
-                                onClick={onClose}
-                                className="text-gray-500 hover:text-gray-700"
-                            >
-                                <XMarkIcon className="h-6 w-6" />
-                            </button>
-                        </div>
-                        <div className="space-y-4">
-                            <form onSubmit={handleCreateSurvey}>
-                                <div className="p-4 rounded-lg border border-gray-200 space-y-4">
-                                    <select
-                                        value={selectedClassId}
-                                        onChange={(e) => setSelectedClassId(e.target.value)}
-                                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">クラスを選択してください</option>
-                                        {classes.map((classItem) => (
-                                            <option key={classItem.id} value={classItem.id}>
-                                                {classItem.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        type="submit"
-                                        className={`w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-                                            !selectedClassId 
-                                                ? 'bg-gray-300 cursor-not-allowed text-gray-500'
-                                                : 'bg-blue-500 hover:bg-blue-700 text-white'
-                                        }`}
-                                        disabled={!selectedClassId}
-                                        aria-disabled={!selectedClassId}
-                                        title={!selectedClassId ? 'クラスを選択してください' : 'アンケートを新規作成'}
-                                    >
-                                        新規アンケート作成
-                                    </button>
+            {/* Survey List Section */}
+            <div className="flex-1 overflow-y-auto">
+                <div className="p-4 border-b border-gray-200">
+                    <div className="space-y-4">
+                        {/* Survey List with Team Results */}
+                        {isLoadingSurveys ? (
+                            <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                                <p className="text-gray-600">班分け結果を読み込み中...</p>
+                            </div>
+                        ) : surveys.length === 0 ? (
+                            <div className="text-center py-8">
+                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
                                 </div>
-                            </form>
-                            {surveys.map((survey) => (
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">班分け結果がありません</h3>
+                                <p className="text-gray-500">チャット画面で班分けを実施すると、ここに結果が表示されます。</p>
+                            </div>
+                        ) : (
+                            // クラスフィルタ適用
+                            (classFilter === 'all' ? surveys : surveys.filter((s) => s.class.id === classFilter)).map((survey) => (
                                 <div
                                     key={survey.id}
                                     className={`p-4 rounded-lg border cursor-pointer transition-colors relative group ${
@@ -130,48 +102,45 @@ export default function SurveyList({
                                             ? 'bg-blue-50 border-blue-500'
                                             : 'border-gray-200 hover:bg-gray-50'
                                     }`}
+                                    onClick={() => onSurveySelect(survey)}
                                 >
-                                    <div onClick={() => onSelectSurvey(survey)}>
-                                        <h3 className="font-medium">{survey.name}</h3>
-                                        <p className="text-sm text-gray-500">
-                                            クラス: {survey.class.name}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            作成日: {survey.created_at ? new Date(survey.created_at).toLocaleDateString('ja-JP', {
-                                                                                year: 'numeric',
-                                                                                month: '2-digit',
-                                                                                day: '2-digit'
-                                                                            }) : '日付なし'}
-                                        </p>
-                                    </div>
-                                    <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleDuplicate(survey.id.toString())
-                                            }}
-                                            className="rounded-full p-1 hover:bg-gray-100"
-                                            title="複製"
-                                        >
-                                            <DocumentDuplicateIcon className="h-5 w-5 text-blue-600" aria-hidden="true" />
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleDelete(survey.id.toString())
-                                            }}
-                                            className="rounded-full p-1 hover:bg-gray-100"
-                                            title="削除"
-                                        >
-                                            <TrashIcon className="h-5 w-5 text-red-600" aria-hidden="true" />
-                                        </button>
+                                    <h3 className="font-medium">{survey.name}</h3>
+                                    <p className="text-sm text-gray-500">クラス: {survey.class.name}</p>
+                                    <p className="text-sm text-gray-500">
+                                        班分け実施日: {survey.created_at ? new Date(survey.created_at).toLocaleDateString('ja-JP', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit'
+                                        }) : '日付なし'}
+                                    </p>
+                                    <div className="flex items-center mt-2">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                        <span className="text-xs text-green-600 font-medium">班分け完了</span>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            ))
+                        )}
                     </div>
                 </div>
+
+                {/* Optimization History Section */}
+                {selectedSurvey && (
+                    <div className="p-4 bg-gray-50">
+                        {isLoadingResult ? (
+                            <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                                <p className="text-gray-600">履歴を読み込み中...</p>
+                            </div>
+                        ) : (
+                            <OptimizationHistory
+                                matchingResults={matchingResults}
+                                selectedMatchingResult={selectedMatchingResult}
+                                onSelectMatchingResult={onSelectMatchingResult}
+                            />
+                        )}
+                    </div>
+                )}
             </div>
-        </>
+        </div>
     )
 }

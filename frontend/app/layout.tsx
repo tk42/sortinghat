@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/src/utils/firebase/authprovider";
-import { DrawerProvider } from '@/src/contexts/DrawerContext'
+// import { DrawerProvider } from '@/src/contexts/DrawerContext' // Removed with sidebar
+import { ChatProvider } from '@/src/contexts/ChatContext'
+import { ToastProvider } from '@/src/components/notifications/ToastNotifications'
 import SessionSync from '@/src/components/Common/SessionSync'
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,19 +22,15 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
-      {(process.env.NODE_ENV !== "production") && (
-        <script
-            crossOrigin="anonymous"
-            src="//unpkg.com/react-scan/dist/auto.global.js"
-          />
-      )}
       </head>
       <body className={inter.className}>
         <AuthProvider>
-          <DrawerProvider>
-            <SessionSync />
-            {children}
-          </DrawerProvider>
+          <ChatProvider>
+            <ToastProvider>
+              <SessionSync />
+              {children}
+            </ToastProvider>
+          </ChatProvider>
         </AuthProvider>
       </body>
     </html>
