@@ -96,16 +96,22 @@ export function useChatLogic() {
     await sendMessage(content, file)
   }, [sendMessage])
 
-  // Format timestamp helper
+  // Format timestamp helper (convert to JST)
   const formatDateTime = useCallback((isoString: string): string => {
-    const date = new Date(isoString)
-    const yyyy = date.getFullYear()
-    const mm = String(date.getMonth() + 1).padStart(2, '0')
-    const dd = String(date.getDate()).padStart(2, '0')
-    const hh = String(date.getHours()).padStart(2, '0')
-    const mi = String(date.getMinutes()).padStart(2, '0')
-    const ss = String(date.getSeconds()).padStart(2, '0')
-    return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`
+    const dt = new Date(isoString)
+    const formatter = new Intl.DateTimeFormat('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Tokyo',
+    })
+    const parts = formatter.formatToParts(dt)
+    const pick = (type: string) => parts.find(p => p.type === type)?.value ?? ''
+    return `${pick('year')}/${pick('month')}/${pick('day')} ${pick('hour')}:${pick('minute')}:${pick('second')}`
   }, [])
 
   return {
