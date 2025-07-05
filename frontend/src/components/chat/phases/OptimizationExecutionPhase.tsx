@@ -196,8 +196,9 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
           <div>
             <h4 className="text-md font-medium text-gray-800 mb-3">前回チーム考慮</h4>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              チームのうち前回と同じ人を何人まで許容するか
-              <span className="text-sm text-gray-500">（0人で前回と同じ人を1人も許容しない）</span>
+              チームのうち前回と同じ人を何人まで許容するか<br />
+              <span className="text-sm text-gray-500">0人で前回と同じ人を1人も許容しない.</span>
+              <span className="text-sm text-red-500">多いと解が見つかりやすくなります</span>
             </label>
             <label className="flex items-center">
               <input
@@ -205,10 +206,10 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
                   value={constraint.unique_previous}
                   onChange={(e) => setConstraint(prev => ({ 
                     ...prev, 
-                    unique_previous: parseInt(e.target.value) || 0 
+                    unique_previous: parseInt(e.target.value)
                   }))}
                   className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  min={0}
+                  min={1}
                 />
                 人
             </label>

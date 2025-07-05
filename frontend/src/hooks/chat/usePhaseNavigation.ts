@@ -22,8 +22,8 @@ export function usePhaseNavigation(state: PhaseNavigationState) {
         return 'survey_setup'
       case 'survey_setup':
         return 'optimization_execution'
-      case 'constraint_setting':
-        return 'optimization_execution'
+      // case 'constraint_setting':
+      //   return 'optimization_execution'
       case 'optimization_execution':
         return 'result_confirmation'
       default:
@@ -39,8 +39,8 @@ export function usePhaseNavigation(state: PhaseNavigationState) {
         return 'class_setup'
       case 'survey_setup':
         return 'survey_creation'
-      case 'constraint_setting':
-        return 'survey_setup'
+      // case 'constraint_setting':
+      //   return 'survey_setup'
       case 'optimization_execution':
         return 'survey_setup' // Skip constraint_setting
       case 'result_confirmation':
@@ -117,8 +117,9 @@ export function usePhaseNavigation(state: PhaseNavigationState) {
     if (!nextStep) return
 
     try {
-      // If no conversation exists, start one first
-      if (!chatState.conversation) {
+      // Setup フェーズでは会話を作成しない。
+      // ConstraintSettingPhase へ遷移するタイミングでのみ新規会話を開始する。
+      if (!chatState.conversation && nextStep === 'constraint_setting') {
         await startConversation()
       }
       
