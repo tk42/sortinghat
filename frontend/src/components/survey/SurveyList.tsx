@@ -15,6 +15,8 @@ interface SurveyListProps {
     onSurveySelect: (survey: Survey) => void
     onClassFilterChange: (classFilter: number | 'all') => void
     onSelectMatchingResult: (matchingResult: MatchingResultWithTeams) => void
+    /** サイドバーの表示/非表示切り替え */
+    onToggleSurveyList: () => void
 }
 
 export default function SurveyList({
@@ -28,16 +30,26 @@ export default function SurveyList({
     isLoadingResult,
     onSurveySelect,
     onClassFilterChange,
-    onSelectMatchingResult
+    onSelectMatchingResult,
+    onToggleSurveyList
 }: SurveyListProps) {
     return (
         <div className="w-96 border-r border-gray-200 flex flex-col">
             {/* サイドバー ヘッダー */}
-            <div className="p-6 border-b border-gray-200 space-y-4">
+            <div className="p-6 border-b border-gray-200 space-y-4 relative">
                 <div>
                     <h1 className="text-2xl font-semibold text-gray-900">過去の班分け結果</h1>
                     <p className="mt-1 text-sm text-gray-600">班分けを実施したアンケートの結果を確認できます</p>
                 </div>
+
+                {/* サイドバー折りたたみボタン */}
+                <button
+                    onClick={onToggleSurveyList}
+                    className="absolute top-0 right-0 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+                    aria-label="メニューを折りたたむ"
+                >
+                    <span className="text-lg">＜</span>
+                </button>
 
                 {/* クラスフィルタ */}
                 <div>

@@ -184,7 +184,7 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                 <DashboardHeader subtitle="アンケート管理" />
                 
                 {/* コンテンツ横並びコンテナ */}
-                <div className="flex flex-1">
+                <div className="flex flex-1 relative">
                     
                     {/* Survey List - Left Panel */}
                     {showSurveyList && (
@@ -200,9 +200,21 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                             onSurveySelect={setSelectedSurvey}
                             onClassFilterChange={setClassFilter}
                             onSelectMatchingResult={handleSelectMatchingResult}
+                            onToggleSurveyList={() => setShowSurveyList(false)}
                         />
                     )}
 
+                    {/* Sidebar reopen button (visible when sidebar hidden) */}
+                    {!showSurveyList && (
+                        <button
+                            onClick={() => setShowSurveyList(true)}
+                            className="absolute top-4 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+                            aria-label="メニューを開く"
+                        >
+                            <span className="text-lg">＞</span>
+                        </button>
+                    )}
+                    
                     {/* Main Content Area */}
                     <SurveyResultsContent
                         selectedSurvey={selectedSurvey}
