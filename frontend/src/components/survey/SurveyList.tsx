@@ -2,6 +2,7 @@
 
 import { Survey, Class, MatchingResultWithTeams } from '@/src/lib/interfaces'
 import OptimizationHistory from './OptimizationHistory'
+import { ChevronLeftIcon } from '@heroicons/react/24/solid'
 
 interface SurveyListProps {
     surveys: Survey[]
@@ -48,7 +49,7 @@ export default function SurveyList({
                     className="absolute top-0 right-0 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
                     aria-label="メニューを折りたたむ"
                 >
-                    <span className="text-lg">＜</span>
+                    <ChevronLeftIcon className="w-5 h-5" />
                 </button>
 
                 {/* クラスフィルタ */}

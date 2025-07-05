@@ -14,6 +14,7 @@ import { Constraint, Class, Survey, StudentPreference, MatchingResultWithTeams }
 import SurveyList from './SurveyList'
 import SurveyResultsContent from './SurveyResultsContent'
 import DashboardHeader from '@/src/components/Common/DashboardHeader'
+import { ChevronRightIcon } from '@heroicons/react/24/solid'
 
 interface SurveysPageClientProps {
     initialSurveys: Survey[]
@@ -208,10 +209,10 @@ export default function SurveysPageClient({ initialSurveys, initialClasses }: Su
                     {!showSurveyList && (
                         <button
                             onClick={() => setShowSurveyList(true)}
-                            className="absolute top-4 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+                            className="absolute top-4 left-0 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
                             aria-label="メニューを開く"
                         >
-                            <span className="text-lg">＞</span>
+                            <ChevronRightIcon className="w-5 h-5" />
                         </button>
                     )}
                     
