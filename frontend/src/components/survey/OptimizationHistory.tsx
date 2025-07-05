@@ -86,7 +86,7 @@ export default function OptimizationHistory({
                         </div>
                         <div className="flex items-center text-sm text-gray-500">
                             <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                                {result.teams.length}班
+                                {Math.max(0, ...result.teams.map(({ team_id }) => team_id)) + 1}班
                             </span>
                         </div>
                     </div>

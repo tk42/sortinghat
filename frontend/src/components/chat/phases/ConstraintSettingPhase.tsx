@@ -263,7 +263,7 @@ const ConstraintSettingPhase: React.FC<ConstraintSettingPhaseProps> = ({
             key={message.id} 
             message={message}
             onActionClick={(action, data) => {
-              console.log('Action clicked:', action, data);
+              // console.log('Action clicked:', action, data);
             }}
           />
         ))}
