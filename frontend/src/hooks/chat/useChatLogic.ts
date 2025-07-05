@@ -52,9 +52,13 @@ export function useChatLogic() {
   // Enhanced navigation handlers
   const handleNextPhase = useCallback(async () => {
     try {
+      // TODO: Fix when constraint_setting is being developped.
       // Load student preferences before moving to optimization
-      if (state.currentStep === 'constraint_setting' && sessionState.selectedSurvey) {
-        await loadStudentPreferences()
+      if (
+        (state.currentStep === 'constraint_setting' || state.currentStep === 'survey_setup') &&
+        sessionState.selectedSurvey
+      ) {
+        await loadStudentPreferences();
       }
       
       await navigation.handleNext()
