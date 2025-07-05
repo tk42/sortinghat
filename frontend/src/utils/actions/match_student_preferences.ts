@@ -13,8 +13,8 @@ export async function matchStudentPreferences(constraint: Constraint, preference
   try {
     // Convert preferences to the format expected by the backend
     const convertedPreferences = preferences.map(p => ({
-      student_no: p.student.student_no - 1,  // Adjust for 0-indexing
-      sex: p.student.sex - 1, // Adjust for 0-indexing
+      student_no: (p.student?.student_no || 1) - 1,  // Adjust for 0-indexing
+      sex: (p.student?.sex || 1) - 1, // Adjust for 0-indexing
       previous: p.previous_team - 1,  // Adjust for 0-indexing
       mi_a: p.mi_a,
       mi_b: p.mi_b,
@@ -26,7 +26,7 @@ export async function matchStudentPreferences(constraint: Constraint, preference
       mi_h: p.mi_h,
       leader: p.leader,
       eyesight: p.eyesight,
-      dislikes: p.student_dislikes.map(d => preferences.find(p => p.student.id === d.student_id)!.student.student_no - 1) // Adjust for 0-indexing
+      dislikes: (Array.isArray(p.student_dislikes) ? p.student_dislikes : []).map(d => preferences.find(p => p.student?.id === d.student_id)?.student?.student_no ? preferences.find(p => p.student?.id === d.student_id)!.student!.student_no - 1 : 0) // Adjust for 0-indexing
     }))
 
     const backendResponse = await axios.post(

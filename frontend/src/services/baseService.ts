@@ -53,7 +53,9 @@ export abstract class BaseService<T, CreateInput = Partial<T>, UpdateInput = Par
   async list(options?: ListOptions): Promise<APIResponse<T[]>> {
     try {
       const params = this.buildQueryParams(options)
-      const response = await this.apiClient.get<T[]>(this.baseEndpoint, { params })
+      const queryString = new URLSearchParams(params).toString()
+      const endpoint = queryString ? `${this.baseEndpoint}?${queryString}` : this.baseEndpoint
+      const response = await this.apiClient.get<T[]>(endpoint)
       
       if (!response.success) {
         return response as APIResponse<T[]>
@@ -211,7 +213,7 @@ export abstract class BaseService<T, CreateInput = Partial<T>, UpdateInput = Par
     return params
   }
 
-  private validateData<R>(schema: z.ZodSchema<R>, data: any): R {
+  protected validateData<R>(schema: z.ZodSchema<R>, data: any): R {
     try {
       return schema.parse(data)
     } catch (error) {
@@ -222,7 +224,7 @@ export abstract class BaseService<T, CreateInput = Partial<T>, UpdateInput = Par
     }
   }
 
-  private handleError<R>(code: string, error: any): APIResponse<R> {
+  protected handleError<R>(code: string, error: any): APIResponse<R> {
     console.error(`${code}:`, error)
     
     let message = 'An unexpected error occurred'

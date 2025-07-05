@@ -69,7 +69,7 @@ const SettingsPageClient: React.FC<SettingsPageClientProps> = ({ initialTeacher 
         }
       }
       // メールアドレス変更
-      if (email !== currentTeacher?.email) {
+      if (email !== currentTeacher?.email && currentTeacher) {
         await handleEmailUpdate(state.user, email, currentTeacher);
       }
     } catch (error) {

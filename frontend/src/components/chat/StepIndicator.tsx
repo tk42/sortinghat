@@ -11,8 +11,8 @@ interface StepIndicatorProps {
 const steps: Array<{
   key: ConversationStep;
   label: string;
-  icon: React.ReactNode;
-  additionalPaths?: React.ReactNode[];
+  icon: React.ReactElement;
+  additionalPaths?: React.ReactElement[];
 }> = [
   {
     key: 'initial',

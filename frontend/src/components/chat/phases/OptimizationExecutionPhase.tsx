@@ -31,7 +31,7 @@ const OptimizationExecutionPhase: React.FC<OptimizationExecutionPhaseProps> = ({
 
   // Calculate max teams based on class size and members per team
   useEffect(() => {
-    if (studentPreferences.length > 0) {
+    if (studentPreferences.length > 0 && constraint.members_per_team) {
       const maxTeams = Math.ceil(studentPreferences.length / constraint.members_per_team);
       setConstraint(prev => ({ ...prev, max_num_teams: maxTeams }));
     }

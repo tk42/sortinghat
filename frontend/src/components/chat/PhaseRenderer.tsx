@@ -1,5 +1,6 @@
 import React from 'react'
-import { ConversationStep, Class, Survey } from '@/src/lib/types'
+import type { ConversationStep } from '@/src/lib/interfaces'
+import { Class, Survey } from '@/src/lib/types'
 import { MutableRefObject, Dispatch, SetStateAction } from 'react'
 import { BackHandler } from './ChatWindow'
 

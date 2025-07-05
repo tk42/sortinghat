@@ -153,21 +153,30 @@ export async function createSurveyFromCSV(
 
     // 選好データオブジェクトを作成
     const preferenceObjects = parsed
-      .map(p => {
-        const studentId = studentNoToIdMap.get(p.student_id) // LLMからのstudent_idは実際はstudent_no
-        if (!studentId) {
-          console.warn(`Student not found for student_no: ${p.student_id}`)
+      .map((p: any) => {
+        // LLMからのレスポンスでは student_id が実際は student_no (出席番号) を示している
+        let studentNo = p.student_id || p.student?.student_no || p.student_no
+        
+        if (!studentNo) {
+          console.warn('No student identifier found in preference object:', JSON.stringify(p, null, 2))
           return null
         }
         
-        const dislikeData = (p.student_dislikes || []).map((no: number) => {
-          const dislikedId = studentNoToIdMap.get(no)
+        const studentId = studentNoToIdMap.get(studentNo)
+        if (!studentId) {
+          console.warn(`Student not found for student_no: ${studentNo}, available student_nos:`, Array.from(studentNoToIdMap.keys()).slice(0, 5))
+          return null
+        }
+        
+        const dislikeData = (Array.isArray(p.student_dislikes) ? p.student_dislikes : []).map((dislike: any) => {
+          const studentNo = typeof dislike === 'number' ? dislike : dislike.student_id
+          const dislikedId = studentNoToIdMap.get(studentNo)
           if (!dislikedId) {
-            console.warn(`Disliked student not found for student_no: ${no}`)
+            console.warn(`Disliked student not found for student_no: ${studentNo}`)
             return null
           }
           return { student_id: dislikedId }
-        }).filter(Boolean)
+        }).filter((item: { student_id: number } | null): item is { student_id: number } => item !== null)
 
         return {
           survey_id: createdSurvey.id,

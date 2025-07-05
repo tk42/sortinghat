@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { ConversationStep } from '@/src/lib/types'
+import { ConversationStep } from '@/src/lib/interfaces'
 import { useChatContext } from '@/src/contexts/ChatContext'
 
 interface PhaseNavigationState {

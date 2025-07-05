@@ -74,7 +74,7 @@ class SecureDataHandler {
             maskObject(value, fieldPath);
           }
         } else if (typeof value === 'string' || typeof value === 'number') {
-          const shouldMask = piiFields.includes(key) || this.isPotentialPII(key, value);
+          const shouldMask = piiFields.includes(key);
           
           if (shouldMask) {
             const originalValue = String(value);
@@ -216,12 +216,12 @@ export class LLMService {
         outputTokens: 0,
         totalTokens: 0,
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       });
       
       return {
         success: false,
-        error: error.message || 'LLM processing failed'
+        error: error instanceof Error ? error.message : String(error) || 'LLM processing failed'
       };
     }
   }
@@ -300,7 +300,7 @@ JSON形式で変換結果を返してください。各変更について説明�
   }
   
   private static async callLLMWithRetry(encryptedPayload: string, maxRetries: number = 3): Promise<any> {
-    let lastError: Error;
+    let lastError: Error = new Error('Unknown error');
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -340,8 +340,8 @@ JSON形式で変換結果を返してください。各変更について説明�
         };
         
       } catch (error) {
-        lastError = error;
-        console.warn(`LLM call attempt ${attempt} failed:`, error.message);
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.warn(`LLM call attempt ${attempt} failed:`, lastError.message);
         
         if (attempt < maxRetries) {
           // Exponential backoff

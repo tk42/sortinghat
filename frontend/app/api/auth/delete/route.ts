@@ -1,4 +1,3 @@
-typescript
 import { auth } from '@/src/utils/firebase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';

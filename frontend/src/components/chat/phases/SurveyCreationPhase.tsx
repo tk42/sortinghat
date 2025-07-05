@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, MutableRefObject, Dispatch, SetStateAction } from 'react';
-import { Class, Survey } from '@/src/lib/interfaces';
+import { Class, Survey } from '@/src/lib/types';
 import { useToastHelpers } from '@/src/components/notifications/ToastNotifications';
 import { useDropzone } from 'react-dropzone';
 import { createSurveyFromCSV } from '@/src/utils/actions/create_survey_from_csv';
@@ -127,7 +127,7 @@ const SurveyCreationPhase: React.FC<SurveyCreationPhaseProps> = ({
       const newSurvey = await createSurveyFromCSV(formData, surveyName, selectedClass.id)
       
       // Survey オブジェクトにクラス情報を追加
-      const surveyWithClass: Survey = {
+      const surveyWithClass: any = {
         ...newSurvey,
         class: selectedClass
       }

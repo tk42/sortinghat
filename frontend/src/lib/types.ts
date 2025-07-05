@@ -6,16 +6,6 @@ export enum StudentSex {
   FEMALE = 2,
 }
 
-export enum ConversationStep {
-  INITIAL = 'initial',
-  CLASS_SETUP = 'class_setup',
-  SURVEY_CREATION = 'survey_creation',
-  SURVEY_SETUP = 'survey_setup',
-  CONSTRAINT_SETTING = 'constraint_setting',
-  OPTIMIZATION_EXECUTION = 'optimization_execution',
-  RESULT_CONFIRMATION = 'result_confirmation',
-}
-
 export enum MessageType {
   USER = 'user',
   ASSISTANT = 'assistant',
@@ -136,7 +126,7 @@ export const ConversationSchema = z.object({
   id: z.number(),
   teacher_id: z.number(),
   session_id: z.string(),
-  current_step: z.nativeEnum(ConversationStep),
+  current_step: z.enum(['initial', 'class_setup', 'survey_creation', 'survey_setup', 'constraint_setting', 'optimization_execution', 'result_confirmation']),
   context_data: z.record(z.any()),
   is_active: z.boolean(),
   created_at: z.string(),
@@ -202,7 +192,7 @@ export interface ChatState {
   messages: ChatMessage[]
   isLoading: boolean
   isTyping: boolean
-  currentStep: ConversationStep
+  currentStep: 'initial' | 'class_setup' | 'survey_creation' | 'survey_setup' | 'constraint_setting' | 'optimization_execution' | 'result_confirmation'
   optimizationJob: OptimizationJob | null
   error: string | null
 }

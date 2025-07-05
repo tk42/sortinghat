@@ -3,10 +3,10 @@ export type MIScore = [number, number, number, number, number, number, number, n
 export interface School {
     id: number;
     name: string;
-    postal_code: string;
-    prefecture: string;
-    city: string;
-    address: string;
+    postal_code?: string;
+    prefecture?: string;
+    city?: string;
+    address?: string;
 }
 
 export interface Teacher {
@@ -76,7 +76,7 @@ export interface StudentDislike {
 export interface StudentPreference {
     id: number;
     student?: Student; // Optional for compatibility with both nested and flat structures
-    student_no?: number; // For backward compatibility
+    // student_no?: number; // For backward compatibility
     survey?: Survey;
     team?: Team;  // 未使用？
     previous_team: number;

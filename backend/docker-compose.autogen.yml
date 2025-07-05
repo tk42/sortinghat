@@ -8,21 +8,22 @@ services:
     working_dir: "/src"
     command: generate
 
-  migration:
-    image: ghcr.io/tk42/goose:latest
-    platform: linux/amd64
-    env_file:
-      - ../.env.local
-      # - ../.env.production
-      # - .env.qa
-    working_dir: "/src"
-    volumes:
-      - "./sql/schema:/src"
-    depends_on:
-      - sqlc
-      - postgres
-    command: "up"
-    # command: "reset"
+  # Use docker-compose.local.yml
+  # migration:
+  #   image: ghcr.io/tk42/goose:latest
+  #   platform: linux/amd64
+  #   env_file:
+  #     - ../.env.local
+  #     # - ../.env.production
+  #     # - .env.qa
+  #   working_dir: "/src"
+  #   volumes:
+  #     - "./sql/schema:/src"
+  #   depends_on:
+  #     - sqlc
+  #     - postgres
+  #   command: "up"
+  #   # command: "reset"
 
   postgres:
     image: postgres:latest

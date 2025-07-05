@@ -41,7 +41,7 @@ export async function GET(
       )
     }
 
-    // 最適化結果を取得 (最新1件)
+    // 最適化結果を取得
     const resultsQuery = `
       query GetMatchingResults($survey_id: bigint!) {
         matching_results(

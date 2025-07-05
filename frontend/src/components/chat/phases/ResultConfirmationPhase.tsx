@@ -145,7 +145,7 @@ const ResultConfirmationPhase: React.FC<ResultConfirmationPhaseProps> = ({
       }
 
       toastHelpers.info('保存中', '班分け結果を保存しています...');
-      await updateStudentTeams(teamsMapping, matchingResult.survey.id);
+      await updateStudentTeams(teamsMapping, matchingResult.survey.id, matchingResult.constraint);
       toastHelpers.success('保存完了', '班分け結果を保存しました');
     } catch (error) {
       console.error('Error saving matching results:', error);
@@ -190,7 +190,7 @@ const ResultConfirmationPhase: React.FC<ResultConfirmationPhaseProps> = ({
 
       <div className="flex-1 overflow-y-auto px-6 py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {teamsArray.map((team, index) => {
+          {teamsArray.map((team: any, index) => {
             const colorIndex = index % colors.length;
             
             const studentDislikeTable = (

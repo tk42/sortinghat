@@ -47,7 +47,9 @@ export default function StudentPreferences({
     })
 
     // 自分自身を dislikes に含む場合を判定
-    const hasSelfDislike = studentPreferences.some(pref => pref.student_dislikes.some(d => d.student_id === pref.student.id));
+    const hasSelfDislike = studentPreferences.some(pref => 
+        Array.isArray(pref.student_dislikes) && pref.student && pref.student_dislikes.some(d => d.student_id === pref.student!.id)
+    );
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         if (acceptedFiles.length === 0) return
@@ -100,12 +102,14 @@ export default function StudentPreferences({
         setEditingId(preference.id.toString());
         setEditingValues(preference);
         setDislikesInput(
-            preference.student_dislikes
-                .map(dislike =>
-                    studentPreferences.find(p => p.student.id === dislike.student_id)?.student.student_no
-                )
-                .filter(no => no !== undefined)
-                .join(', ')
+            Array.isArray(preference.student_dislikes)
+                ? preference.student_dislikes
+                    .map(dislike =>
+                        studentPreferences.find(p => p.student?.id === dislike.student_id)?.student?.student_no
+                    )
+                    .filter(no => no !== undefined)
+                    .join(', ')
+                : ''
         );
     };
 
@@ -127,7 +131,7 @@ export default function StudentPreferences({
     const handleMatching = async () => {
         try {
             // survey_idを取得（student_preferencesから）
-            const survey: Survey = studentPreferences[0]?.survey
+            const survey = studentPreferences[0]?.survey
 
             if (!survey) {
                 throw new Error('Survey ID not found')
@@ -159,7 +163,7 @@ export default function StudentPreferences({
                 return
             }
 
-            await updateStudentTeams(result.data, survey.id)
+            await updateStudentTeams(result.data, survey.id, constraint)
 
             toast.success('マッチングを見つけました', {
                 id: loadingToastId,
@@ -426,14 +430,14 @@ export default function StudentPreferences({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {studentPreferences.sort((a, b) => a.student.student_no - b.student.student_no).map((preference) => (
-                                <tr key={preference.id} className={preference.student.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}>
+                            {studentPreferences.sort((a, b) => (a.student?.student_no || 0) - (b.student?.student_no || 0)).map((preference) => (
+                                <tr key={preference.id} className={preference.student?.sex === 1 ? 'bg-blue-50' : 'bg-pink-50'}>
                                     {editingId === preference.id.toString() ? (
                                         <>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
                                                     type="text"
-                                                    value={editingValues?.student.student_no || ''}
+                                                    value={editingValues?.student?.student_no || ''}
                                                     onChange={(e) => {
                                                         if (!editingValues) return;
                                                         const value = e.target.value === '' ? '' : Number(e.target.value);
@@ -449,7 +453,7 @@ export default function StudentPreferences({
                                                 />
                                             </td>
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                                                {preference.student.name}
+                                                {preference.student?.name}
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <input
@@ -650,8 +654,8 @@ export default function StudentPreferences({
                                                             .filter(tok => tok !== '')
                                                             .map(tok => {
                                                                 const num = parseInt(tok);
-                                                                const found = studentPreferences.find(p => p.student.student_no === num);
-                                                                return { student_id: found?.student.id || 0, updated_at: new Date().toISOString() } as StudentDislike;
+                                                                const found = studentPreferences.find(p => p.student?.student_no === num);
+                                                                return { student_id: found?.student?.id || 0, updated_at: new Date().toISOString() } as StudentDislike;
                                                             });
                                                         setEditingValues({ ...editingValues, student_dislikes: ids } as StudentPreference);
                                                     }}
@@ -720,12 +724,12 @@ export default function StudentPreferences({
                                                 })()}
                                             </td>
                                             <td className="whitespace-wrap px-3 py-4 text-sm text-gray-500">
-                                                {preference.student_dislikes?.map((dislike, index) => {
-                                                    const isSelf = dislike.student_id === preference.student.id;
+                                                {Array.isArray(preference.student_dislikes) && preference.student_dislikes.map((dislike, index) => {
+                                                    const isSelf = dislike.student_id === preference.student?.id;
                                                     return (
                                                         <span key={dislike.student_id} className="inline-flex items-center">
                                                             {index > 0 && ", "}
-                                                            {studentPreferences.find(p => p.student.id === dislike.student_id)?.student.name || `学生ID: ${dislike.student_id}`}
+                                                            {studentPreferences.find(p => p.student?.id === dislike.student_id)?.student?.name || `学生ID: ${dislike.student_id}`}
                                                             {isSelf && (
                                                                 <ExclamationTriangleIcon
                                                                     className="ml-1 h-5 w-5 text-yellow-500 cursor-pointer"

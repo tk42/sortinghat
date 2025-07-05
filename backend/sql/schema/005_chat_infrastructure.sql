@@ -28,6 +28,8 @@ CREATE TABLE CHAT_MESSAGES (
 ALTER TABLE matching_results
   ADD COLUMN constraints_json jsonb NOT NULL DEFAULT '{}'::jsonb;
 
+ALTER TABLE TEACHERS ADD CONSTRAINT teachers_firebase_uid_key UNIQUE (firebase_uid);
+
 -- Indexes for performance
 CREATE INDEX idx_conversations_teacher_id ON CONVERSATIONS(teacher_id);
 CREATE INDEX idx_conversations_session_id ON CONVERSATIONS(session_id);
@@ -43,6 +45,8 @@ DROP INDEX IF EXISTS idx_conversations_session_id;
 DROP INDEX IF EXISTS idx_conversations_teacher_id;
 
 ALTER TABLE matching_results DROP COLUMN IF EXISTS constraints_json;
+
+ALTER TABLE TEACHERS DROP CONSTRAINT IF EXISTS teachers_firebase_uid_key;
 
 DROP TABLE IF EXISTS CHAT_MESSAGES;
 DROP TABLE IF EXISTS CONVERSATIONS;

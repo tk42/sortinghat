@@ -14,7 +14,10 @@ export class ClassService extends BaseService<Class, CreateClassForm, Partial<Cr
   /**
    * Import class from CSV file
    */
-  async importFromCSV(file: File): Promise<APIResponse<Class>> {
+  async importFromCSV(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<APIResponse<Class>> {
     return this.uploadFile('/import', file)
   }
 

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { APIResponse } from '@/src/lib/types'
 
 export interface UseServiceState<T> {
@@ -43,13 +43,13 @@ export function useService<T>(
       
       if (response.success) {
         setState({
-          data: response.data,
+          data: response.data || null,
           loading: false,
           error: null,
           code: undefined,
         })
         
-        if (options.onSuccess) {
+        if (options.onSuccess && response.data !== undefined) {
           options.onSuccess(response.data)
         }
       } else {
@@ -94,7 +94,7 @@ export function useService<T>(
   }, [])
 
   // Execute immediately if requested
-  React.useEffect(() => {
+  useEffect(() => {
     if (options.immediate) {
       execute()
     }
@@ -203,7 +203,7 @@ export function useServiceCRUD<T, CreateInput = Partial<T>, UpdateInput = Partia
       if (options.onSuccess) {
         options.onSuccess(action, response.data)
       }
-      return response.data
+      return response.data || null
     } else {
       const errorMsg = response.error || 'Unknown error occurred'
       setError(errorMsg)

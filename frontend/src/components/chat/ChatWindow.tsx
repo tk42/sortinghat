@@ -15,7 +15,7 @@ import PhaseRenderer from './PhaseRenderer'
 import { useChatLogic } from '@/src/hooks/chat/useChatLogic'
 
 // Type for internal back handler ref
-type BackHandler = () => boolean
+export type BackHandler = () => boolean
 
 const ChatWindow: React.FC = () => {
   const mounted = useMounted()

@@ -4,7 +4,8 @@ export type { CRUDOperations, ListOptions, PaginationOptions, SortOptions, Filte
 
 // API Client
 export { apiClient, graphqlClient, APIClient, GraphQLClient } from './apiClient'
-export type { APIResponse, RequestConfig } from './apiClient'
+export type { RequestConfig } from './apiClient'
+export type { APIResponse } from '@/src/lib/types'
 
 // Service implementations
 export { classService, ClassService } from './classService'
